@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"   xmlns:th="http://www.thymeleaf.org" lang="en">
+<head lang="en">
+    <meta charset="UTF-8" />
+    <title>Samlib Web Project</title>
+</head>
+<body>
+
+<div id="AuthorList" th:fragment="authorList">
+    <div>
+        <span>Add Author:</span>
+        <input id="newAuthorUrl" type="text"/>
+        <button onclick="samlib.addAuthor('#newAuthorUrl')">Add</button>
+    </div>
+    <span th:if="${user}" th:text="${user.name}">user name</span><br />
+    <span th:unless="${user}">No user logged</span>
+    <table>
+        <thead>
+            <tr><td>AUTHOR ID</td><td>AUTHOR NAME</td><td>AUTHOR URL</td></tr>
+        </thead>
+        <tbody>
+        <tr th:each="author : ${authors}">
+            <td th:text="${author.id}">id</td>
+            <td th:text="${author.name}">name</td>
+            <td th:text="${author.link}" th:attr="onclick='javascript:samlib.getDetails(\'' + ${author.id} + '\');'">url</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="AuthorDetails" th:fragment="authorDetails">
+    <span th:if="${user}" th:text="${user.name}">user name</span><br />
+    <span th:unless="${user}">No user logged</span>
+    <table>
+        <tr><td>Author ID:</td><td th:text="${author.id}">author.id</td></tr>
+        <tr><td>Author NAME:</td><td th:text="${author.name}">author.name</td></tr>
+        <tr><td>Author URL:</td><td th:text="${author.link}">author.link</td></tr>
+    </table>
+</div>
+
+</body>
+</html>
