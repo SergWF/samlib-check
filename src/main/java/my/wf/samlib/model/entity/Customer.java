@@ -1,17 +1,22 @@
 package my.wf.samlib.model.entity;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created with IntelliJ IDEA.
- * User: SBilenogov
- */
+@Entity
+@Table(name="customer")
+@AttributeOverride(name="name", column=@Column(name="name", unique = true))
 public class Customer extends BaseEntity {
     private Set<Author> authors = new HashSet<Author>();
     private Set<Writing> unreadWritings = new HashSet<Writing>();
-    private boolean enabled;
 
+
+    @ManyToMany
+    @JoinTable(name = "customer_author"
+            , joinColumns = @JoinColumn(name = "customer_id")
+            , inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
     public Set<Author> getAuthors(){
         return authors;
     }
@@ -20,6 +25,11 @@ public class Customer extends BaseEntity {
         this.authors = authors;
     }
 
+    @ManyToMany
+    @JoinTable(name = "customer_unread_writing"
+            , joinColumns = @JoinColumn(name = "customer_id")
+            , inverseJoinColumns = @JoinColumn(name = "writing_id")
+    )
     public Set<Writing> getUnreadWritings(){
         return unreadWritings;
     }
@@ -28,12 +38,6 @@ public class Customer extends BaseEntity {
         this.unreadWritings = unreadWritings;
     }
 
-    public boolean isEnabled(){
-        return enabled;
-    }
-    public void setEnabled(boolean enabled){
-        this.enabled = enabled;
-    }
 
     public boolean checkAuthorUnread(Author author){
         for(Writing w: author.getWritings()){

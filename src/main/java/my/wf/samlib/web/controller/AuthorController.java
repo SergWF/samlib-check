@@ -1,12 +1,14 @@
 package my.wf.samlib.web.controller;
 
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.web.service.SecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Collections;
 import java.util.Date;
@@ -15,7 +17,8 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/author")
-public class AuthorController {
+public class AuthorController extends BaseController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
     private Map<Long, Author> authors = new HashMap<>();
 
@@ -34,17 +37,6 @@ public class AuthorController {
         return author;
     }
 
-    private Author createAuthor() {
-        return createAuthor("http://example.com/author/"+new Date().getTime());
-    }
-
-    @Autowired
-    SecurityService securityService;
-
-    @ModelAttribute(value = "user")
-    public Customer getActiveCustomer(){
-        return securityService.getActiveCustomer();
-    }
 
     @RequestMapping("/list")
     public String getAuthors(Model model){
@@ -58,14 +50,10 @@ public class AuthorController {
         return WebConstants.AUTHOR_DETAILS;
     }
 
-    private Author findAuthor(long authorId) {
-        return authors.get(authorId);
-    }
 
     @RequestMapping(method = RequestMethod.POST)
-
     public String addAuthor(@RequestParam("author_url") String authorUrl){
-        System.out.println("ADD AUTHOR BY URL: " + authorUrl);
+        logger.info("ADD AUTHOR BY URL: " + authorUrl);
         createAuthor();
         return WebConstants.AUTHORS_LIST;
     }
@@ -75,6 +63,14 @@ public class AuthorController {
             return 1;
         }
         return Collections.max(authors.keySet()) + 1;
+    }
+
+    private Author findAuthor(long authorId) {
+        return authors.get(authorId);
+    }
+
+    private Author createAuthor() {
+        return createAuthor("http://example.com/author/"+new Date().getTime());
     }
 
 }

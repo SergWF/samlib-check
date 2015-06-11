@@ -1,11 +1,17 @@
 package my.wf.samlib.model.entity;
 
 
+import javax.persistence.*;
+
+@MappedSuperclass
 public abstract class BaseEntity{
     private Long id;
     private String name;
 
 
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
@@ -14,6 +20,7 @@ public abstract class BaseEntity{
         this.id = id;
     }
 
+    @Column(name = "name")
     public String getName() {
         return name;
     }

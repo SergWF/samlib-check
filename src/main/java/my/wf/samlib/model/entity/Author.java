@@ -1,14 +1,17 @@
 package my.wf.samlib.model.entity;
 
+import javax.persistence.*;
 import java.util.*;
 
 
+@Entity
+@Table(name = "author")
 public class Author extends BaseEntity  {
 
     private Set<Writing> writings = new HashSet<Writing>();
     private String link;
 
-
+    @Column(name="link")
     public String getLink() {
         return link;
     }
@@ -17,6 +20,7 @@ public class Author extends BaseEntity  {
         this.link = link;
     }
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE, orphanRemoval = true)
     public Set<Writing> getWritings() {
         return writings;
     }
@@ -25,6 +29,7 @@ public class Author extends BaseEntity  {
         this.writings = writings;
     }
 
+    @Transient
     public Date getLastChangedDate() {
         if(writings.isEmpty()){
             return null;
@@ -37,6 +42,7 @@ public class Author extends BaseEntity  {
         return writing.getLastChangedDate();
     }
 
+    @Transient
     public Boolean unreadByCustomer(Customer customer) {
         for (Writing writing : customer.getUnreadWritings()) {
             if (writing.getAuthor().equals(this)) {

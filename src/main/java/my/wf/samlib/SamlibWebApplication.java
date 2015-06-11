@@ -1,7 +1,6 @@
-package my.wf.samlib.web;
+package my.wf.samlib;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication

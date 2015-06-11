@@ -1,11 +1,10 @@
 package my.wf.samlib.model.entity;
 
+import javax.persistence.*;
 import java.util.Date;
 
-/**
- * Created with IntelliJ IDEA.
- * User: SBilenogov
- */
+@Entity
+@Table(name = "writing")
 public class Writing extends BaseEntity {
     private String link;
     private Author author;
@@ -14,6 +13,7 @@ public class Writing extends BaseEntity {
     private String size;
     private Date lastChangedDate;
 
+    @Column(name="link")
     public String getLink() {
         return link;
     }
@@ -22,6 +22,8 @@ public class Writing extends BaseEntity {
         this.link = link;
     }
 
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     public Author getAuthor() {
         return author;
     }
@@ -30,7 +32,7 @@ public class Writing extends BaseEntity {
         this.author = author;
     }
 
-
+    @Column(name = "description")
     public String getDescription() {
         return description;
     }
@@ -39,6 +41,7 @@ public class Writing extends BaseEntity {
         this.description = description;
     }
 
+    @Column(name = "size")
     public String getSize() {
         return size;
     }
@@ -47,6 +50,8 @@ public class Writing extends BaseEntity {
         this.size = size;
     }
 
+    @Column(name = "last_changed_date")
+    @Temporal(TemporalType.TIMESTAMP)
     public Date getLastChangedDate() {
         return lastChangedDate;
     }
@@ -55,6 +60,7 @@ public class Writing extends BaseEntity {
         this.lastChangedDate = lastChangedDate;
     }
 
+    @Column(name = "group_name")
     public String getGroupName() {
         return groupName;
     }
@@ -63,6 +69,7 @@ public class Writing extends BaseEntity {
         this.groupName = groupName;
     }
 
+    @Transient
     public Boolean unreadByCustomer(Customer customer) {
         return customer.getUnreadWritings().contains(this);
     }
