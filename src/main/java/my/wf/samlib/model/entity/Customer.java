@@ -6,7 +6,9 @@ import java.util.Set;
 
 @Entity
 @Table(name="customer")
-@AttributeOverride(name="name", column=@Column(name="name", unique = true))
+@AttributeOverrides({
+        @AttributeOverride(name="name", column=@Column(name="name", unique = true))
+})
 public class Customer extends BaseEntity {
     private Set<Author> authors = new HashSet<Author>();
     private Set<Writing> unreadWritings = new HashSet<Writing>();

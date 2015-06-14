@@ -72,13 +72,13 @@ public class UserData implements UserDetails {
     @Override
     @Transient
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     @Transient
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
@@ -105,9 +105,20 @@ public class UserData implements UserDetails {
         GrantedAuthority a = new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return role.name();
+                return "ROLE_" + role.name();
             }
         };
         return Arrays.asList(a);
+    }
+
+    @Override
+    public String toString() {
+        return "UserData{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", role=" + role +
+                ", enabled=" + enabled +
+                '}';
     }
 }

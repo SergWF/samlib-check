@@ -1,9 +1,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="../static/css/samlib.css" th:href="@{/css/samlib.css}"
-          rel="stylesheet" media="screen" />
-    <script type="application/javascript" th:if="${user}" onload="getAuthors">
+    <link href="../static/css/samlib.css" th:href="@{/css/samlib.css}"  rel="stylesheet" media="screen" />
+    <script type="application/javascript" th:if="${user}" onload="getAuthors" th:inline="javascript">
+
         var samlib = (function(){
 
             function doAsyncGet(url, callback){
@@ -27,7 +27,8 @@
                         }
                 };
                 xmlHttp.open("POST",url,true);
-                xmlHttp.send(params);
+                xmlHttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                xmlHttp.send(JSON.stringify(params));
             }
 
             return {
@@ -45,8 +46,9 @@
                 addAuthor: function(urlInputId){
                     var url = document.querySelector(urlInputId).value;
                     console.log("Add Author by URL:", url);
-                    doAsyncPost("author", "url="+encodeURIComponent(url), function(){
-
+                    var params = {"url":url};
+                    doAsyncPost("/author", params, function(){
+                        document.getElementById("listBlock").innerHTML=responseText;
                     });
 
                 },

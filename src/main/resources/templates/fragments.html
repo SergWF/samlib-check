@@ -38,5 +38,23 @@
     </table>
 </div>
 
+<div th:object="${user}" th:fragment="adminUserView">
+    <div>
+        <span>Username:</span>
+        <span th:text="*{username}"></span>
+    </div>
+    <div>
+        <span>Password:</span>
+        <span th:text="*{password}"></span>
+    </div>
+    <div>
+        <input type="checkbox" th:checked="*{enabled}">Enabled</input>
+    </div>
+</div>
+
+<div >
+
+</div>
+
 </body>
 </html>

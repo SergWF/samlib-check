@@ -20,7 +20,7 @@ public class Author extends BaseEntity  {
         this.link = link;
     }
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     public Set<Writing> getWritings() {
         return writings;
     }

@@ -27,7 +27,7 @@ public class UserDto {
         this.email = email;
     }
 
-    @Length(min = 6)
+    @Length(min = 1)
     public String getPassword() {
         return password;
     }
@@ -43,5 +43,14 @@ public class UserDto {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", nickName='" + nickName + '\'' +
+                '}';
     }
 }

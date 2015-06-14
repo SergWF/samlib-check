@@ -1,4 +1,10 @@
 package my.wf.samlib.service;
 
-public class SamlibService {
+
+import my.wf.samlib.model.entity.Customer;
+
+public interface SamlibService {
+
+    Customer getDefaultCustomer();
+
 }
