@@ -24,13 +24,13 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author addAuthor(String url) {
-        Author author = new Author();
+        Author author = authorRepository.findByLink(url);
+        if(null != author){
+            return author;
+        }
         author.setName("author " + url);
         author.setLink(url);
         return authorRepository.save(author);
-//        customer.listAuthors().add(author);
-//        customerRepository.save(customer);
-//        return author;
     }
 
     @Override

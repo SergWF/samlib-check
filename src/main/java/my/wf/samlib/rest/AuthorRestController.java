@@ -2,11 +2,13 @@ package my.wf.samlib.rest;
 
 import my.wf.samlib.hateoas.HateoasResourceBuilder;
 import my.wf.samlib.model.dto.NewAuthorDto;
+import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.CustomerService;
 import my.wf.samlib.service.SamlibService;
+import my.wf.samlib.updater.AuthorUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class AuthorRestController {
     CustomerService customerService;
     @Autowired
     SamlibService samlibService;
+    @Autowired
+    AuthorUpdater updater;
 
 
     @RequestMapping("/list")
@@ -56,6 +60,12 @@ public class AuthorRestController {
         Author author = authorService.addAuthor(newAuthorDto.getUrl());
         customerService.addAuthor(getActiveCustomer(), author);
         return HateoasResourceBuilder.createResource(author);
+    }
+
+    @RequestMapping(value = "/update")
+    @ResponseBody
+    public UpdatingProcessDto updateAuthors(){
+        return  updater.updateAll();
     }
 
 

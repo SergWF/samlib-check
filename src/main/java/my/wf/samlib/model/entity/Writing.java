@@ -11,7 +11,9 @@ public class Writing extends BaseEntity {
     private String description;
     private String groupName;
     private String size;
+    private String prevSize;
     private Date lastChangedDate;
+    private Date samlibDate;
 
     @Column(name="link")
     public String getLink() {
@@ -50,6 +52,15 @@ public class Writing extends BaseEntity {
         this.size = size;
     }
 
+    @Column(name = "prev_size")
+    public String getPrevSize() {
+        return prevSize;
+    }
+
+    public void setPrevSize(String prevSize) {
+        this.prevSize = prevSize;
+    }
+
     @Column(name = "last_changed_date")
     @Temporal(TemporalType.TIMESTAMP)
     public Date getLastChangedDate() {
@@ -67,6 +78,16 @@ public class Writing extends BaseEntity {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    @Column(name = "samlib_date")
+    @Temporal(TemporalType.DATE)
+    public Date getSamlibDate() {
+        return samlibDate;
+    }
+
+    public void setSamlibDate(Date samlibDate) {
+        this.samlibDate = samlibDate;
     }
 
     @Transient
