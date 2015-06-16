@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Component
-public class AuthorUpdater {
-    private static final Logger logger = LoggerFactory.getLogger(AuthorUpdater.class);
+public class AuthorChecker {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorChecker.class);
     private static final AtomicBoolean updateFlag = new AtomicBoolean(false);
 
     @Autowired
@@ -33,7 +33,7 @@ public class AuthorUpdater {
     private static final AtomicInteger processed = new AtomicInteger(0);
 
     @Async
-    public UpdatingProcessDto updateAll(){
+    public UpdatingProcessDto checkAll(){
         if(updateFlag.get()){
             return getProcess();
         }

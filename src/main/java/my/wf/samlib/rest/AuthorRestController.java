@@ -1,5 +1,6 @@
 package my.wf.samlib.rest;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import my.wf.samlib.hateoas.HateoasResourceBuilder;
 import my.wf.samlib.model.dto.NewAuthorDto;
 import my.wf.samlib.model.dto.UpdatingProcessDto;
@@ -8,7 +9,7 @@ import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.CustomerService;
 import my.wf.samlib.service.SamlibService;
-import my.wf.samlib.updater.AuthorUpdater;
+import my.wf.samlib.updater.AuthorChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +30,26 @@ public class AuthorRestController {
     @Autowired
     SamlibService samlibService;
     @Autowired
-    AuthorUpdater updater;
+    AuthorChecker authorChecker;
 
 
-    @RequestMapping("/list")
+    @ApiOperation(value = "Returns list of all subscribed Authors")
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
     public Resources<Resource<Author>> listAuthors(){
         logger.info("GET AUTHORS LIST");
         return HateoasResourceBuilder.createResourceList(customerService.getAuthorsList(getActiveCustomer()));
     }
 
+    @ApiOperation(value = "Returns list of unread Authors")
     @RequestMapping(value = "/unread", method = RequestMethod.GET)
     public Resources<Resource<Author>> getUnread(){
         logger.info("GET UNREAD AUTHORS LIST");
         return HateoasResourceBuilder.createResourceList(customerService.getUnreadAuthors(getActiveCustomer()));
     }
 
-    @RequestMapping(value = "/{authorId}")
+    @ApiOperation(value = "Returns Author's data")
+    @RequestMapping(value = "/{authorId}", method = RequestMethod.GET)
     @ResponseBody
     public Resource<Author> getDetails(@PathVariable long authorId) {
         logger.info("GET AUTHOR BY ID {}", authorId);
@@ -53,6 +57,7 @@ public class AuthorRestController {
     }
 
 
+    @ApiOperation(value = "Adds new author")
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Resource<Author> addAuthor(@RequestBody NewAuthorDto newAuthorDto){
@@ -62,10 +67,11 @@ public class AuthorRestController {
         return HateoasResourceBuilder.createResource(author);
     }
 
-    @RequestMapping(value = "/update")
+    @ApiOperation(value = "Triggers check of author updates")
+    @RequestMapping(value = "/check", method = RequestMethod.GET)
     @ResponseBody
-    public UpdatingProcessDto updateAuthors(){
-        return  updater.updateAll();
+    public UpdatingProcessDto checkAuthors(){
+        return  authorChecker.checkAll();
     }
 
 
