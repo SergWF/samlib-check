@@ -1,20 +1,20 @@
 package my.wf.samlib.updater;
 
-import my.wf.samlib.exception.PageReadException;
 import my.wf.samlib.exception.SamlibException;
 import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
+import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.updater.parser.AuthorChangesChecker;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,11 +26,47 @@ public class AuthorChecker {
     private static final Logger logger = LoggerFactory.getLogger(AuthorChecker.class);
     private static final AtomicBoolean updateFlag = new AtomicBoolean(false);
 
-    @Autowired
-    AuthorRepository authorRepository;
+    private String linkSuffix;
+
+    private AuthorRepository authorRepository;
+    private AuthorChangesChecker authorChangesChecker;
+    private SamlibAuthorParser samlibAuthorParser;
+    private SamlibPageReader samlibPageReader;
+    private CustomerService customerService;
 
     private static final AtomicInteger total = new AtomicInteger(0);
     private static final AtomicInteger processed = new AtomicInteger(0);
+
+
+    @Value("${link.suffix}")
+    public void setLinkSuffix(String linkSuffix) {
+        this.linkSuffix = linkSuffix;
+    }
+
+    @Autowired
+    public void setAuthorRepository(AuthorRepository authorRepository) {
+        this.authorRepository = authorRepository;
+    }
+
+    @Autowired
+    public void setAuthorChangesChecker(AuthorChangesChecker authorChangesChecker) {
+        this.authorChangesChecker = authorChangesChecker;
+    }
+
+    @Autowired
+    public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {
+        this.samlibAuthorParser = samlibAuthorParser;
+    }
+
+    @Autowired
+    public CustomerService getCustomerService() {
+        return customerService;
+    }
+
+    @Autowired
+    public void setSamlibPageReader(SamlibPageReader samlibPageReader) {
+        this.samlibPageReader = samlibPageReader;
+    }
 
     @Async
     public UpdatingProcessDto checkAll(){
@@ -38,7 +74,7 @@ public class AuthorChecker {
             return getProcess();
         }
         updateFlag.set(true);
-        doUpdate();
+        doCheckUpdates();
         updateFlag.set(false);
         return getProcess();
     }
@@ -47,61 +83,52 @@ public class AuthorChecker {
         return new UpdatingProcessDto(total.get(), processed.get());
     }
 
-    protected void doUpdate(){
-        List<Author> authors = authorRepository.findAll();
+    protected void doCheckUpdates(){
+        List<Author> authors = authorRepository.findAllWithWritings();
         total.set(authors.size());
         processed.set(0);
-        logger.info("update authors, found {} records", authors.size());
+        logger.info("checkUpdates authors, found {} records", authors.size());
+        Date checkDate = new Date();
         for(Author author: authors){
             try {
-                authorRepository.save(update(author));
+                authorRepository.save(checkUpdates(author));
                 processed.getAndAdd(1);
             } catch (SamlibException e) {
-                logger.error("Can not update author", e);
+                logger.error("Can not checkUpdates author", e);
             }
         }
-        logger.info("update finished for {} authors", authors.size());
+        customerService.updateUnreadWritings(checkDate);
+        logger.info("checkUpdates finished for {} authors", authors.size());
     }
 
 
-    Author update(Author author) {
+
+
+    protected Author checkUpdates(Author author) {
         logger.info("check author {}", author.getName());
         Date checkDate = new Date();
         int updateCount = 0;
-        String pageString = null;
-        try {
-            pageString = new SamlibPageReader().readPage(author.getLink());
-        } catch (IOException e) {
-            throw new PageReadException(e);
-        }
-        Author newAuthor = new SamlibAuthorParser().parse(author.getLink(), pageString);
-        for(Writing writing: newAuthor.getWritings()){
-            Writing oldWriting = findOldWriting(author, writing.getLink());
-            if(checkUpdated(writing, oldWriting)){
-                writing.setLastChangedDate(checkDate);
-                writing.setPrevSize((null == oldWriting)?null:oldWriting.getSize());
-            }
-        }
+        String fullLink = getFullAuthorLink(author.getLink());
+        String pageString = samlibPageReader.readPage(fullLink);
+        Author newAuthor = samlibAuthorParser.parse(author.getLink(), pageString);
+        newAuthor.setId(author.getId());
+        authorChangesChecker.checkUpdatedWritings(newAuthor, author, checkDate);
         logger.info("checked {},  {} new writings", author.getName(), updateCount);
         return newAuthor;
     }
 
-    protected boolean checkUpdated(Writing newWriting, Writing oldWriting){
-        return !(null != oldWriting
-                && newWriting.getDescription().equals(oldWriting.getDescription())
-                && newWriting.getSize().equals(oldWriting.getSize())
-                && newWriting.getGroupName().equals(oldWriting.getGroupName())
-                && newWriting.getSamlibDate().after(oldWriting.getSamlibDate())
-        );
+    protected String getShortAuthorLink(String authorBaseLink){
+        return authorBaseLink.endsWith(linkSuffix)
+                ? authorBaseLink.substring(0, authorBaseLink.length() - linkSuffix.length())
+                : authorBaseLink;
+    }
+
+    protected String getFullAuthorLink(String authorBaseLink){
+        return authorBaseLink.endsWith(linkSuffix)
+                ? authorBaseLink
+                :(authorBaseLink.endsWith("/")?authorBaseLink + linkSuffix: authorBaseLink +"/"+ linkSuffix);
 
     }
 
-    protected Writing findOldWriting(Author author, String writingLink){
-        for(Writing writing: author.getWritings()){
-            if(writing.getLink().equals(writingLink)){
-                return writing;
-            }
-        }
-        return null;
-    }
+
 }

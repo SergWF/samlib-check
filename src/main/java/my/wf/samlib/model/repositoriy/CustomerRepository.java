@@ -7,11 +7,25 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("SELECT c, a, w, u FROM Customer c LEFT JOIN FETCH c.authors a LEFT JOIN FETCH a.writings w LEFT JOIN FETCH c.unreadWritings u WHERE c.id=:customerId")
-    Customer getWithFullAuthorList(@Param("customerId") long customerId);
+    Customer findOneWithFullData(@Param("customerId") long customerId);
+
+    @Query("SELECT COUNT(a) FROM Customer c INNER JOIN c.authors a WHERE c.id = :customerId")
+    Integer subscriptionCount(@Param("customerId") Long customerId);
+
+    @Query("SELECT DISTINCT COUNT(u.author) FROM Customer c INNER JOIN c.unreadWritings u  WHERE c.id = :customerId")
+    Integer notReadCount(@Param("customerId") Long customerId);
+
+    @Query("SELECT MAX(w.lastChangedDate) FROM Customer c INNER JOIN c.authors a INNER JOIN a.writings w WHERE c.id = :customerId")
+    Date getLastChangedDate(@Param("customerId") Long customerId);
+
+    @Query("SELECT w, w.author FROM Writing w INNER JOIN w.customers c WHERE c.id = :customerId")
+    Set<Author> findUnreadAuthors(@Param("customerId") Long customerId);
 }

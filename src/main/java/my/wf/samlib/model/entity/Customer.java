@@ -1,5 +1,7 @@
 package my.wf.samlib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +21,7 @@ public class Customer extends BaseEntity {
             , joinColumns = @JoinColumn(name = "customer_id")
             , inverseJoinColumns = @JoinColumn(name = "author_id")
     )
+    @JsonManagedReference
     public Set<Author> getAuthors(){
         return authors;
     }
@@ -32,6 +35,7 @@ public class Customer extends BaseEntity {
             , joinColumns = @JoinColumn(name = "customer_id")
             , inverseJoinColumns = @JoinColumn(name = "writing_id")
     )
+    @JsonManagedReference
     public Set<Writing> getUnreadWritings(){
         return unreadWritings;
     }

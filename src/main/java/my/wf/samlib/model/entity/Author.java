@@ -1,17 +1,23 @@
 package my.wf.samlib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import my.wf.samlib.model.compare.LastChangedDateComparator;
+import my.wf.samlib.model.compare.LastDate;
+
 import javax.persistence.*;
 import java.util.*;
 
 
 @Entity
 @Table(name = "author")
-public class Author extends BaseEntity  {
+public class Author extends BaseEntity implements LastDate  {
 
     private Set<Writing> writings = new HashSet<Writing>();
     private String link;
+    private Set<Customer> subscribers = new HashSet<>();
 
-    @Column(name="link")
+    @Column(name="link", unique = true)
     public String getLink() {
         return link;
     }
@@ -21,6 +27,7 @@ public class Author extends BaseEntity  {
     }
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     public Set<Writing> getWritings() {
         return writings;
     }
@@ -29,17 +36,27 @@ public class Author extends BaseEntity  {
         this.writings = writings;
     }
 
+    @ManyToMany//(mappedBy = "authors")
+    @JoinTable(name = "customer_author"
+            , joinColumns = @JoinColumn(name = "author_id")
+            , inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
+    @JsonBackReference
+    public Set<Customer> getSubscribers() {
+        return subscribers;
+    }
+
+    public void setSubscribers(Set<Customer> subscribers) {
+        this.subscribers = subscribers;
+    }
+
     @Transient
+    @Override
     public Date getLastChangedDate() {
         if(writings.isEmpty()){
             return null;
         }
-        Writing writing = Collections.max(writings, new Comparator<Writing>() {
-            public int compare(Writing o1, Writing o2) {
-                return o1.getLastChangedDate().compareTo(o2.getLastChangedDate());
-            }
-        });
-        return writing.getLastChangedDate();
+        return Collections.max(writings, new LastChangedDateComparator()).getLastChangedDate();
     }
 
     @Transient
@@ -58,6 +75,9 @@ public class Author extends BaseEntity  {
                 "id='" + getId() + '\'' +
                 ", name='" + getName() + '\'' +
                 ", link='" + link + '\'' +
+                ", writings=[" +
+                getWritings().toString() +
+                "]"+
                 '}';
     }
 }

@@ -1,4 +1,4 @@
-package my.wf.samlib.hateoas;
+package my.wf.samlib.rest.hateoas;
 
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.rest.AuthorRestController;

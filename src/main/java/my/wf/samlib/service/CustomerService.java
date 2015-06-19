@@ -1,9 +1,11 @@
 package my.wf.samlib.service;
 
+import my.wf.samlib.model.dto.StatisticDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Writing;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CustomerService {
@@ -19,4 +21,9 @@ public interface CustomerService {
     List<Author> getAuthorsList(Customer customer);
 
     List<Author>  getUnreadAuthors(Customer activeCustomer);
+
+    StatisticDto getStatistic(Customer customer);
+
+    void updateUnreadWritings(Date lastCheckDate);
+
 }

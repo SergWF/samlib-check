@@ -1,11 +1,16 @@
 package my.wf.samlib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import my.wf.samlib.model.compare.LastDate;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "writing")
-public class Writing extends BaseEntity {
+public class Writing extends BaseEntity implements LastDate {
     private String link;
     private Author author;
     private String description;
@@ -14,6 +19,7 @@ public class Writing extends BaseEntity {
     private String prevSize;
     private Date lastChangedDate;
     private Date samlibDate;
+    private Set<Customer> customers = new HashSet<>();
 
     @Column(name="link")
     public String getLink() {
@@ -26,6 +32,7 @@ public class Writing extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
+    @JsonBackReference
     public Author getAuthor() {
         return author;
     }
@@ -34,7 +41,7 @@ public class Writing extends BaseEntity {
         this.author = author;
     }
 
-    @Column(name = "description")
+    @Column(name = "description", length = 4096)
     public String getDescription() {
         return description;
     }
@@ -63,6 +70,7 @@ public class Writing extends BaseEntity {
 
     @Column(name = "last_changed_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @Override
     public Date getLastChangedDate() {
         return lastChangedDate;
     }
@@ -90,8 +98,38 @@ public class Writing extends BaseEntity {
         this.samlibDate = samlibDate;
     }
 
+    //@ManyToMany(mappedBy = "unreadWritings")
+    @ManyToMany
+    @JoinTable(name = "customer_unread_writing"
+            , joinColumns = @JoinColumn(name = "writing_id")
+            , inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
+    @JsonBackReference
+    public Set<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(Set<Customer> customers) {
+        this.customers = customers;
+    }
+
     @Transient
     public Boolean unreadByCustomer(Customer customer) {
         return customer.getUnreadWritings().contains(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Writing{" +
+                "groupName='" + groupName + '\'' +
+                ", name='" + getName() + '\'' +
+                ", link='" + link + '\'' +
+                ", author=" + (null == author? "": author.getName()) +
+                ", description='" + description + '\'' +
+                ", size='" + size + '\'' +
+                ", prevSize='" + prevSize + '\'' +
+                ", lastChangedDate=" + lastChangedDate +
+                ", samlibDate=" + samlibDate +
+                '}';
     }
 }
