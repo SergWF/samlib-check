@@ -182,16 +182,6 @@ public class AuthorCheckerTest {
         Assert.assertNull(authorChecker.findSameWriting(author.getWritings(), writing));
     }
 
-    @Test
-    public void testGetShortAuthorLink() throws Exception {
-        Assert.assertEquals(SHORT_LINK, authorChecker.getShortAuthorLink(author.getLink()));
-    }
-
-    @Test
-    public void testGetFullAuthorLink() throws Exception {
-        Assert.assertEquals(FULL_LINK, authorChecker.getFullAuthorLink(author.getLink()));
-    }
-
     private String loadPage(String path) throws IOException {
         return IOUtils.toString(this.getClass().getResourceAsStream(path), Charset.forName("Cp1251"));
     }
