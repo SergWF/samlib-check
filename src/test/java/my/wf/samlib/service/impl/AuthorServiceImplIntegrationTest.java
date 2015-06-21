@@ -23,13 +23,13 @@ import java.util.UUID;
 public class AuthorServiceImplIntegrationTest {
 
     @Autowired
-    AuthorService authorService;
+    private AuthorService authorService;
     @Autowired
-    AuthorRepository authorRepository;
+    private AuthorRepository authorRepository;
     @Autowired
-    SamlibService samlibService;
+    private SamlibService samlibService;
     @Autowired
-    InitHelper initHelper;
+    private InitHelper initHelper;
 
     @Test
     public void testCreateAuthorOnAdd() throws Exception {

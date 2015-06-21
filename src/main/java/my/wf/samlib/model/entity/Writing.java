@@ -18,7 +18,6 @@ public class Writing extends BaseEntity implements LastDate {
     private String size;
     private String prevSize;
     private Date lastChangedDate;
-    private Date samlibDate;
     private Set<Customer> customers = new HashSet<>();
 
     @Column(name="link")
@@ -88,15 +87,7 @@ public class Writing extends BaseEntity implements LastDate {
         this.groupName = groupName;
     }
 
-    @Column(name = "samlib_date")
-    @Temporal(TemporalType.DATE)
-    public Date getSamlibDate() {
-        return samlibDate;
-    }
 
-    public void setSamlibDate(Date samlibDate) {
-        this.samlibDate = samlibDate;
-    }
 
     //@ManyToMany(mappedBy = "unreadWritings")
     @ManyToMany
@@ -129,7 +120,6 @@ public class Writing extends BaseEntity implements LastDate {
                 ", size='" + size + '\'' +
                 ", prevSize='" + prevSize + '\'' +
                 ", lastChangedDate=" + lastChangedDate +
-                ", samlibDate=" + samlibDate +
                 '}';
     }
 }

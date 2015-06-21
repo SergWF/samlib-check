@@ -26,6 +26,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT MAX(w.lastChangedDate) FROM Customer c INNER JOIN c.authors a INNER JOIN a.writings w WHERE c.id = :customerId")
     Date getLastChangedDate(@Param("customerId") Long customerId);
 
-    @Query("SELECT w, w.author FROM Writing w INNER JOIN w.customers c WHERE c.id = :customerId")
+    @Query("SELECT a, w  FROM Author a INNER JOIN FETCH a.writings w INNER JOIN a.subscribers c INNER JOIN c.unreadWritings u WHERE u=w AND c.id = :customerId")
     Set<Author> findUnreadAuthors(@Param("customerId") Long customerId);
 }

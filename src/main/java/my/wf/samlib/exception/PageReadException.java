@@ -5,7 +5,7 @@ import java.io.IOException;
 public class PageReadException extends SamlibException {
     private String link;
     public PageReadException(IOException e, String link) {
-        super();
+        super("Problems with link " + link);
     }
 
     public String getLink() {

@@ -3,7 +3,10 @@ package my.wf.samlib.helpers;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Writing;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +35,7 @@ public class EntityHelper {
         writing.setGroupName("grp");
         writing.setLastChangedDate(lastChangedDate);
         writing.setSize("10k");
+        author.getWritings().add(writing);
         return writing;
     }
 
@@ -84,5 +88,9 @@ public class EntityHelper {
             }
         }
         return null;
+    }
+
+    public static String loadPage(String path) throws IOException {
+        return IOUtils.toString(EntityHelper.class.getResourceAsStream(path), Charset.forName("Cp1251"));
     }
 }

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Set;
 
 
 public class SamlibAuthorParserImplTest {
@@ -37,13 +37,13 @@ public class SamlibAuthorParserImplTest {
 
     @Test
     public void testExtractAuthorName() throws Exception {
-        Assert.assertEquals("Демченко А.В.", samlibAuthorParser.extractAuthorName(pageString));
+        Assert.assertEquals("Демченко А.В.", samlibAuthorParser.parseAuthorName(pageString));
     }
 
     @Test
     public void testExtractFullWriting(){
-        List<Writing> writings = samlibAuthorParser.extractWritings(fullWritingString, author);
-        Writing writing = writings.get(0);
+        Set<Writing> writings = samlibAuthorParser.parseWritings(fullWritingString);
+        Writing writing = writings.iterator().next();
         System.out.println(writing);
         Assert.assertThat(writing,
                 Matchers.allOf(
@@ -58,8 +58,8 @@ public class SamlibAuthorParserImplTest {
 
     @Test
     public void testExtractWeakWriting(){
-        List<Writing> writings = samlibAuthorParser.extractWritings(weakWritingString, author);
-        Writing writing = writings.get(0);
+        Set<Writing> writings = samlibAuthorParser.parseWritings(weakWritingString);
+        Writing writing = writings.iterator().next();
         System.out.println(writing);
         Assert.assertThat(writing,
                 Matchers.allOf(
@@ -74,7 +74,7 @@ public class SamlibAuthorParserImplTest {
 
     @Test
     public void testExtractWritings() throws Exception {
-        List<Writing> writings = samlibAuthorParser.extractWritings(preparedString, author);
+        Set<Writing> writings = samlibAuthorParser.parseWritings(preparedString);
         for(Writing w: writings){
             System.out.println(w);
         }

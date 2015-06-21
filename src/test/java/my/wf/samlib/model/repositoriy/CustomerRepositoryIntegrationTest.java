@@ -92,6 +92,7 @@ public class CustomerRepositoryIntegrationTest {
         author3.getWritings().add(EntityHelper.createWriting("w32", author3, sdf.parse("2015.02.20 11:00:00")));
         author1 =authorRepository.save(author1);
         author2 =authorRepository.save(author2);
+        author3 =authorRepository.save(author3);
         //AND: customer is subscribed to some authors
         Customer customer = EntityHelper.createCustomer(UUID.randomUUID().toString(), author1, author2);
         customer.getUnreadWritings().add(EntityHelper.findByName("w1", author1.getWritings()));

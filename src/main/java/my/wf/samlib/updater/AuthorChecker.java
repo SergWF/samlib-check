@@ -3,9 +3,9 @@ package my.wf.samlib.updater;
 import my.wf.samlib.exception.SamlibException;
 import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.service.CustomerService;
-import my.wf.samlib.updater.parser.AuthorChangesChecker;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +28,6 @@ public class AuthorChecker {
     private String linkSuffix;
 
     private AuthorRepository authorRepository;
-    private AuthorChangesChecker authorChangesChecker;
     private SamlibAuthorParser samlibAuthorParser;
     private SamlibPageReader samlibPageReader;
     private CustomerService customerService;
@@ -49,11 +47,6 @@ public class AuthorChecker {
     }
 
     @Autowired
-    public void setAuthorChangesChecker(AuthorChangesChecker authorChangesChecker) {
-        this.authorChangesChecker = authorChangesChecker;
-    }
-
-    @Autowired
     public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {
         this.samlibAuthorParser = samlibAuthorParser;
     }
@@ -69,8 +62,8 @@ public class AuthorChecker {
     }
 
     @Async
-    public UpdatingProcessDto checkAll(){
-        if(updateFlag.get()){
+    public UpdatingProcessDto checkAll() {
+        if (updateFlag.get()) {
             return getProcess();
         }
         updateFlag.set(true);
@@ -79,17 +72,17 @@ public class AuthorChecker {
         return getProcess();
     }
 
-    protected UpdatingProcessDto getProcess(){
+    protected UpdatingProcessDto getProcess() {
         return new UpdatingProcessDto(total.get(), processed.get());
     }
 
-    protected void doCheckUpdates(){
+    protected void doCheckUpdates() {
         List<Author> authors = authorRepository.findAllWithWritings();
         total.set(authors.size());
         processed.set(0);
         logger.info("checkUpdates authors, found {} records", authors.size());
         Date checkDate = new Date();
-        for(Author author: authors){
+        for (Author author : authors) {
             try {
                 authorRepository.save(checkUpdates(author));
                 processed.getAndAdd(1);
@@ -102,31 +95,87 @@ public class AuthorChecker {
     }
 
 
-
-
     protected Author checkUpdates(Author author) {
-        logger.info("check author {}", author.getName());
+        logger.info("check author {} by link {}", author.getName(), author.getLink());
         Date checkDate = new Date();
-        int updateCount = 0;
+        author.setLink(getShortAuthorLink(author.getLink()));
         String fullLink = getFullAuthorLink(author.getLink());
         String pageString = samlibPageReader.readPage(fullLink);
-        Author newAuthor = samlibAuthorParser.parse(author.getLink(), pageString);
-        newAuthor.setId(author.getId());
-        authorChangesChecker.checkUpdatedWritings(newAuthor, author, checkDate);
-        logger.info("checked {},  {} new writings", author.getName(), updateCount);
-        return newAuthor;
+        String authorName = samlibAuthorParser.parseAuthorName(pageString);
+        Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
+        return authorRepository.save(implementChanges(author, parsedWritings, authorName, checkDate));
     }
 
-    protected String getShortAuthorLink(String authorBaseLink){
+    protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, Date checkDate) {
+        Map<Writing, Writing> writingMap = findSame(author.getWritings(), parsedWritings);
+        Set<Writing> newWritings = new HashSet<>(parsedWritings);
+        newWritings.removeAll(writingMap.values());
+        author.setName(authorName);
+        author = handleOldWritings(author, writingMap, checkDate);
+        author.getWritings().addAll(newWritings);
+        for (Writing writing : newWritings) {
+            writing.setAuthor(author);
+            writing.setLastChangedDate(checkDate);
+        }
+        return author;
+    }
+
+    protected Author handleOldWritings(Author author, Map<Writing, Writing> writingMap, Date checkDate) {
+        int i = 0;
+        for (Writing oldWriting : writingMap.keySet()) {
+            Writing newWriting = writingMap.get(oldWriting);
+            if (null == newWriting) {
+                author.getWritings().remove(oldWriting);
+            } else if (hasChanges(newWriting, oldWriting)) {
+                oldWriting.setLastChangedDate(checkDate);
+                oldWriting.setPrevSize(oldWriting.getSize());
+                oldWriting.setSize(newWriting.getSize());
+                oldWriting.setDescription(newWriting.getDescription());
+                oldWriting.setGroupName(newWriting.getGroupName());
+            }
+        }
+        return author;
+    }
+
+    protected boolean hasChanges(Writing newWriting, Writing oldWriting) {
+        return !(isSame(newWriting.getDescription(), oldWriting.getDescription())
+                && isSame(newWriting.getSize(), oldWriting.getSize())
+                && isSame(newWriting.getGroupName(), oldWriting.getGroupName())
+        );
+    }
+
+    protected boolean isSame(Object o1, Object o2){
+        return null == o1 ? (null == o2):o1.equals(o2);
+    }
+
+    protected Map<Writing, Writing> findSame(Collection<Writing> oldWritings, Collection<Writing> newWritings) {
+        Map<Writing, Writing> map = new HashMap<>(oldWritings.size());
+        for (Writing oldWriting : oldWritings) {
+            map.put(oldWriting, findSameWriting(newWritings, oldWriting));
+        }
+        return map;
+    }
+
+    protected Writing findSameWriting(Collection<Writing> writings, Writing baseWriting) {
+        for (Writing writing : writings) {
+            if (writing.getLink().equals(baseWriting.getLink())) {
+                return writing;
+            }
+        }
+        return null;
+    }
+
+
+    protected String getShortAuthorLink(String authorBaseLink) {
         return authorBaseLink.endsWith(linkSuffix)
                 ? authorBaseLink.substring(0, authorBaseLink.length() - linkSuffix.length())
-                : authorBaseLink;
+                : authorBaseLink.endsWith("/") ? authorBaseLink : authorBaseLink + "/";
     }
 
-    protected String getFullAuthorLink(String authorBaseLink){
+    protected String getFullAuthorLink(String authorBaseLink) {
         return authorBaseLink.endsWith(linkSuffix)
                 ? authorBaseLink
-                :(authorBaseLink.endsWith("/")?authorBaseLink + linkSuffix: authorBaseLink +"/"+ linkSuffix);
+                : (authorBaseLink.endsWith("/") ? authorBaseLink + linkSuffix : authorBaseLink + "/" + linkSuffix);
 
     }
 

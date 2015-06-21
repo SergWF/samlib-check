@@ -3,110 +3,197 @@ package my.wf.samlib.updater;
 import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
-import my.wf.samlib.updater.parser.AuthorChangesChecker;
-import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
+import my.wf.samlib.updater.parser.impl.SamlibAuthorParserImpl;
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
 
 public class AuthorCheckerTest {
 
+    private static final String FULL_LINK = "http://1/index.html";
+    private static final String SHORT_LINK = "http://1/";
     @InjectMocks
-    private AuthorChecker authorChecker;
-    private Author oldAuthor;
-    private Author newAuthor;
+    @Spy
+    AuthorChecker authorChecker;
     @Mock
-    private SamlibPageReader samlibPageReader;
-    @Mock
-    private AuthorChangesChecker authorChangesChecker;
-    @Mock
-    private SamlibAuthorParser samlibAuthorParser;
+    SamlibPageReader samlibPageReader;
+    @Spy
+    SamlibAuthorParserImpl samlibAuthorParser;
+    Author author;
+    Writing[] writings;
+
+
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        authorChecker = new AuthorChecker();
         authorChecker.setLinkSuffix("index.html");
+        author = EntityHelper.createAuthor("http://1", "some author");
+        author.setId(1L);
+        writings = new Writing[]{
+            EntityHelper.createWriting("w1", author, new Date(new Date().getTime() - 100000)),
+            EntityHelper.createWriting("w2", author, new Date(new Date().getTime() - 110000)),
+            EntityHelper.createWriting("w3", author, new Date(new Date().getTime() - 120000)),
+            EntityHelper.createWriting("w4", author, new Date(new Date().getTime() - 100000)),
+            EntityHelper.createWriting("w5", author, new Date(new Date().getTime() - 110000))
+        };
+    }
 
-        oldAuthor = EntityHelper.createAuthor("http://link", "some name");
-        oldAuthor.setId(1L);
-        oldAuthor.getWritings().add(EntityHelper.createWriting("w1", oldAuthor));
-        oldAuthor.getWritings().add(EntityHelper.createWriting("w2", oldAuthor));
-        oldAuthor.getWritings().add(EntityHelper.createWriting("w3", oldAuthor));
 
-        newAuthor = EntityHelper.makeCopy(oldAuthor);
+    @Test
+    public void testImplementChanges() throws Exception {
+        Date date = new Date(new Date().getTime() - 11000);
+        Map<Writing, Writing> map = new HashMap<>();
 
-        Mockito.doReturn(newAuthor).when(samlibAuthorParser).parse(Mockito.anyString(), Mockito.anyString());
-        Mockito.doReturn("").when(samlibPageReader).readPage(Mockito.anyString());
+        Writing w0 = EntityHelper.makeCopy(writings[0]);
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        Writing w2 = EntityHelper.makeCopy(writings[2]);
+        Writing w3 = EntityHelper.makeCopy(writings[3]);
+
+        w0.setLink("http://new_w0");
+        w0.setName("new W0");
+        w0.setSize("44");
+        w1.setSize("23");
+        w1.setDescription("QQQ");
+        w2.setDescription("QQQWWWEEE");
+        w3.setGroupName("EEE--WWW");
+
+
+        map.put(writings[0], null);
+        map.put(writings[1], w1);
+        map.put(writings[2], w2);
+        map.put(writings[3], w3);
+        map.put(writings[4], null);
+
+        Author changed = authorChecker.implementChanges(author, Arrays.asList(w0, w1,w2,w3), "new name",  date);
+
+        Assert.assertThat(changed,
+                Matchers.allOf(
+                        Matchers.hasProperty("name", Matchers.equalTo("new name")),
+                        Matchers.hasProperty("lastChangedDate", Matchers.equalTo(date)),
+                        Matchers.hasProperty("writings",
+                                Matchers.containsInAnyOrder(w0, writings[1], writings[2], writings[3])
+                        )
+                )
+        );
     }
 
     @Test
-    public void testUpdateExistsSameWritings(){
-        //GIVEN: Existing author with no changes
-        //WHEN: checkUpdates author's data
-        Author updatedAuthor = authorChecker.checkUpdates(oldAuthor);
-        //THAN: Author data should be same to the old author's data
-        Assert.assertThat(updatedAuthor,
+    public void testHandleOldWritings() throws Exception {
+        Date date = new Date(new Date().getTime() - 11000);
+        Map<Writing, Writing> map = new HashMap<>();
+
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        w1.setSize("23");
+        w1.setDescription("QQQ");
+        Writing w2 = EntityHelper.makeCopy(writings[2]);
+        w2.setDescription("QQQWWWEEE");
+        Writing w3 = EntityHelper.makeCopy(writings[3]);
+        w3.setGroupName("EEE--WWW");
+
+        map.put(writings[0], null);
+        map.put(writings[1], w1);
+        map.put(writings[2], w2);
+        map.put(writings[3], w3);
+        map.put(writings[4], null);
+        Author handled = authorChecker.handleOldWritings(author, map, date);
+        Assert.assertThat(handled,
                 Matchers.allOf(
-                        Matchers.hasProperty("id", Matchers.equalTo(oldAuthor.getId())),
-                        Matchers.hasProperty("link", Matchers.equalTo(oldAuthor.getLink())),
-                        Matchers.hasProperty("name", Matchers.equalTo(oldAuthor.getName())),
-                        Matchers.hasProperty("writings", Matchers.hasSize(oldAuthor.getWritings().size()))
+                        Matchers.hasProperty("lastChangedDate", Matchers.equalTo(date)),
+                        Matchers.hasProperty("writings",
+                                Matchers.hasItems(
+                                        Matchers.allOf(
+                                                Matchers.hasProperty("size", Matchers.equalTo("23")),
+                                                Matchers.hasProperty("description", Matchers.equalTo("QQQ"))
+                                        ),
+                                        Matchers.hasProperty("description", Matchers.equalTo("QQQWWWEEE")),
+                                        Matchers.hasProperty("groupName", Matchers.equalTo("EEE--WWW"))
+                                )
+                        )
                 )
         );
-        //AND: Writings data should be same
-        for(Writing writing: updatedAuthor.getWritings()){
-            //Set new Author for simplifying the checking
-            Writing oldWriting = EntityHelper.findByLink(writing.getLink(), oldAuthor.getWritings());
-            oldWriting.setAuthor(writing.getAuthor());
-            Assert.assertThat(">>" + writing.getName() + "===" + oldWriting.getName(), writing, Matchers.samePropertyValuesAs(oldWriting));
-        }
+    }
+
+    @Test
+    public void testHasChangesSize() throws Exception {
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        w1.setSize("30");
+        Assert.assertTrue(authorChecker.hasChanges(w1, writings[1]));
     }
 
     @Test
-    public void testUpdateExistsNewWriting(){
-        //GIVEN: Existing author with one new Writing
-        Writing newWriting = EntityHelper.createWriting("newWriting", newAuthor);
-        newWriting.setSize("123k");
-        newAuthor.getWritings().add(newWriting);
-        Mockito.doReturn(newAuthor).when(samlibAuthorParser).parse(Mockito.eq(oldAuthor.getLink()), Mockito.anyString());
-        //WHEN: checkUpdates author's data
-        Author updatedAuthor = authorChecker.checkUpdates(oldAuthor);
-        //THAN: Author data should be same to the old author's data
-        Assert.assertThat(updatedAuthor,
+    public void testHasChangesDescription() throws Exception {
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        w1.setDescription(UUID.randomUUID().toString());
+        Assert.assertTrue(authorChecker.hasChanges(w1, writings[1]));
+    }
+
+    @Test
+    public void testHasChangesGroupName() throws Exception {
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        w1.setGroupName(UUID.randomUUID().toString());
+        Assert.assertTrue(authorChecker.hasChanges(w1, writings[1]));
+    }
+
+    @Test
+    public void testHasChangesNegative() throws Exception {
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        Assert.assertFalse(authorChecker.hasChanges(w1, writings[1]));
+    }
+
+    @Test
+    public void testFindSame() throws Exception {
+        Writing w1 = EntityHelper.makeCopy(writings[1]);
+        Writing w2 = EntityHelper.makeCopy(writings[2]);
+        Writing w3 = EntityHelper.makeCopy(writings[3]);
+        Map<Writing, Writing> same = authorChecker.findSame(author.getWritings(), Arrays.asList(w1, w2, w3));
+        Assert.assertThat(same,
                 Matchers.allOf(
-                        Matchers.hasProperty("id", Matchers.equalTo(oldAuthor.getId())),
-                        Matchers.hasProperty("link", Matchers.equalTo(oldAuthor.getLink())),
-                        Matchers.hasProperty("name", Matchers.equalTo(oldAuthor.getName())),
-                        Matchers.hasProperty("writings", Matchers.hasSize(1 + oldAuthor.getWritings().size()))
-                )
-        );
-        //AND: Writings data should be same
-        for(Writing oldWriting: oldAuthor.getWritings()){
-            //Set new Author for simplifying the checking
-            Writing writing = EntityHelper.findByLink(oldWriting.getLink(), newAuthor.getWritings());
-            Assert.assertNotNull("", newWriting);
-            oldWriting.setAuthor(writing.getAuthor());
-            Assert.assertThat(">>" + writing.getName() + "===" + oldWriting.getName(), writing, Matchers.samePropertyValuesAs(oldWriting));
-        }
-        //AND: Writings should contains new Writing
-        Writing newUpdatedWriting = EntityHelper.findByLink("http://newWriting", updatedAuthor.getWritings());
-        Assert.assertThat(newUpdatedWriting,
-                Matchers.allOf(
-                        Matchers.hasProperty("id", Matchers.nullValue()),
-                        Matchers.hasProperty("link", Matchers.equalTo("http://newWriting")),
-                        Matchers.hasProperty("name", Matchers.equalTo("newWriting"))
+                        Matchers.hasEntry(writings[0], null),
+                        Matchers.hasEntry(writings[1], w1),
+                        Matchers.hasEntry(writings[2], w2),
+                        Matchers.hasEntry(writings[3], w3),
+                        Matchers.hasEntry(writings[4], null)
                 )
         );
     }
 
+    @Test
+    public void testFindSameWritingByLink() throws Exception {
+        Writing writing = EntityHelper.makeCopy(writings[2]);
+        Assert.assertEquals(writings[2], authorChecker.findSameWriting(author.getWritings(), writing));
+    }
+
+    @Test
+    public void testFindSameWritingByLinkNegative() throws Exception {
+        Writing writing = new Writing();
+        writing.setLink("aaa");
+        Assert.assertNull(authorChecker.findSameWriting(author.getWritings(), writing));
+    }
+
+    @Test
+    public void testGetShortAuthorLink() throws Exception {
+        Assert.assertEquals(SHORT_LINK, authorChecker.getShortAuthorLink(author.getLink()));
+    }
+
+    @Test
+    public void testGetFullAuthorLink() throws Exception {
+        Assert.assertEquals(FULL_LINK, authorChecker.getFullAuthorLink(author.getLink()));
+    }
+
+    private String loadPage(String path) throws IOException {
+        return IOUtils.toString(this.getClass().getResourceAsStream(path), Charset.forName("Cp1251"));
+    }
 
 }

@@ -14,6 +14,7 @@ public class WrongEntityId extends SamlibException {
     }
 
     public WrongEntityId(Class<?> entityClass, long entityId) {
+        super("Wrong entity id " + entityId + " for class " + entityClass);
         this.entityClass = entityClass;
         this.entityId = entityId;
     }

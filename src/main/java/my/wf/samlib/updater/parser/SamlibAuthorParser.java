@@ -1,7 +1,12 @@
 package my.wf.samlib.updater.parser;
 
-import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Writing;
+
+import java.util.Set;
 
 public interface SamlibAuthorParser {
-    Author parse(String authorLink, String page);
+
+    String parseAuthorName(String pageString);
+
+    Set<Writing> parseWritings(String pageString);
 }
