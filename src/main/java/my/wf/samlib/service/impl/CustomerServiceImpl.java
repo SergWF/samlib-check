@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -56,13 +53,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Author> getUnreadAuthors(Customer activeCustomer) {
-        List<Writing> unreadWritings = authorRepository.getUnreadListByCustomerId(activeCustomer.getId());
-        List<Author> authors = new ArrayList<>();
-        for(Writing writing: unreadWritings){
-
-        }
-        return authors;
+    public Set<Author> getUnreadAuthors(Customer activeCustomer) {
+        return customerRepository.findUnreadAuthors(activeCustomer.getId());
     }
 
     @Override

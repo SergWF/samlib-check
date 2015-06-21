@@ -7,6 +7,7 @@ import my.wf.samlib.model.entity.Writing;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public interface CustomerService {
 
@@ -20,7 +21,7 @@ public interface CustomerService {
 
     List<Author> getAuthorsList(Customer customer);
 
-    List<Author>  getUnreadAuthors(Customer activeCustomer);
+    Set<Author> getUnreadAuthors(Customer activeCustomer);
 
     StatisticDto getStatistic(Customer customer);
 

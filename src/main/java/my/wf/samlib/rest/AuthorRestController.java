@@ -10,7 +10,7 @@ import my.wf.samlib.rest.hateoas.HateoasResourceBuilder;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.CustomerService;
 import my.wf.samlib.service.SamlibService;
-import my.wf.samlib.updater.AuthorChecker;
+import my.wf.samlib.updater.UpdateRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/author", produces= MediaType.APPLICATION_JSON_VALUE)
@@ -33,7 +34,7 @@ public class AuthorRestController {
     @Autowired
     SamlibService samlibService;
     @Autowired
-    AuthorChecker authorChecker;
+    UpdateRunner updateRunner;
 
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
@@ -83,7 +84,7 @@ public class AuthorRestController {
     @RequestMapping(value = "/check", method = RequestMethod.GET)
     @ResponseBody
     public UpdatingProcessDto checkAuthors(){
-        return  authorChecker.checkAll();
+        return  updateRunner.runUpdate();
     }
 
 
@@ -98,17 +99,15 @@ public class AuthorRestController {
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @ResponseBody
     public Integer doImport(@RequestBody List<String> authorLinks){
-        return authorService.importAuthors(authorLinks);
+        return authorService.importAuthors(getActiveCustomer(), authorLinks);
     }
 
     @ApiOperation(value = "Returns list of Author's links")
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
-    public List<String> doExport(){
+    public Set<String> doExport(){
         return authorService.exportAuthors();
     }
-
-
 
     private Customer getActiveCustomer() {
         return samlibService.getDefaultCustomer();

@@ -52,8 +52,8 @@ public class AuthorChecker {
     }
 
     @Autowired
-    public CustomerService getCustomerService() {
-        return customerService;
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
     @Autowired
@@ -62,47 +62,75 @@ public class AuthorChecker {
     }
 
     @Async
+    public void doSomething(UUID uuid){
+        System.out.println("begin " + uuid);
+        for(int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(1000);
+                System.out.println(i + "RUN " + uuid);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("end " + uuid);
+    }
+
+    @Async
     public UpdatingProcessDto checkAll() {
         if (updateFlag.get()) {
-            return getProcess();
+            return getUpdateStatus();
         }
         updateFlag.set(true);
         doCheckUpdates();
         updateFlag.set(false);
-        return getProcess();
+        return getUpdateStatus();
     }
 
-    protected UpdatingProcessDto getProcess() {
+    public UpdatingProcessDto getUpdateStatus() {
         return new UpdatingProcessDto(total.get(), processed.get());
     }
 
-    protected void doCheckUpdates() {
-        List<Author> authors = authorRepository.findAllWithWritings();
+    public UpdatingProcessDto doCheckUpdates() {
+        Set<Author> authors = authorRepository.findAllWithWritings();
         total.set(authors.size());
         processed.set(0);
-        logger.info("checkUpdates authors, found {} records", authors.size());
-        Date checkDate = new Date();
+        checkAuthors(authors, new Date());
+        return getUpdateStatus();
+    }
+
+    @Async
+    public void checkAuthors(Collection<Author> authors, Date checkDate){
+        logger.info("checkAuthorUpdates authors, started at{} found {} records", checkDate, authors.size());
         for (Author author : authors) {
             try {
-                authorRepository.save(checkUpdates(author));
+                System.out.println(">>>" + author);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                authorRepository.save(checkAuthorUpdates(author));
                 processed.getAndAdd(1);
             } catch (SamlibException e) {
-                logger.error("Can not checkUpdates author", e);
+                logger.error("Can not checkAuthorUpdates author", e);
             }
         }
+        logger.info("checkAuthorUpdates finished for {} authors", authors.size());
         customerService.updateUnreadWritings(checkDate);
-        logger.info("checkUpdates finished for {} authors", authors.size());
+        logger.info("Subscriptions were updated");
     }
 
 
-    protected Author checkUpdates(Author author) {
+    protected Author checkAuthorUpdates(Author author) {
         logger.info("check author {} by link {}", author.getName(), author.getLink());
         Date checkDate = new Date();
         author.setLink(getShortAuthorLink(author.getLink()));
         String fullLink = getFullAuthorLink(author.getLink());
         String pageString = samlibPageReader.readPage(fullLink);
+        logger.info("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
+        logger.info("name= {}, writings={}", authorName, parsedWritings);
         return authorRepository.save(implementChanges(author, parsedWritings, authorName, checkDate));
     }
 
@@ -178,6 +206,4 @@ public class AuthorChecker {
                 : (authorBaseLink.endsWith("/") ? authorBaseLink + linkSuffix : authorBaseLink + "/" + linkSuffix);
 
     }
-
-
 }

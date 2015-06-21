@@ -17,16 +17,16 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
     Author findByLink(String link);
 
     @Query("SELECT a FROM Customer c JOIN c.authors a WHERE c.id=:customerId")
-    List<Author> getListByCustomerId(@Param("customerId") Long customerId);
+    Set<Author> getListByCustomerId(@Param("customerId") Long customerId);
 
     @Query("SELECT w  FROM Customer c JOIN c.unreadWritings w WHERE c.id=:customerId")
-    List<Writing> getUnreadListByCustomerId(@Param("customerId") Long customerId);
+    Set<Writing> getUnreadListByCustomerId(@Param("customerId") Long customerId);
 
     @Query("SELECT DISTINCT a.link FROM Author a")
-    List<String> findAllAuthorLinks();
+    Set<String> findAllAuthorLinks();
 
     @Query("SELECT a, w FROM Author a LEFT JOIN FETCH a.writings w")
-    List<Author> findAllWithWritings();
+    Set<Author> findAllWithWritings();
 
     @Query("SELECT a, w FROM Author a LEFT JOIN FETCH a.writings w WHERE a.id=:authorId")
     Author findOneWithWritings(@Param("authorId") Long authorId);

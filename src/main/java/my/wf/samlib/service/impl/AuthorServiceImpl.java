@@ -1,9 +1,11 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.model.repositoriy.CustomerRepository;
 import my.wf.samlib.service.AuthorService;
+import my.wf.samlib.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -22,6 +24,8 @@ public class AuthorServiceImpl implements AuthorService {
     AuthorRepository authorRepository;
     @Autowired
     CustomerRepository customerRepository;
+    @Autowired
+    CustomerService customerService;
 
     @Override
     @Transactional
@@ -42,15 +46,15 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Integer importAuthors(Collection<String> authorLinks) {
+    public Integer importAuthors(Customer customer, Collection<String> authorLinks) {
         for(String authorLink: authorLinks){
-            addAuthor(authorLink);
+            customerService.addAuthor(customer, addAuthor(authorLink));
         }
         return authorLinks.size();
     }
 
     @Override
-    public List<String> exportAuthors() {
+    public Set<String> exportAuthors() {
         return authorRepository.findAllAuthorLinks();
     }
 
@@ -60,3 +64,5 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
 }
+
+

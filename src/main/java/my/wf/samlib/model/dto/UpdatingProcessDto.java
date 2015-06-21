@@ -24,4 +24,18 @@ public class UpdatingProcessDto {
     public Date getDate() {
         return date;
     }
+
+    public boolean inProcess(){
+        return processed < total;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdatingProcessDto{" +
+                "total=" + total +
+                ", processed=" + processed +
+                ", date=" + date +
+                ", inProcess=" + inProcess() +
+                '}';
+    }
 }

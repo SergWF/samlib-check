@@ -63,7 +63,7 @@ public class AuthorCheckerIntegrationTest {
     public void testUpdateByFullLink() throws Exception {
         Author author = new Author();
         author.setLink(fullLink);
-        Author updatedAuthor = authorChecker.checkUpdates(author);
+        Author updatedAuthor = authorChecker.checkAuthorUpdates(author);
         Mockito.verify(samlibPageReader).readPage(fullLink);
         Assert.assertNotNull(updatedAuthor.getId());
         Assert.assertEquals(shortLink, updatedAuthor.getLink());
@@ -73,7 +73,7 @@ public class AuthorCheckerIntegrationTest {
     public void testUpdateByShortLink() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        Author updatedAuthor = authorChecker.checkUpdates(author);
+        Author updatedAuthor = authorChecker.checkAuthorUpdates(author);
         Mockito.verify(samlibPageReader).readPage(fullLink);
         Assert.assertNotNull(updatedAuthor.getId());
         Assert.assertEquals(shortLink, updatedAuthor.getLink());
@@ -83,7 +83,7 @@ public class AuthorCheckerIntegrationTest {
     public void testCheckNewAuthor() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        authorChecker.checkUpdates(author);
+        authorChecker.checkAuthorUpdates(author);
         Author updated = authorRepository.findOneByLinkWithWritings(author.getLink());
         Assert.assertThat(updated,
                 Matchers.allOf(
@@ -98,14 +98,14 @@ public class AuthorCheckerIntegrationTest {
     public void testCheckExistingAuthorNoChanges() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        Long id = authorChecker.checkUpdates(author).getId();
+        Long id = authorChecker.checkAuthorUpdates(author).getId();
         Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
         Date changedDate = existing.getLastChangedDate();
         Map<String, Date> map = new HashMap<>();
         for(Writing w: existing.getWritings()){
             map.put(w.getLink(), w.getLastChangedDate());
         }
-        author = authorChecker.checkUpdates(existing);
+        author = authorChecker.checkAuthorUpdates(existing);
         Author newOne = authorRepository.findOneWithWritings(author.getId());
         Assert.assertThat(newOne,
                 Matchers.allOf(
@@ -121,7 +121,7 @@ public class AuthorCheckerIntegrationTest {
     public void testCheckExistingAuthorNewWriting() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        Long id = authorChecker.checkUpdates(author).getId();
+        Long id = authorChecker.checkAuthorUpdates(author).getId();
         Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
 
         Date changedDate = existing.getLastChangedDate();
@@ -131,7 +131,7 @@ public class AuthorCheckerIntegrationTest {
         String page = EntityHelper.loadPage("/test_pages/test_page_new_writing.html");
         Mockito.doReturn(page).when(samlibPageReader).readPage(Mockito.anyString());
 
-        author = authorChecker.checkUpdates(existing);
+        author = authorChecker.checkAuthorUpdates(existing);
         Author newOne = authorRepository.findOneWithWritings(author.getId());
         Assert.assertThat(newOne,
                 Matchers.allOf(
@@ -149,7 +149,7 @@ public class AuthorCheckerIntegrationTest {
     public void testCheckExistingAuthorRemovedWriting() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        Long id = authorChecker.checkUpdates(author).getId();
+        Long id = authorChecker.checkAuthorUpdates(author).getId();
         Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
 
         Date changedDate = existing.getLastChangedDate();
@@ -159,7 +159,7 @@ public class AuthorCheckerIntegrationTest {
         String page = EntityHelper.loadPage("/test_pages/test_page_removed_writing.html");
         Mockito.doReturn(page).when(samlibPageReader).readPage(Mockito.anyString());
 
-        author = authorChecker.checkUpdates(existing);
+        author = authorChecker.checkAuthorUpdates(existing);
         Author newOne = authorRepository.findOneWithWritings(author.getId());
         Assert.assertThat(newOne,
                 Matchers.allOf(

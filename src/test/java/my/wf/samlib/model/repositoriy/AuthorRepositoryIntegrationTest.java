@@ -77,10 +77,10 @@ public class AuthorRepositoryIntegrationTest {
         customer.getUnreadWritings().add(authors.get(3).getWritings().iterator().next());
         customerRepository.save(customer);
         //WHEN: Get list by Customer
-        List<Author> listByCustomer = authorRepository.getListByCustomerId(customer.getId());
+        Collection<Author> subscriptions = authorRepository.getListByCustomerId(customer.getId());
         //THEN: list of author should be accessible
-        Assert.assertThat(listByCustomer, Matchers.hasSize(3));
-        Assert.assertThat(listByCustomer,
+        Assert.assertThat(subscriptions, Matchers.hasSize(3));
+        Assert.assertThat(subscriptions,
                 Matchers.containsInAnyOrder(authors.get(1), authors.get(2), authors.get(3))
         );
     }
@@ -93,8 +93,8 @@ public class AuthorRepositoryIntegrationTest {
         customer.getUnreadWritings().addAll(authors.get(1).getWritings());
         customer.getUnreadWritings().add(authors.get(3).getWritings().iterator().next());
         customerRepository.save(customer);
-        List<Writing> listByCustomer = authorRepository.getUnreadListByCustomerId(customer.getId());
-        Assert.assertThat(listByCustomer, Matchers.hasSize(3));
+        Collection<Writing> unreadWritings = authorRepository.getUnreadListByCustomerId(customer.getId());
+        Assert.assertThat(unreadWritings, Matchers.hasSize(3));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class AuthorRepositoryIntegrationTest {
         authorRepository.save(EntityHelper.createAuthor(link1, "test1"));
         authorRepository.save(EntityHelper.createAuthor(link2, "test2"));
         authorRepository.save(EntityHelper.createAuthor(link3, "test3"));
-        List<String> links = authorRepository.findAllAuthorLinks();
+        Collection<String> links = authorRepository.findAllAuthorLinks();
         Assert.assertThat(links, Matchers.hasItems(link1, link2, link3));
     }
 
@@ -144,9 +144,11 @@ public class AuthorRepositoryIntegrationTest {
         //GIVEN: There are some Authors in DB
         Map<Integer, Author> authors = initHelper.initAuthors(4);
         //WHEN: Read findAllWithWritings
-        List<Author> authorsWithWritings = authorRepository.findAllWithWritings();
-        Author author = authorsWithWritings.get(0);
+        Set<Author> authorsWithWritings = authorRepository.findAllWithWritings();
+        //THEN: Authors should be unique in the result set
+        Assert.assertEquals(4, authorsWithWritings.size());
         //THEN: Writings should be accessible
+        Author author = authorsWithWritings.iterator().next();
         Assert.assertThat(author.getWritings(),Matchers.hasSize(2));
 
     }
