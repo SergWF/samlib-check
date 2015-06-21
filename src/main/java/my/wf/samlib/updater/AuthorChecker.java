@@ -6,6 +6,7 @@ import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.tools.LinkTool;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
@@ -124,8 +125,8 @@ public class AuthorChecker {
     protected Author checkAuthorUpdates(Author author) {
         logger.info("check author {} by link {}", author.getName(), author.getLink());
         Date checkDate = new Date();
-        author.setLink(getShortAuthorLink(author.getLink()));
-        String fullLink = getFullAuthorLink(author.getLink());
+        author.setLink(LinkTool.getAuthorLink(author.getLink(), linkSuffix));
+        String fullLink = LinkTool.getFullAuthorLink(author.getLink(), linkSuffix);
         String pageString = samlibPageReader.readPage(fullLink);
         logger.info("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
@@ -193,17 +194,4 @@ public class AuthorChecker {
         return null;
     }
 
-
-    protected String getShortAuthorLink(String authorBaseLink) {
-        return authorBaseLink.endsWith(linkSuffix)
-                ? authorBaseLink.substring(0, authorBaseLink.length() - linkSuffix.length())
-                : authorBaseLink.endsWith("/") ? authorBaseLink : authorBaseLink + "/";
-    }
-
-    protected String getFullAuthorLink(String authorBaseLink) {
-        return authorBaseLink.endsWith(linkSuffix)
-                ? authorBaseLink
-                : (authorBaseLink.endsWith("/") ? authorBaseLink + linkSuffix : authorBaseLink + "/" + linkSuffix);
-
-    }
 }

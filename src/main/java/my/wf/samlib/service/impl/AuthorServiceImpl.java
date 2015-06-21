@@ -6,9 +6,11 @@ import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.model.repositoriy.CustomerRepository;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.tools.LinkTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,16 +23,22 @@ public class AuthorServiceImpl implements AuthorService {
 
 
     @Autowired
-    AuthorRepository authorRepository;
+    private AuthorRepository authorRepository;
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
+    private String linkSuffix;
+
+    @Value("${link.suffix}")
+    public void setLinkSuffix(String linkSuffix) {
+        this.linkSuffix = linkSuffix;
+    }
 
     @Override
     @Transactional
     public Author addAuthor(String url) {
-        Author author = authorRepository.findByLink(url);
+        Author author = authorRepository.findByLink(LinkTool.getAuthorLink(url, linkSuffix));
         if(null != author){
             return author;
         }
