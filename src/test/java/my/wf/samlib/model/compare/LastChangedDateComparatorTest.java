@@ -8,10 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class LastChangedDateComparatorTest {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
@@ -33,6 +30,7 @@ public class LastChangedDateComparatorTest {
         Mockito.doReturn(sdf.parse("2015.03.20 14:33:00")).when(lastDate1).getLastChangedDate();
         Mockito.doReturn(sdf.parse("2015.03.20 10:00:00")).when(lastDate2).getLastChangedDate();
     }
+
 
     @Test
     public void testCompare() throws Exception {

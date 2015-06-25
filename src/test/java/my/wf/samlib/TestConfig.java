@@ -8,4 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ComponentScan(basePackages = {"my.wf.samlib.helpers"})
 @ActiveProfiles("test")
 public class TestConfig {
+
+
 }

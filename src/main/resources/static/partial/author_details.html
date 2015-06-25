@@ -1,0 +1,22 @@
+<div>
+    <div>
+        <a ng-href="{{authorDetails.link}}" ng-bind="authorDetails.name"></a>
+        <span>{{authorDetails.lastChangedDate | date:"dd.MM.yy HH:mm"}}</span>
+    </div>
+    <div>
+
+    </div>
+    <div ng-repeat="writing in authorDetails.writings | orderBy: ['groupName', '-lastChangedDate']">
+        <div>
+            <label>{{$index + 1}}:</label>
+            <span ng-attr-title="{{writing.description}}">{{writing.groupName}}, <a ng-href="{{authorDetails.link + writing.link}}">{{writing.name}}</a></span>
+            <span>({{writing.lastChangedDate | date:"dd.MM.yy HH:mm"}})</span>
+            <span>{{writing.prevSize || 0}}k->{{writing.size|| 0}}k</span>
+        </div>
+    </div>
+    <div>
+        <a ng-href="#/subscriptions/">Back To List</a>
+    </div>
+
+</div>
+
