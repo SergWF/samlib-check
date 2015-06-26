@@ -16,6 +16,8 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/author", produces= MediaType.APPLICATION_JSON_VALUE)
 public class AuthorRestController {
@@ -34,7 +36,9 @@ public class AuthorRestController {
     @ResponseBody
     public Resources<Resource<Author>> listAuthors(){
         logger.info("GET AUTHORS LIST");
-        return HateoasResourceBuilder.createResourceList(customerService.getAuthorsList(getActiveCustomer()));
+        List<Author> authorsList = customerService.getAuthorsList(getActiveCustomer());
+        logger.info("found {} authors", authorsList.size());
+        return HateoasResourceBuilder.createResourceList(authorsList);
     }
 
     @ApiOperation(value = "Returns list of unread Authors")

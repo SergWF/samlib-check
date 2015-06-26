@@ -5,7 +5,7 @@ var samlibControllers = angular.module('samlibControllers', ['ngRoute']);
 samlibControllers.controller("UtilsCtrl", function($scope, $http){
     $scope.updateStatistic={};
     $scope.checkUpdates = function(){
-        $http.put("/utils/check").
+        $http.get("/utils/check").
             success(function (data, status) {
                 $scope.updateStatistic = data;
                 $scope.status = status;
@@ -16,7 +16,6 @@ samlibControllers.controller("UtilsCtrl", function($scope, $http){
             });
     };
     $scope.getStatistic = function(){
-        console.log("STAT!");
         $http.get("/utils/statistic").
             success(function (data, status) {
                 $scope.statistic = data;
