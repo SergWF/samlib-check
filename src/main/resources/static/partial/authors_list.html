@@ -1,28 +1,34 @@
 
 <div>
-    <div>
+    <div ng-controller="UtilsCtrl">
         <button ng-click="checkUpdates()">Check Updates</button>
         <button ng-click="getStatistic()">Get Statistic</button>
-        <span ng-bind="updateStatistic"></span>
+        <span class="statistic">
+            <label>Total:</label><span ng-bind="statistic.totalCount"></span>
+            <label>Subscriptions:</label><span ng-bind="statistic.subscribedCount"></span>
+            <label>Not Read:</label><span ng-bind="statistic.notReadCount"></span>
+            <label>Updated:</label><span ng-bind="statistic.lastCheckDate | date:'dd.MM.yy HH:mm'"></span>
+        </span>
         <form ng-submit="addAuthor()">
             <label>Add Author URL:</label>
             <input type="text" ng-model="newAuthorUrl" placeholder="Add new Author">
             <input class="btn-primary" type="submit" value="ADD">
         </form>
-
     </div>
+
     <div>
         <input class="btn-primary" type="button" value="GET ALL" ng-click="getAuthors()">
         <label>Total:</label><span>{{getTotal()}}</span>
     </div>
-    <table>
+
+    <table class="author_table">
         <tr>
             <th>Author</th>
             <th>Unread</th>
             <th>Total</th>
             <th>Last Changed</th>
         </tr>
-        <tr ng-repeat="author in authors | orderBy: '-lastChangedDate'">
+        <tr ng-repeat="author in authors | orderBy: '-lastChangedDate'"  ng-class-odd="'odd'" ng-class-even="'even'">
             <td><a href="#/subscriptions/{{author.id}}">{{author.name}}</a></td>
             <td>{{author.link}}</td>
             <td>{{author.writings.length}}</td>

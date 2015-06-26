@@ -1,3 +1,35 @@
-table {
-    background-color: grey;
+.author {
+
+}
+
+.author_table{
+    font-size: medium;
+}
+
+.author_table .odd {
+    background-color: transparent;
+}
+.author_table .even {
+    background-color: aliceblue;
+}
+
+.writing {
+
+}
+.writing_group{
+    font-size: small;
+}
+.writing_size{
+    font-size: smaller;
+}
+.writing_date{
+    font-size: smaller;
+}
+
+.statistic{
+    font-size: small;
+}
+
+.has_new{
+    font-weight: bold;
 }

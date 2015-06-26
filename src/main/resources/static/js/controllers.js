@@ -2,6 +2,32 @@
 
 var samlibControllers = angular.module('samlibControllers', ['ngRoute']);
 
+samlibControllers.controller("UtilsCtrl", function($scope, $http){
+    $scope.updateStatistic={};
+    $scope.checkUpdates = function(){
+        $http.put("/utils/check").
+            success(function (data, status) {
+                $scope.updateStatistic = data;
+                $scope.status = status;
+            }).
+            error(function (data, status) {
+                $scope.updateStatistic = data || "Request failed";
+                $scope.status = status;
+            });
+    };
+    $scope.getStatistic = function(){
+        console.log("STAT!");
+        $http.get("/utils/statistic").
+            success(function (data, status) {
+                $scope.statistic = data;
+                $scope.status = status;
+            }).
+            error(function (data, status) {
+                $scope.statistic = data || "Request failed";
+                $scope.status = status;
+            });
+    };
+});
 
 samlibControllers.controller("AuthorListCtrl", function($scope, $http){
     $scope.authors = [];
@@ -19,39 +45,16 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
                 $scope.authors = data || "Request failed";
                 $scope.status = status;
             });
-
     };
 
-    $scope.updateStatistic={};
-    $scope.checkUpdates = function(){
-        $http.put("/author/check").
-            success(function (data, status) {
-                $scope.updateStatistic = data;
-                $scope.status = status;
-            }).
-            error(function (data, status) {
-                $scope.updateStatistic = data || "Request failed";
-                $scope.status = status;
-            });
-    };
-    $scope.getStatistic = function(){
-        $http.get("/author/statistic").
-            success(function (data, status) {
-                $scope.statistic = data;
-                $scope.status = status;
-            }).
-            error(function (data, status) {
-                $scope.statistic = data || "Request failed";
-                $scope.status = status;
-            });
-    };
+
     $scope.addAuthor = function(){
         console.log("add:", $scope.newAuthorUrl);
         var newAuthor = {
             url: $scope.newAuthorUrl
         }
         console.log("add:", newAuthor);
-        $http.post("/author", newAuthor, {'Content-Type': 'application/json'}).success(function (data, status) {
+        $http.post("/utils", newAuthor, {'Content-Type': 'application/json'}).success(function (data, status) {
                 $scope.statistic = data;
                 $scope.status = status;
             })
@@ -63,6 +66,8 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
 
     $scope.getAuthors();
 });
+
+
 
 samlibControllers.controller("AuthorDetailsCtrl", function($scope, $http, $routeParams){
     $scope.getAuthorDetails = function(authorId){
