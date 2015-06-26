@@ -3,7 +3,6 @@ package my.wf.samlib.service.impl;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
-import my.wf.samlib.model.repositoriy.CustomerRepository;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.CustomerService;
 import my.wf.samlib.tools.LinkTool;
@@ -25,8 +24,6 @@ public class AuthorServiceImpl implements AuthorService {
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
     private CustomerService customerService;
     private String linkSuffix;
 
@@ -42,10 +39,16 @@ public class AuthorServiceImpl implements AuthorService {
         if(null != author){
             return author;
         }
+        author = createNewAuthor(url);
+        return authorRepository.save(author);
+    }
+
+    protected Author createNewAuthor(String url) {
+        Author author;
         author = new Author();
         author.setName("author " + url);
         author.setLink(url);
-        return authorRepository.save(author);
+        return author;
     }
 
     @Override

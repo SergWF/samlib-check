@@ -6,7 +6,6 @@ import my.wf.samlib.helpers.InitHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.SamlibService;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,8 +25,6 @@ public class AuthorServiceImplIntegrationTest {
     private AuthorService authorService;
     @Autowired
     private AuthorRepository authorRepository;
-    @Autowired
-    private SamlibService samlibService;
     @Autowired
     private InitHelper initHelper;
 
