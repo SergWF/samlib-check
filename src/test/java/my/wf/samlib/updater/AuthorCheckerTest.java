@@ -1,8 +1,11 @@
 package my.wf.samlib.updater;
 
 import my.wf.samlib.helpers.EntityHelper;
+import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
+import my.wf.samlib.model.repositoriy.AuthorRepository;
+import my.wf.samlib.service.CustomerService;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import my.wf.samlib.updater.parser.impl.SamlibAuthorParserImpl;
 import org.apache.commons.io.IOUtils;
@@ -10,10 +13,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -30,6 +30,10 @@ public class AuthorCheckerTest {
     SamlibPageReader samlibPageReader;
     @Spy
     SamlibAuthorParserImpl samlibAuthorParser;
+    @Mock
+    AuthorRepository authorRepository;
+    @Mock
+    CustomerService customerService;
     Author author;
     Writing[] writings;
 
@@ -76,7 +80,7 @@ public class AuthorCheckerTest {
         map.put(writings[3], w3);
         map.put(writings[4], null);
 
-        Author changed = authorChecker.implementChanges(author, Arrays.asList(w0, w1,w2,w3), "new name",  date);
+        Author changed = authorChecker.implementChanges(author, Arrays.asList(w0, w1, w2, w3), "new name", date);
 
         Assert.assertThat(changed,
                 Matchers.allOf(
@@ -180,6 +184,31 @@ public class AuthorCheckerTest {
         Writing writing = new Writing();
         writing.setLink("aaa");
         Assert.assertNull(authorChecker.findSameWriting(author.getWritings(), writing));
+    }
+
+    @Test
+    public void testContinueCheckingIfOneWasFailed(){
+        Map<Integer, Author> authors = new HashMap<>();
+        int errorIndex = 2;
+        authors.put(0, EntityHelper.createAuthor("http://link1/", "one"));
+        authors.put(1, EntityHelper.createAuthor("http://link2/", "two"));
+        authors.put(2, EntityHelper.createAuthor("http://link3/", "error!"));
+        authors.put(3, EntityHelper.createAuthor("http://link4/", "four"));
+        authors.put(4, EntityHelper.createAuthor("http://link5/", "five"));
+        Mockito.doReturn(new HashSet<>(authors.values())).when(authorRepository).findAllWithWritings();
+        for(Author author: authors.values()){
+            Mockito.doReturn(author).when(authorChecker).checkAuthorUpdates(author);
+        }
+        Mockito.doThrow(RuntimeException.class).when(authorRepository).save(authors.get(errorIndex));
+        UpdatingProcessDto updatingProcessDto = authorChecker.doCheckUpdates();
+        Assert.assertThat(updatingProcessDto, Matchers.allOf(
+                        Matchers.hasProperty("processed", Matchers.equalTo(authors.size())),
+                        Matchers.hasProperty("errors", Matchers.equalTo(1)),
+                        Matchers.hasProperty("total", Matchers.equalTo(authors.size()))
+                )
+        );
+
+
     }
 
     private String loadPage(String path) throws IOException {

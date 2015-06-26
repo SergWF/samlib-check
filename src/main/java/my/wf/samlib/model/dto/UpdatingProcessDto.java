@@ -5,12 +5,14 @@ import java.util.Date;
 public class UpdatingProcessDto {
     private int total;
     private int processed;
+    private int errors;
     private Date date;
 
-    public UpdatingProcessDto(int total, int processed) {
+    public UpdatingProcessDto(int total, int processed, int errors) {
         this.total = total;
         this.processed = processed;
         this.date = new Date();
+        this.errors = errors;
     }
 
     public int getTotal() {
@@ -29,11 +31,16 @@ public class UpdatingProcessDto {
         return processed < total;
     }
 
+    public int getErrors() {
+        return errors;
+    }
+
     @Override
     public String toString() {
         return "UpdatingProcessDto{" +
                 "total=" + total +
                 ", processed=" + processed +
+                ", errors=" + errors +
                 ", date=" + date +
                 ", inProcess=" + inProcess() +
                 '}';

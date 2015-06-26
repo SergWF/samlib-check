@@ -35,7 +35,14 @@ public class AuthorChecker {
 
     private static final AtomicInteger total = new AtomicInteger(0);
     private static final AtomicInteger processed = new AtomicInteger(0);
+    private static final AtomicInteger errors = new AtomicInteger(0);
 
+    private int checkPauseMs;
+
+    @Value("${check.pause.ms:1000}")
+    public void setCheckPauseMs(int checkPauseMs) {
+        this.checkPauseMs = checkPauseMs;
+    }
 
     @Value("${link.suffix}")
     public void setLinkSuffix(String linkSuffix) {
@@ -63,20 +70,6 @@ public class AuthorChecker {
     }
 
     @Async
-    public void doSomething(UUID uuid){
-        System.out.println("begin " + uuid);
-        for(int i = 0; i < 10; i++) {
-            try {
-                Thread.sleep(1000);
-                System.out.println(i + "RUN " + uuid);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("end " + uuid);
-    }
-
-    @Async
     public UpdatingProcessDto checkAll() {
         if (updateFlag.get()) {
             return getUpdateStatus();
@@ -88,13 +81,14 @@ public class AuthorChecker {
     }
 
     public UpdatingProcessDto getUpdateStatus() {
-        return new UpdatingProcessDto(total.get(), processed.get());
+        return new UpdatingProcessDto(total.get(), processed.get(), errors.get());
     }
 
     public UpdatingProcessDto doCheckUpdates() {
         Set<Author> authors = authorRepository.findAllWithWritings();
         total.set(authors.size());
         processed.set(0);
+        errors.set(0);
         checkAuthors(authors, new Date());
         return getUpdateStatus();
     }
@@ -106,11 +100,11 @@ public class AuthorChecker {
             try {
                 System.out.println(">>>" + author);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(checkPauseMs);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                authorRepository.save(checkAuthorUpdates(author));
+                checkUpdateAndSave(author);
                 processed.getAndAdd(1);
             } catch (SamlibException e) {
                 logger.error("Can not checkAuthorUpdates author", e);
@@ -119,6 +113,15 @@ public class AuthorChecker {
         logger.info("checkAuthorUpdates finished for {} authors", authors.size());
         customerService.updateUnreadWritings(checkDate);
         logger.info("Subscriptions were updated");
+    }
+
+    protected void checkUpdateAndSave(Author author){
+        try {
+            authorRepository.save(checkAuthorUpdates(author));
+        }catch (RuntimeException e){
+            errors.getAndAdd(1);
+            logger.error("can not process author by link {}", author.getLink());
+        }
     }
 
 
