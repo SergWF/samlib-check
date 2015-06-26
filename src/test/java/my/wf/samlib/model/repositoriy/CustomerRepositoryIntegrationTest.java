@@ -6,6 +6,7 @@ import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.helpers.InitHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
+import my.wf.samlib.model.entity.Subscription;
 import org.hamcrest.Matchers;
 import org.hibernate.LazyInitializationException;
 import org.junit.Assert;
@@ -115,5 +116,26 @@ public class CustomerRepositoryIntegrationTest {
                         )
                 )
         );
+    }
+
+    @Test
+    public void testGetSubscriptionList() {
+        Map<Integer, Author> authors = initHelper.initAuthors(5);
+        Customer customer1 = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), authors.get(0), authors.get(2), authors.get(4)));
+        Customer customer2 = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), authors.get(0), authors.get(1), authors.get(3)));
+
+        Set<Subscription> subscriptionList = customerRepository.getSubscriptionList(customer1.getId());
+
+        System.out.println("1:=======");
+        for(Subscription subscription: subscriptionList){
+            System.out.println(subscription);
+        }
+
+        subscriptionList = customerRepository.getSubscriptionList(customer2.getId());
+
+        System.out.println("2:=======");
+        for(Subscription subscription: subscriptionList){
+            System.out.println(subscription);
+        }
     }
 }
