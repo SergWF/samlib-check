@@ -38,18 +38,23 @@ public class EntityHelper {
     }
 
     public static Subscription createSubscription(Customer customer, Author author){
+        return createSubscription(customer, author, false);
+    }
+    public static Subscription createSubscription(Customer customer, Author author, boolean unread){
         Subscription subscription = new Subscription();
         subscription.setAuthor(author);
         subscription.setCustomer(customer);
         customer.getSubscriptions().add(subscription);
         subscription.setSubscribedDate(new Date());
-        for(Writing writing: author.getWritings()){
-            subscription.getSubscriptionUnreads().add(createSubscriptionUnread(subscription, writing));
+        if(unread){
+            for(Writing writing: author.getWritings()){
+                subscription.getSubscriptionUnreads().add(createSubscriptionUnread(subscription, writing));
+            }
         }
         return subscription;
     }
 
-    private static SubscriptionUnread createSubscriptionUnread(Subscription subscription, Writing writing) {
+    public static SubscriptionUnread createSubscriptionUnread(Subscription subscription, Writing writing) {
         SubscriptionUnread subscriptionUnread = new SubscriptionUnread();
         subscriptionUnread.setSubscription(subscription);
         subscriptionUnread.setWriting(writing);
@@ -57,7 +62,7 @@ public class EntityHelper {
         return subscriptionUnread;
     }
 
-    public static Customer createCustomer(String name, Author... authors){
+    public static Customer createCustomerWithSubscription(String name, Author... authors){
         Customer customer = new Customer();
         customer.setName(name);
         for(Author author: authors){

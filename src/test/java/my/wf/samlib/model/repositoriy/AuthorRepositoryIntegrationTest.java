@@ -124,7 +124,7 @@ public class AuthorRepositoryIntegrationTest {
         String name = UUID.randomUUID().toString();
         Author author = authorRepository.save(EntityHelper.createAuthor("http://" + name, name));
         //AND: Customer with subscription on this author
-        Customer customer = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), author));
+        Customer customer = customerRepository.save(EntityHelper.createCustomerWithSubscription(UUID.randomUUID().toString(), author));
         //WHEN:
         authorRepository.delete(author.getId());
         //THEN: author should be deleted

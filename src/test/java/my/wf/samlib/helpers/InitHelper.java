@@ -42,7 +42,7 @@ public class InitHelper {
 
     @Transactional
     public Customer initCustomer(Author... authors){
-        return customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), authors));
+        return customerRepository.save(EntityHelper.createCustomerWithSubscription(UUID.randomUUID().toString(), authors));
     }
 
 }

@@ -4,21 +4,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "subscription_unread")
-public class SubscriptionUnread {
-    private Long id;
+public class SubscriptionUnread  extends BaseEntity{
     private Subscription subscription;
     private Writing writing;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @ManyToOne
     @JoinColumn(name = "subscription_id")

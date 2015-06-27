@@ -10,23 +10,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "subscription")
-public class Subscription {
-    private Long id;
+public class Subscription extends BaseEntity {
     private Customer customer;
     private Author author;
     private Date subscribedDate;
     private Set<SubscriptionUnread> subscriptionUnreads = new HashSet<>();
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -73,7 +62,7 @@ public class Subscription {
     @Override
     public String toString() {
         return "Subscription{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", customer=" + customer +
                 ", author=" + author +
                 ", subscribedDate=" + subscribedDate +
