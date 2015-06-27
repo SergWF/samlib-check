@@ -1,18 +1,16 @@
 package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
-import my.wf.samlib.model.dto.NewAuthorDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.rest.hateoas.HateoasResourceBuilder;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.service.SamlibService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +24,7 @@ public class AuthorRestController {
     @Autowired
     AuthorService authorService;
     @Autowired
-    CustomerService customerService;
+    UtilsService utilsService;
     @Autowired
     SamlibService samlibService;
 
@@ -34,18 +32,11 @@ public class AuthorRestController {
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public Resources<Resource<Author>> listAuthors(){
+    public List<Author> listAuthors(){
         logger.info("GET AUTHORS LIST");
-        List<Author> authorsList = customerService.getAuthorsList(getActiveCustomer());
+        List<Author> authorsList = authorService.findAllAuthors();
         logger.info("found {} authors", authorsList.size());
-        return HateoasResourceBuilder.createResourceList(authorsList);
-    }
-
-    @ApiOperation(value = "Returns list of unread Authors")
-    @RequestMapping(value = "/unread", method = RequestMethod.GET)
-    public Resources<Resource<Author>> getUnread(){
-        logger.info("GET UNREAD AUTHORS LIST");
-        return HateoasResourceBuilder.createResourceList(customerService.getUnreadAuthors(getActiveCustomer()));
+        return authorsList;
     }
 
     @ApiOperation(value = "Returns Author's data")
@@ -56,30 +47,30 @@ public class AuthorRestController {
         return HateoasResourceBuilder.createResource(authorService.findAuthor(authorId));
     }
 
-    @ApiOperation(value = "Deletes Author")
-    @RequestMapping(value = "/{authorId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public Long deleteAuthor(@PathVariable long authorId) {
-        logger.info("GET AUTHOR BY ID {}", authorId);
-        authorService.delete(authorId);
-        return authorId;
-    }
-
-
-    @ApiOperation(value = "Adds new author")
-    @RequestMapping(method = RequestMethod.POST)
-    @ResponseBody
-    public Resource<Author> addAuthor(@RequestBody NewAuthorDto newAuthorDto){
-        logger.info("ADD AUTHOR BY URL: " + newAuthorDto.getUrl());
-        Author author = authorService.addAuthor(newAuthorDto.getUrl());
-        customerService.addAuthor(getActiveCustomer(), author);
-        return HateoasResourceBuilder.createResource(author);
-    }
+//    @ApiOperation(value = "Deletes Author")
+//    @RequestMapping(value = "/{authorId}", method = RequestMethod.DELETE)
+//    @ResponseBody
+//    public Long deleteAuthor(@PathVariable long authorId) {
+//        logger.info("GET AUTHOR BY ID {}", authorId);
+//        utilsService.delete(authorId);
+//        return authorId;
+//    }
+//
+//
+//    @ApiOperation(value = "Adds new author")
+//    @RequestMapping(method = RequestMethod.POST)
+//    @ResponseBody
+//    public Resource<Author> addAuthor(@RequestBody NewAuthorDto newAuthorDto){
+//        logger.info("ADD AUTHOR BY URL: " + newAuthorDto.getUrl());
+//        Author author = utilsService.addAuthor(newAuthorDto.getUrl());
+//        customerService.addAuthor(getActiveCustomer(), author);
+//        return HateoasResourceBuilder.createResource(author);
+//    }
 
 
 
     private Customer getActiveCustomer() {
-        return samlibService.getDefaultCustomer();
+        return samlibService.getActiveCustomer();
     }
 
 

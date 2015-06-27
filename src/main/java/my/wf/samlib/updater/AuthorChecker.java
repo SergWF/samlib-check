@@ -5,7 +5,7 @@ import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.tools.LinkTool;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
@@ -31,7 +31,7 @@ public class AuthorChecker {
     private AuthorRepository authorRepository;
     private SamlibAuthorParser samlibAuthorParser;
     private SamlibPageReader samlibPageReader;
-    private CustomerService customerService;
+    private UtilsService utilsService;
 
     private static final AtomicInteger total = new AtomicInteger(0);
     private static final AtomicInteger processed = new AtomicInteger(0);
@@ -60,8 +60,8 @@ public class AuthorChecker {
     }
 
     @Autowired
-    public void setCustomerService(CustomerService customerService) {
-        this.customerService = customerService;
+    public void setUtilsService(UtilsService utilsService) {
+        this.utilsService = utilsService;
     }
 
     @Autowired
@@ -111,7 +111,7 @@ public class AuthorChecker {
             }
         }
         logger.info("checkAuthorUpdates finished for {} authors", authors.size());
-        customerService.updateUnreadWritings(checkDate);
+        utilsService.updateUnreadWritings(checkDate);
         logger.info("Subscriptions were updated");
     }
 

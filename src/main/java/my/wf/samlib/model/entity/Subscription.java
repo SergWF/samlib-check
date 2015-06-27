@@ -1,96 +1,83 @@
 package my.wf.samlib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@SqlResultSetMapping(name = "SubscriptionMapping",
-        entities = {@EntityResult(
-                entityClass = Subscription.class,
-                fields = {
-                        @FieldResult(name = "id", column = "id"),
-                        @FieldResult(name = "name", column = "name"),
-                        @FieldResult(name = "link", column = "link"),
-                        @FieldResult(name = "writingsCount", column = "writingsCount"),
-                        @FieldResult(name = "unreadCount", column = "unreadCount"),
-                        @FieldResult(name = "lastChangedDate", column = "lastChanged")
-                }
-        )}
-)
-@NamedNativeQueries({
-        @NamedNativeQuery(name = "Subscription.findByCustomerId", query = " SELECT " +
-                " a.ID, a.NAME, a.LINK, count(w.ID) as writingsCount,count(u.WRITING_ID) as unreadCount, max(w.LAST_CHANGED_DATE) as lastChanged\n" +
-                " FROM CUSTOMER_AUTHOR ca\n" +
-                " INNER JOIN AUTHOR a ON ca.AUTHOR_ID = a.ID\n" +
-                " INNER JOIN WRITING w ON w.AUTHOR_ID = ca.AUTHOR_ID\n" +
-                " LEFT JOIN CUSTOMER_UNREAD_WRITING u ON w.ID = WRITING_ID AND u.CUSTOMER_ID = ca.CUSTOMER_ID\n" +
-                " WHERE ca.CUSTOMER_ID = :customerId\n" +
-                " GROUP BY a.ID, a.NAME, a.LINK", resultSetMapping = "SubscriptionMapping")
-})
-public class Subscription extends BaseEntity {
-    private String link;
-    private Integer writingsCount;
-    private Integer unreadCount;
-    private Date lastChangedDate;
+@Table(name = "subscription")
+public class Subscription {
+    private Long id;
+    private Customer customer;
+    private Author author;
+    private Date subscribedDate;
+    private Set<SubscriptionUnread> subscriptionUnreads = new HashSet<>();
 
-    public Subscription() {
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
+        return id;
     }
 
-    public Subscription(Long id, String name, String link, Integer writingsCount, Integer unreadCount, Date lastChangedDate) {
-        setId(id);
-        setName(name);
-        this.link = link;
-        this.writingsCount = writingsCount;
-        this.unreadCount = unreadCount;
-        this.lastChangedDate = lastChangedDate;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @Column(name = "link")
-    public String getLink() {
-        return link;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    @JsonBackReference
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    @Column(name = "writingsCount")
-    public Integer getWritingsCount() {
-        return writingsCount;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    @JsonBackReference
+    public Author getAuthor() {
+        return author;
     }
 
-    public void setWritingsCount(Integer writingsCount) {
-        this.writingsCount = writingsCount;
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
-    @Column(name = "unreadCount")
-    public Integer getUnreadCount() {
-        return unreadCount;
+    @Column(name = "subscription_date")
+    @Temporal(TemporalType.DATE)
+    public Date getSubscribedDate() {
+        return subscribedDate;
     }
 
-    public void setUnreadCount(Integer unreadCount) {
-        this.unreadCount = unreadCount;
+    public void setSubscribedDate(Date subscribedDate) {
+        this.subscribedDate = subscribedDate;
     }
 
-    public Date getLastChangedDate() {
-        return lastChangedDate;
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    public Set<SubscriptionUnread> getSubscriptionUnreads() {
+        return subscriptionUnreads;
     }
 
-    @Column(name = "lastChanged")
-    @Temporal(TemporalType.TIMESTAMP)
-    public void setLastChangedDate(Date lastChangedDate) {
-        this.lastChangedDate = lastChangedDate;
+    public void setSubscriptionUnreads(Set<SubscriptionUnread> subscriptionUnreads) {
+        this.subscriptionUnreads = subscriptionUnreads;
     }
 
     @Override
     public String toString() {
         return "Subscription{" +
-                " id='" + getId() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", link='" + link + '\'' +
-                ", writingsCount=" + writingsCount +
-                ", unreadCount=" + unreadCount +
-                ", lastChangedDate=" + lastChangedDate +
+                "id=" + id +
+                ", customer=" + customer +
+                ", author=" + author +
+                ", subscribedDate=" + subscribedDate +
+                ", subscriptionUnreads=" + subscriptionUnreads +
                 '}';
     }
 }

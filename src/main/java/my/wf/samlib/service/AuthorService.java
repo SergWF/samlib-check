@@ -1,10 +1,9 @@
 package my.wf.samlib.service;
 
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Customer;
+import my.wf.samlib.model.entity.Writing;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 public interface AuthorService {
 
@@ -12,9 +11,10 @@ public interface AuthorService {
 
     Author findAuthor(long authorId);
 
-    Integer importAuthors(Customer customer, Collection<String> authorLinks);
+    List<Author> findAllAuthors();
 
-    Set<String> exportAuthors();
 
     void delete(long authorId);
+
+    Writing getWritingById(long writingId);
 }

@@ -4,7 +4,7 @@ package my.wf.samlib.service.impl;
 import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class AuthorServiceTest {
     @Mock
     AuthorRepository authorRepository;
     @Mock
-    CustomerService customerService;
+    UtilsService utilsService;
 
 
     @Before

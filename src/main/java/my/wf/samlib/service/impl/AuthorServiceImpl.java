@@ -1,10 +1,11 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Customer;
+import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
+import my.wf.samlib.model.repositoriy.WritingRepository;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.tools.LinkTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -24,7 +24,9 @@ public class AuthorServiceImpl implements AuthorService {
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired
-    private CustomerService customerService;
+    WritingRepository writingRepository;
+    @Autowired
+    private UtilsService utilsService;
     private String linkSuffix;
 
     @Value("${link.suffix}")
@@ -35,20 +37,19 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author addAuthor(String url) {
-        Author author = authorRepository.findByLink(LinkTool.getAuthorLink(url, linkSuffix));
-        if(null != author){
-            return author;
-        }
-        author = createNewAuthor(url);
-        return authorRepository.save(author);
+        String authorUrl = LinkTool.getAuthorLink(url, linkSuffix);
+        Author author = authorRepository.findByLink(authorUrl);
+        return (null != author)
+                ? author
+                : createAndSaveNewAuthor(authorUrl);
     }
 
-    protected Author createNewAuthor(String url) {
+    protected Author createAndSaveNewAuthor(String url) {
         Author author;
         author = new Author();
         author.setName("author " + url);
         author.setLink(url);
-        return author;
+        return authorRepository.save(author);
     }
 
     @Override
@@ -57,21 +58,18 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Integer importAuthors(Customer customer, Collection<String> authorLinks) {
-        for(String authorLink: authorLinks){
-            customerService.addAuthor(customer, addAuthor(authorLink));
-        }
-        return authorLinks.size();
-    }
-
-    @Override
-    public Set<String> exportAuthors() {
-        return authorRepository.findAllAuthorLinks();
+    public List<Author> findAllAuthors() {
+        return authorRepository.findAll();
     }
 
     @Override
     public void delete(long authorId) {
         authorRepository.delete(authorId);
+    }
+
+    @Override
+    public Writing getWritingById(long writingId) {
+        return writingRepository.findOne(writingId);
     }
 
 }

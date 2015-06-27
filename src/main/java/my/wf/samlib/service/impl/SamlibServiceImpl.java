@@ -1,15 +1,17 @@
 package my.wf.samlib.service.impl;
 
+import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.model.repositoriy.CustomerRepository;
 import my.wf.samlib.service.SamlibService;
+import my.wf.samlib.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.HashSet;
+import java.util.Collection;
 
 @Service
 public class SamlibServiceImpl implements SamlibService {
@@ -18,15 +20,17 @@ public class SamlibServiceImpl implements SamlibService {
     CustomerRepository customerRepository;
     @Autowired
     AuthorRepository authorRepository;
+    @Autowired
+    SubscriptionService subscriptionService;
 
     @PostConstruct
     public void initDefaults(){
-        getDefaultCustomer();
+        getActiveCustomer();
     }
 
     @Override
     @Transactional
-    public Customer getDefaultCustomer() {
+    public Customer getActiveCustomer() {
         Customer defaultCustomer = customerRepository.findOne(1L);
         if(null  == defaultCustomer){
             defaultCustomer = customerRepository.save(createCustomerInstance("default"));
@@ -34,10 +38,13 @@ public class SamlibServiceImpl implements SamlibService {
         return defaultCustomer;
     }
 
-    Customer createCustomerInstance(String customerName){
+    protected Customer createCustomerInstance(String customerName){
         Customer customer = new Customer();
         customer.setName(customerName);
-        customer.setAuthors(new HashSet<>(authorRepository.findAll()));
+        Collection<Author> authors = authorRepository.findAll();
+        for(Author author: authors){
+            customer.getSubscriptions().add(subscriptionService.subscribe(customer, author));
+        }
         return customer;
     }
 }

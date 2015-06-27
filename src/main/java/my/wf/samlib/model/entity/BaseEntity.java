@@ -6,7 +6,6 @@ import javax.persistence.*;
 @MappedSuperclass
 public abstract class BaseEntity{
     private Long id;
-    private String name;
 
 
     @Id
@@ -20,14 +19,6 @@ public abstract class BaseEntity{
         this.id = id;
     }
 
-    @Column(name = "name")
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -51,7 +42,6 @@ public abstract class BaseEntity{
     public String toString() {
         return this.getClass().getSimpleName()+"{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 '}';
     }
 }

@@ -11,6 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "writing")
 public class Writing extends BaseEntity implements LastDate {
+    private String name;
     private String link;
     private Author author;
     private String description;
@@ -18,7 +19,16 @@ public class Writing extends BaseEntity implements LastDate {
     private String size;
     private String prevSize;
     private Date lastChangedDate;
-    private Set<Customer> customers = new HashSet<>();
+    private Set<SubscriptionUnread> subscriptionUnreads = new HashSet<>();
+
+    @Column(name = "name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Column(name="link")
     public String getLink() {
@@ -88,25 +98,13 @@ public class Writing extends BaseEntity implements LastDate {
     }
 
 
-
-    //@ManyToMany(mappedBy = "unreadWritings")
-    @ManyToMany
-    @JoinTable(name = "customer_unread_writing"
-            , joinColumns = @JoinColumn(name = "writing_id")
-            , inverseJoinColumns = @JoinColumn(name = "customer_id")
-    )
-    @JsonBackReference
-    public Set<Customer> getCustomers() {
-        return customers;
+    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<SubscriptionUnread> getSubscriptionUnreads() {
+        return subscriptionUnreads;
     }
 
-    public void setCustomers(Set<Customer> customers) {
-        this.customers = customers;
-    }
-
-    @Transient
-    public Boolean unreadByCustomer(Customer customer) {
-        return customer.getUnreadWritings().contains(this);
+    public void setSubscriptionUnreads(Set<SubscriptionUnread> subscriptionUnreads) {
+        this.subscriptionUnreads = subscriptionUnreads;
     }
 
     @Override

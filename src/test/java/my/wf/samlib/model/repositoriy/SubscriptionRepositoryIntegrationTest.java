@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {MainConfig.class, TestConfig.class})
-public class SubscriptionRepositoryTest {
+public class SubscriptionRepositoryIntegrationTest {
 
     @Autowired
     InitHelper initHelper;
@@ -36,12 +36,13 @@ public class SubscriptionRepositoryTest {
         Customer customer1 = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), authors.get(0), authors.get(2), authors.get(4)));
         Customer customer2 = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), authors.get(0), authors.get(1), authors.get(3)));
 
-        customer1.getUnreadWritings().addAll(authors.get(0).getWritings());
-        customer1.getUnreadWritings().addAll(authors.get(2).getWritings());
+        subscriptionRepository.save(EntityHelper.createSubscription(customer1, authors.get(0)));
+        subscriptionRepository.save(EntityHelper.createSubscription(customer1, authors.get(2)));
+
         customerRepository.save(customer1);
 
-        customer2.getUnreadWritings().addAll(authors.get(0).getWritings());
-        customer2.getUnreadWritings().addAll(authors.get(3).getWritings());
+        subscriptionRepository.save(EntityHelper.createSubscription(customer2, authors.get(0)));
+        subscriptionRepository.save(EntityHelper.createSubscription(customer2, authors.get(3)));
         customerRepository.save(customer2);
 
         authors.get(0).getWritings().add(EntityHelper.createWriting(UUID.randomUUID().toString(), authors.get(0)));
@@ -50,7 +51,7 @@ public class SubscriptionRepositoryTest {
 
         authorRepository.save(authors.values());
 
-        Set<Subscription> subscriptionList = subscriptionRepository.findByCustomerId(customer1.getId());
+        Set<Subscription> subscriptionList = subscriptionRepository.findAllByCustomerId(customer1.getId());
 
 
 
@@ -59,11 +60,12 @@ public class SubscriptionRepositoryTest {
             System.out.println(subscription);
         }
 
-        subscriptionList = subscriptionRepository.findByCustomerId(customer2.getId());
+        subscriptionList = subscriptionRepository.findAllByCustomerId(customer2.getId());
 
         System.out.println("2:=======");
         for(Subscription subscription: subscriptionList){
             System.out.println(subscription);
         }
+        System.out.println("=======");
     }
 }

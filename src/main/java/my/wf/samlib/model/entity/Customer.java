@@ -8,54 +8,26 @@ import java.util.Set;
 
 @Entity
 @Table(name="customer")
-@AttributeOverrides({
-        @AttributeOverride(name="name", column=@Column(name="name", unique = true))
-})
 public class Customer extends BaseEntity {
-    private Set<Author> authors = new HashSet<Author>();
-    private Set<Writing> unreadWritings = new HashSet<Writing>();
+    private String name;
+    private Set<Subscription> subscriptions = new HashSet<>();
 
+    @Column(name="name", unique = true)
+    public String getName() {
+        return name;
+    }
 
-    @ManyToMany
-    @JoinTable(name = "customer_author"
-            , joinColumns = @JoinColumn(name = "customer_id")
-            , inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    public Set<Author> getAuthors(){
-        return authors;
+    public Set<Subscription> getSubscriptions() {
+        return subscriptions;
     }
 
-    public void setAuthors(Set<Author> authors) {
-        this.authors = authors;
+    public void setSubscriptions(Set<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
     }
-
-    @ManyToMany
-    @JoinTable(name = "customer_unread_writing"
-            , joinColumns = @JoinColumn(name = "customer_id")
-            , inverseJoinColumns = @JoinColumn(name = "writing_id")
-    )
-    @JsonManagedReference
-    public Set<Writing> getUnreadWritings(){
-        return unreadWritings;
-    }
-
-    public void setUnreadWritings(Set<Writing> unreadWritings) {
-        this.unreadWritings = unreadWritings;
-    }
-
-
-    public boolean checkAuthorUnread(Author author){
-        for(Writing w: author.getWritings()){
-            if(getUnreadWritings().contains(w)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean checkWritingUnread(Writing writing){
-        return getUnreadWritings().contains(writing);
-    }
-
 }

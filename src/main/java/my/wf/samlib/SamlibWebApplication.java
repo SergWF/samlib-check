@@ -1,6 +1,6 @@
 package my.wf.samlib;
 
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.service.SamlibService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +16,7 @@ public class SamlibWebApplication {
     @Autowired
     SamlibService samlibService;
     @Autowired
-    CustomerService customerService;
+    UtilsService utilsService;
 
     public static void main(String[] args) {
         SpringApplication.run(SamlibWebApplication.class, args);
@@ -24,6 +24,6 @@ public class SamlibWebApplication {
 
     @PostConstruct
     public void showStatistic(){
-        System.out.println(customerService.getStatistic(samlibService.getDefaultCustomer()));
+        System.out.println(utilsService.getStatistic(samlibService.getActiveCustomer()));
     }
 }

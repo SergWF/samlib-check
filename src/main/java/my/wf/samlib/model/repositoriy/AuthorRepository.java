@@ -16,12 +16,6 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     Author findByLink(String link);
 
-    @Query("SELECT a FROM Customer c JOIN c.authors a WHERE c.id=:customerId")
-    Set<Author> getListByCustomerId(@Param("customerId") Long customerId);
-
-    @Query("SELECT w  FROM Customer c JOIN c.unreadWritings w WHERE c.id=:customerId")
-    Set<Writing> getUnreadListByCustomerId(@Param("customerId") Long customerId);
-
     @Query("SELECT DISTINCT a.link FROM Author a")
     Set<String> findAllAuthorLinks();
 
@@ -31,10 +25,12 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
     @Query("SELECT a, w FROM Author a LEFT JOIN FETCH a.writings w WHERE a.id=:authorId")
     Author findOneWithWritings(@Param("authorId") Long authorId);
 
-    @Query("SELECT a, w FROM Author a LEFT JOIN FETCH a.writings w WHERE a.link=:link")
-    Author findOneByLinkWithWritings(@Param("link") String link);
+//    @Query("SELECT a, w FROM Author a LEFT JOIN FETCH a.writings w WHERE a.link=:link")
+//    Author findOneByLinkWithWritings(@Param("link") String link);
 
-    @Query("SELECT a, w FROM Author a INNER JOIN FETCH a.writings w WHERE w.lastChangedDate >= :lastCheckDate")
-    Set<Author> findUpdatedAuthors(@Param("lastCheckDate") Date lastCheckDate);
+//    @Query("SELECT a, w FROM Author a INNER JOIN FETCH a.writings w WHERE w.lastChangedDate >= :lastCheckDate")
+//    Set<Author> findUpdatedAuthors(@Param("lastCheckDate") Date lastCheckDate);
 
+    @Query("SELECT w FROM Writing w WHERE w.lastChangedDate >= :lastCheckDate ")
+    Set<Writing> findUpdatedWritings(@Param("lastCheckDate")Date lastCheckDate);
 }
