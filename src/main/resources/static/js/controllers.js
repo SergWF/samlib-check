@@ -29,31 +29,32 @@ samlibControllers.controller("UtilsCtrl", function($scope, $http){
 });
 
 samlibControllers.controller("AuthorListCtrl", function($scope, $http){
-    $scope.authors = [];
+    $scope.subscriptions = [];
     $scope.getTotal = function () {
-        return $scope.authors.length;
+        return $scope.subscriptions.length;
     };
 
     $scope.getAuthors = function () {
-        $http.get("/author/list").
+        console.log("get authors");
+        $http.get("/subscription/list").
             success(function (data, status) {
-                $scope.authors = data._embedded.authorList;
+                $scope.subscriptions = data;
                 $scope.status = status;
+                console.log("subscriptions OK:", $scope.subscriptions);
             }).
             error(function (data, status) {
-                $scope.authors = data || "Request failed";
+                $scope.subscriptions = data || "Request failed";
                 $scope.status = status;
+                console.error("subscriptions ERROR:", $scope.subscriptions);
             });
     };
 
 
     $scope.addAuthor = function(){
-        console.log("add:", $scope.newAuthorUrl);
-        var newAuthor = {
-            url: $scope.newAuthorUrl
-        }
-        console.log("add:", newAuthor);
-        $http.post("/utils", newAuthor, {'Content-Type': 'application/json'}).success(function (data, status) {
+        var authorUrl = $scope.newAuthorUrl;
+        console.log("add:", authorUrl);
+
+        $http.post("/subscription/subscribe/url", authorUrl).success(function (data, status) {
                 $scope.statistic = data;
                 $scope.status = status;
             })
@@ -62,6 +63,21 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
                 $scope.status = status;
             });
     };
+
+    $scope.cleanUnread = function(subscription){
+        var link = "/subscription/" + subscription.subscriptionId + "/unread/all";
+        var s_index = $scope.subscriptions.indexOf(subscription);
+        console.log("s_index", s_index);
+        $http.delete(link).success(function (data, status) {
+            $scope.subscriptions[s_index] = data;
+            $scope.status = status;
+            console.log($scope.subscription1);
+        })
+            .error(function (data, status) {
+                $scope.subscriptions[s_index] = data;
+                $scope.status = status;
+            });
+    }
 
     $scope.getAuthors();
 });

@@ -1,7 +1,6 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.exception.InvalidAccessException;
-import my.wf.samlib.model.dto.SubscriptionDto;
 import my.wf.samlib.model.entity.*;
 import my.wf.samlib.model.repositoriy.SubscriptionRepository;
 import my.wf.samlib.model.repositoriy.SubscriptionUnreadRepository;
@@ -52,31 +51,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Set<SubscriptionDto> getSubscriptionList(Customer customer) {
-        Set<Subscription> subscriptions = subscriptionRepository.findAllByCustomerId(customer.getId());
-        List<Object> dataList = subscriptionRepository.getAllSubscriptionStatistic(customer.getId());
-        Set<SubscriptionDto> subscriptionDtoSet = new HashSet<>(subscriptions.size());
-        for(Object data: dataList){
-            SubscriptionStatistic stat = new SubscriptionStatistic(data);
-            Subscription subscription = findInList(stat.getSubscriptionId(), subscriptions);
-            if(null != subscription) {
-                subscriptionDtoSet.add(createSubscriptionDto(subscription, stat));
-            }
-        }
-        return subscriptionDtoSet;
+    public Set<Subscription> getSubscriptionList(Customer customer) {
+        return subscriptionRepository.findAllByCustomerId(customer.getId());
     }
 
-    private SubscriptionDto createSubscriptionDto(Subscription subscription, SubscriptionStatistic subscriptionStatistic){
-        SubscriptionDto subscriptionDto = new SubscriptionDto();
-        subscriptionDto.setSubscriptionId(subscription.getId());
-        subscriptionDto.setAuthorId(subscription.getAuthor().getId());
-        subscriptionDto.setAuthorName(subscription.getAuthor().getName());
-        subscriptionDto.setAuthorLink(subscription.getAuthor().getLink());
-        subscriptionDto.setLastUpdateDate(subscriptionStatistic.getLastUpdateDate());
-        subscriptionDto.setUnreadCount(subscriptionStatistic.getUnreadCount());
-        subscriptionDto.setWritingCount(subscriptionStatistic.getWritingCount());
-        return subscriptionDto;
+    @Override
+    public Set<SubscriptionStatistic> getSubscriptionStatisticList(Customer customer) {
+        List<Object> statisticData = subscriptionRepository.getAllSubscriptionStatistic(customer.getId());
+        Set<SubscriptionStatistic> statistics = new HashSet<>(statisticData.size());
+        for(Object data: statisticData){
+            statistics.add(new SubscriptionStatistic(data));
+        }
+        return statistics;
     }
+
+    @Override
+    public SubscriptionStatistic getSubscriptionStatistic(Subscription subscription) {
+        return new SubscriptionStatistic(subscriptionRepository.getSubscriptionStatistic(subscription.getId()));
+    }
+
 
     private Subscription findInList(Long id, Collection<Subscription> subscriptions){
         for(Subscription subscription: subscriptions){
@@ -98,7 +91,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         checkExists(customer.getId(), subscriptionId);
         Subscription subscription = subscriptionRepository.findOne(subscriptionId);
         subscription.getSubscriptionUnreads().clear();
-        return subscriptionRepository.save(subscription);
+        subscription = subscriptionRepository.save(subscription);
+        return subscription;
     }
 
     @Override

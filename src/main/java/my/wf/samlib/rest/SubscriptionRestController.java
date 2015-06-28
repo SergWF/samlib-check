@@ -2,6 +2,7 @@ package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 import my.wf.samlib.model.dto.SubscriptionDto;
+import my.wf.samlib.model.dto.builder.SubscriptionDtoBuilder;
 import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.model.statistic.SubscriptionStatistic;
 import my.wf.samlib.service.SamlibService;
@@ -36,7 +37,9 @@ public class SubscriptionRestController {
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Set<SubscriptionDto> getSubscriptionList(){
-        return subscriptionService.getSubscriptionList(samlibService.getActiveCustomer());
+        Set<Subscription> subscriptionList = subscriptionService.getSubscriptionList(samlibService.getActiveCustomer());
+        Set<SubscriptionStatistic> subscriptionStatisticList = subscriptionService.getSubscriptionStatisticList(samlibService.getActiveCustomer());
+        return SubscriptionDtoBuilder.buildDtoSet(subscriptionList, subscriptionStatisticList);
     }
 
     @ApiOperation(value = "Returns subscription data")
@@ -59,8 +62,10 @@ public class SubscriptionRestController {
 
     @ApiOperation(value = "Mark all writings in subscription as read")
     @RequestMapping(value = "/{subscriptionId}/unread/all", method = RequestMethod.DELETE)
-    public Subscription markAllAsRead(@PathVariable(value = "subscriptionId") Long subscriptionId){
-        return subscriptionService.markAllAsRead(samlibService.getActiveCustomer(), subscriptionId);
+    public SubscriptionDto markAllAsRead(@PathVariable(value = "subscriptionId") Long subscriptionId){
+        Subscription subscription = subscriptionService.markAllAsRead(samlibService.getActiveCustomer(), subscriptionId);
+        SubscriptionStatistic subscriptionStatistic = subscriptionService.getSubscriptionStatistic(subscription);
+        return SubscriptionDtoBuilder.buildDto(subscription, subscriptionStatistic);
     }
 
     @ApiOperation(value = "Remove writing from unread list in subscription")
