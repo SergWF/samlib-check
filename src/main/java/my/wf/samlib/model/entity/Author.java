@@ -1,21 +1,33 @@
 package my.wf.samlib.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import my.wf.samlib.model.compare.LastChangedDateComparator;
 import my.wf.samlib.model.compare.LastDate;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
 @Table(name = "author")
 public class Author extends BaseEntity implements LastDate  {
 
-    private Set<Writing> writings = new HashSet<Writing>();
+    private String name;
+    private Set<Writing> writings = new HashSet<>();
     private String link;
-    private Set<Customer> subscribers = new HashSet<>();
+    private Set<Subscription> subscriptions = new HashSet<>();
+
+    @Column(name = "name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Column(name="link", unique = true)
     public String getLink() {
@@ -26,7 +38,7 @@ public class Author extends BaseEntity implements LastDate  {
         this.link = link;
     }
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     public Set<Writing> getWritings() {
         return writings;
@@ -36,18 +48,14 @@ public class Author extends BaseEntity implements LastDate  {
         this.writings = writings;
     }
 
-    @ManyToMany//(mappedBy = "authors")
-    @JoinTable(name = "customer_author"
-            , joinColumns = @JoinColumn(name = "author_id")
-            , inverseJoinColumns = @JoinColumn(name = "customer_id")
-    )
-    @JsonBackReference
-    public Set<Customer> getSubscribers() {
-        return subscribers;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<Subscription> getSubscriptions() {
+        return subscriptions;
     }
 
-    public void setSubscribers(Set<Customer> subscribers) {
-        this.subscribers = subscribers;
+    public void setSubscriptions(Set<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 
     @Transient
@@ -59,15 +67,6 @@ public class Author extends BaseEntity implements LastDate  {
         return Collections.max(writings, new LastChangedDateComparator()).getLastChangedDate();
     }
 
-    @Transient
-    public Boolean unreadByCustomer(Customer customer) {
-        for (Writing writing : customer.getUnreadWritings()) {
-            if (writing.getAuthor().equals(this)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public String toString() {
@@ -75,9 +74,6 @@ public class Author extends BaseEntity implements LastDate  {
                 "id='" + getId() + '\'' +
                 ", name='" + getName() + '\'' +
                 ", link='" + link + '\'' +
-                ", writings=[" +
-                getWritings().toString() +
-                "]"+
                 '}';
     }
 }

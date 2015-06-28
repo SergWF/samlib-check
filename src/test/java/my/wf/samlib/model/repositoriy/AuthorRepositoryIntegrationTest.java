@@ -38,7 +38,11 @@ public class AuthorRepositoryIntegrationTest {
     CustomerRepository customerRepository;
 
 
-
+    @Test
+    public void testFindByLink() {
+        Map<Integer, Author> authors = initHelper.initAuthors(5);
+        Assert.assertEquals(authors.get(0), authorRepository.findByLink(authors.get(0).getLink()));
+    }
 
     @Test(expected = LazyInitializationException.class)
     public void testCheckLazyWritings(){
@@ -65,78 +69,15 @@ public class AuthorRepositoryIntegrationTest {
         Assert.assertEquals(sdf.parse("2015.03.20 14:00:00"), author.getLastChangedDate());
     }
 
-    @Test
-    public void testGetListByCustomer() throws Exception {
-        //GIVEN: There are some Authors in DB
-        Map<Integer, Author> authors = initHelper.initAuthors(5);
-        //AND: Customer has a subscriptions
-        Customer customer = initHelper.initCustomer(authors.get(1), authors.get(2), authors.get(3));
-        //AND: Customer has some unread writings
-        customer = customerRepository.findOneWithFullData(customer.getId());
-        customer.getUnreadWritings().addAll(authors.get(1).getWritings());
-        customer.getUnreadWritings().add(authors.get(3).getWritings().iterator().next());
-        customerRepository.save(customer);
-        //WHEN: Get list by Customer
-        Collection<Author> subscriptions = authorRepository.getListByCustomerId(customer.getId());
-        //THEN: list of author should be accessible
-        Assert.assertThat(subscriptions, Matchers.hasSize(3));
-        Assert.assertThat(subscriptions,
-                Matchers.containsInAnyOrder(authors.get(1), authors.get(2), authors.get(3))
-        );
-    }
-
-    @Test
-    public void testGetUnreadListByCustomer(){
-        Map<Integer, Author> authors = initHelper.initAuthors(5);
-        Customer customer = initHelper.initCustomer(authors.get(1), authors.get(2), authors.get(3));
-        customer = customerRepository.findOneWithFullData(customer.getId());
-        customer.getUnreadWritings().addAll(authors.get(1).getWritings());
-        customer.getUnreadWritings().add(authors.get(3).getWritings().iterator().next());
-        customerRepository.save(customer);
-        Collection<Writing> unreadWritings = authorRepository.getUnreadListByCustomerId(customer.getId());
-        Assert.assertThat(unreadWritings, Matchers.hasSize(3));
-    }
-
-    @Test
-    public void testRemoveUnreadWritingFromAuthorEntity(){
-        //GIVEN: Author with some writings
-        Author author = authorRepository.save(EntityHelper.createAuthor("http://" + UUID.randomUUID().toString(), "some author"));
-        author.getWritings().addAll(Arrays.asList(
-                EntityHelper.createWriting("w1a1", author),
-                EntityHelper.createWriting("w2a1", author),
-                EntityHelper.createWriting("forRemove", author))
-        );
-        author = authorRepository.save(author);
-        Writing w1 = getWritingByName("w1a1", author.getWritings());
-        Writing w2 = getWritingByName("w2a1", author.getWritings());
-        Writing w3 = getWritingByName("forRemove", author.getWritings());
-        //AND: Customer, subscribed to the author
-        Customer customer = customerRepository.save(EntityHelper.createCustomer("c1", author));
-        customer.getUnreadWritings().add(w1);
-        customer.getUnreadWritings().add(w3);
-        //AND: Customer has unread Writings
-        customer = customerRepository.save(customer);
-        customer = customerRepository.findOneWithFullData(customer.getId());
-        Assert.assertThat(customer.getUnreadWritings(), Matchers.hasSize(2));
-
-        author = authorRepository.findOneWithWritings(author.getId());
-        author.getWritings().remove(getWritingByName("forRemove", author.getWritings()));
-        author = authorRepository.save(author);
-        customer = customerRepository.findOneWithFullData(customer.getId());
-        Assert.assertThat(customer.getUnreadWritings(), Matchers.hasSize(1));
-
-    }
 
     @Test
     public void testFindLinks(){
-        String link1 = UUID.randomUUID().toString();
-        String link2 = UUID.randomUUID().toString();
-        String link3 = UUID.randomUUID().toString();
-        authorRepository.save(EntityHelper.createAuthor(link1, "test1"));
-        authorRepository.save(EntityHelper.createAuthor(link2, "test2"));
-        authorRepository.save(EntityHelper.createAuthor(link3, "test3"));
+        Map<Integer, Author> authors = initHelper.initAuthors(3);
+        String link0 = authors.get(0).getLink();
+        String link1 = authors.get(1).getLink();
+        String link2 = authors.get(2).getLink();
         Collection<String> links = authorRepository.findAllAuthorLinks();
-        Assert.assertThat(links, Matchers.hasItems(link1, link2, link3));
+        Assert.assertThat(links, Matchers.hasItems(link0, link1, link2));
     }
 
     @Test
@@ -183,7 +124,7 @@ public class AuthorRepositoryIntegrationTest {
         String name = UUID.randomUUID().toString();
         Author author = authorRepository.save(EntityHelper.createAuthor("http://" + name, name));
         //AND: Customer with subscription on this author
-        Customer customer = customerRepository.save(EntityHelper.createCustomer(UUID.randomUUID().toString(), author));
+        Customer customer = customerRepository.save(EntityHelper.createCustomerWithSubscription(UUID.randomUUID().toString(), author));
         //WHEN:
         authorRepository.delete(author.getId());
         //THEN: author should be deleted
@@ -192,52 +133,4 @@ public class AuthorRepositoryIntegrationTest {
         Assert.assertNotNull(customerRepository.findOne(customer.getId()));
     }
 
-    @Test
-    public void testFindUpdatedAuthors() throws ParseException {
-        //GIVEN: There are some authors in DB
-        //AND: Some of them are updated after specified date
-        String name1 = UUID.randomUUID().toString();
-        String name2 = UUID.randomUUID().toString();
-        String name3 = UUID.randomUUID().toString();
-        Author author1 = EntityHelper.createAuthor("http://"+name1, name1);
-        author1.getWritings().add(EntityHelper.createWriting("w1", author1, sdf.parse("2015.02.20 10:00:00")));
-        author1.getWritings().add(EntityHelper.createWriting("w2", author1, sdf.parse("2015.02.20 11:00:00")));
-        author1.getWritings().add(EntityHelper.createWriting("w3", author1, sdf.parse("2015.02.20 12:10:00")));
-        Author author2 = EntityHelper.createAuthor("http://"+name2, name2);
-        author2.getWritings().add(EntityHelper.createWriting("w11", author2, sdf.parse("2015.02.20 12:00:00")));
-        author2.getWritings().add(EntityHelper.createWriting("w21", author2, sdf.parse("2015.02.20 10:00:00")));
-        author2.getWritings().add(EntityHelper.createWriting("w31", author2, sdf.parse("2015.02.20 11:20:00")));
-        Author author3 = EntityHelper.createAuthor("http://"+name3, name3);
-        author3.getWritings().add(EntityHelper.createWriting("w11", author3, sdf.parse("2015.02.20 10:00:00")));
-        author3.getWritings().add(EntityHelper.createWriting("w21", author3, sdf.parse("2015.02.20 10:00:00")));
-        author3.getWritings().add(EntityHelper.createWriting("w31", author3, sdf.parse("2015.02.20 11:00:00")));
-        author1 =authorRepository.save(author1);
-        author2 =authorRepository.save(author2);
-        //WHEN: ask for updated
-        Set<Author> updatedAuthors = authorRepository.findUpdatedAuthors(sdf.parse("2015.02.20 11:20:00"));
-        //THEN: should return authors that have updates with only updated writings
-        Assert.assertThat(updatedAuthors, Matchers.hasSize(2));
-        Assert.assertThat(updatedAuthors,
-                Matchers.hasItems(
-                        Matchers.allOf(
-                                Matchers.hasProperty("id", Matchers.equalTo(author1.getId())),
-                                Matchers.hasProperty("writings", Matchers.hasSize(1))
-                        ),
-                        Matchers.allOf(
-                                Matchers.hasProperty("id", Matchers.equalTo(author2.getId())),
-                                Matchers.hasProperty("writings", Matchers.hasSize(2))
-                        )
-                )
-        );
-
-    }
-
-    private Writing getWritingByName(String name, Collection<Writing> writings){
-        for(Writing writing: writings){
-            if(writing.getName().equals(name)){
-                return writing;
-            }
-        }
-        return  null;
-    }
 }

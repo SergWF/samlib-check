@@ -1,14 +1,12 @@
 package my.wf.samlib.helpers;
 
-import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.model.entity.Writing;
+import my.wf.samlib.model.entity.*;
+import my.wf.samlib.tools.LinkTool;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -17,7 +15,7 @@ public class EntityHelper {
 
     public static Author createAuthor(String link, String name){
         Author author = new Author();
-        author.setLink(link);
+        author.setLink(LinkTool.getAuthorLink(link, "indextitle.shtml"));
         author.setName(name);
         return author;
     }
@@ -39,18 +37,40 @@ public class EntityHelper {
         return writing;
     }
 
-    public static Customer createCustomer(String name, Author... authors){
+    public static Subscription createSubscription(Customer customer, Author author){
+        return createSubscription(customer, author, false);
+    }
+    public static Subscription createSubscription(Customer customer, Author author, boolean unread){
+        Subscription subscription = new Subscription();
+        subscription.setAuthor(author);
+        subscription.setCustomer(customer);
+        customer.getSubscriptions().add(subscription);
+        subscription.setSubscribedDate(new Date());
+        if(unread){
+            for(Writing writing: author.getWritings()){
+                subscription.getSubscriptionUnreads().add(createSubscriptionUnread(subscription, writing));
+            }
+        }
+        return subscription;
+    }
+
+    public static SubscriptionUnread createSubscriptionUnread(Subscription subscription, Writing writing) {
+        SubscriptionUnread subscriptionUnread = new SubscriptionUnread();
+        subscriptionUnread.setSubscription(subscription);
+        subscriptionUnread.setWriting(writing);
+        subscription.getSubscriptionUnreads().add(subscriptionUnread);
+        return subscriptionUnread;
+    }
+
+    public static Customer createCustomerWithSubscription(String name, Author... authors){
         Customer customer = new Customer();
         customer.setName(name);
-        if(authors.length > 0) {
-            customer.getAuthors().addAll(Arrays.asList(authors));
+        for(Author author: authors){
+            customer.getSubscriptions().add(createSubscription(customer, author));
         }
         return customer;
     }
 
-    public static Customer createDefaultCustomer(){
-        return createCustomer("default");
-    }
 
     public static Author makeCopy(Author authorTemplate){
         Author author = new Author();

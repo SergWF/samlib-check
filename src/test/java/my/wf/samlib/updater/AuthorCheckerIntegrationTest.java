@@ -83,8 +83,8 @@ public class AuthorCheckerIntegrationTest {
     public void testCheckNewAuthor() throws Exception {
         Author author = new Author();
         author.setLink(shortLink);
-        authorChecker.checkAuthorUpdates(author);
-        Author updated = authorRepository.findOneByLinkWithWritings(author.getLink());
+        Long id = authorChecker.checkAuthorUpdates(author).getId();
+        Author updated = authorRepository.findOneWithWritings(id);
         Assert.assertThat(updated,
                 Matchers.allOf(
                         Matchers.hasProperty("link", Matchers.equalTo(shortLink)),
@@ -99,7 +99,7 @@ public class AuthorCheckerIntegrationTest {
         Author author = new Author();
         author.setLink(shortLink);
         Long id = authorChecker.checkAuthorUpdates(author).getId();
-        Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
+        Author existing = authorRepository.findOneWithWritings(id);
         Date changedDate = existing.getLastChangedDate();
         Map<String, Date> map = new HashMap<>();
         for(Writing w: existing.getWritings()){
@@ -122,7 +122,7 @@ public class AuthorCheckerIntegrationTest {
         Author author = new Author();
         author.setLink(shortLink);
         Long id = authorChecker.checkAuthorUpdates(author).getId();
-        Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
+        Author existing = authorRepository.findOneWithWritings(id);
 
         Date changedDate = existing.getLastChangedDate();
         int writingsCount = existing.getWritings().size();
@@ -150,7 +150,7 @@ public class AuthorCheckerIntegrationTest {
         Author author = new Author();
         author.setLink(shortLink);
         Long id = authorChecker.checkAuthorUpdates(author).getId();
-        Author existing = authorRepository.findOneByLinkWithWritings(author.getLink());
+        Author existing = authorRepository.findOneWithWritings(id);
 
         Date changedDate = existing.getLastChangedDate();
         int writingsCount = existing.getWritings().size();

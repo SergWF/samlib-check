@@ -25,7 +25,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static springfox.documentation.schema.AlternateTypeRules.newRule;
 
 @Configuration
-public class RestConfig {
+public class SwaggerConfig {
     @Autowired
     private TypeResolver typeResolver;
 

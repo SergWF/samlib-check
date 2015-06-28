@@ -42,8 +42,11 @@ public class AuthorServiceImplIntegrationTest {
     @Test
     public void testFindAuthorOnAdd() throws Exception {
         Map<Integer, Author> authors = initHelper.initAuthors(3);
-        Author author = authorService.addAuthor(authors.get(0).getLink());
-        Assert.assertThat(author, Matchers.hasProperty("id", Matchers.equalTo(authors.get(0).getId())));
+        Long id = authors.get(0).getId();
+        String link = authors.get(0).getLink();
+
+        Author author = authorService.addAuthor(link);
+        Assert.assertThat(author, Matchers.hasProperty("id", Matchers.equalTo(id)));
     }
 
     @Test

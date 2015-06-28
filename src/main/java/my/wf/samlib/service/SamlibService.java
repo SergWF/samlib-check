@@ -5,6 +5,6 @@ import my.wf.samlib.model.entity.Customer;
 
 public interface SamlibService {
 
-    Customer getDefaultCustomer();
+    Customer getActiveCustomer();
 
 }

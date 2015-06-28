@@ -5,7 +5,7 @@ import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
-import my.wf.samlib.service.CustomerService;
+import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import my.wf.samlib.updater.parser.impl.SamlibAuthorParserImpl;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +33,7 @@ public class AuthorCheckerTest {
     @Mock
     AuthorRepository authorRepository;
     @Mock
-    CustomerService customerService;
+    UtilsService utilsService;
     Author author;
     Writing[] writings;
 
