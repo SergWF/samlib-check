@@ -21,13 +21,13 @@ public class SubscriptionRestController {
     SamlibService samlibService;
 
     @ApiOperation(value = "Creates a new subscription")
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Subscription subscribe(@RequestBody long authorId){
+    @RequestMapping(value = "/subscribe/{authorId}", method = RequestMethod.POST)
+    public Subscription subscribe(@PathVariable(value = "authorId") long authorId){
         return subscriptionService.subscribe(samlibService.getActiveCustomer(), authorId);
     }
 
     @ApiOperation(value = "Creates a new subscription")
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
     public Subscription subscribe(@RequestBody NewAuthorDto authorDto){
         return subscriptionService.addAuthorAndSubscribe(samlibService.getActiveCustomer(), authorDto);
     }
@@ -57,7 +57,7 @@ public class SubscriptionRestController {
     }
 
     @ApiOperation(value = "Mark all writings in subscription as read")
-    @RequestMapping(value = "/{subscriptionId}/unread", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{subscriptionId}/unread/all", method = RequestMethod.DELETE)
     public Subscription markAllAsRead(@PathVariable(value = "subscriptionId") Long subscriptionId){
         return subscriptionService.markAllAsRead(samlibService.getActiveCustomer(), subscriptionId);
     }
