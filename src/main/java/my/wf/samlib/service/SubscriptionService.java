@@ -35,4 +35,6 @@ public interface SubscriptionService {
     Set<Subscription> getUnreadInSubscription(Customer customer);
 
     List<Subscription> updateUnreadState(Author author, Date updateDate);
+
+    Subscription getSubscriptionByCustomerAndAuthorId(Long customerId, Long authorId);
 }

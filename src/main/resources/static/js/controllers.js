@@ -55,9 +55,9 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         console.log("add:", authorUrl);
 
         $http.post("/subscription/subscribe/url", authorUrl).success(function (data, status) {
-                $scope.statistic = data;
-                $scope.status = status;
-            })
+            $scope.statistic = data;
+            $scope.status = status;
+        })
             .error(function (data, status) {
                 $scope.statistic = data;
                 $scope.status = status;
@@ -85,17 +85,55 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
 
 
 samlibControllers.controller("AuthorDetailsCtrl", function($scope, $http, $routeParams){
+
+    function removeFromUnreadList(writing){
+        var link = "/subscription/"+$scope.authorDetails.subscriptionId+"/unread/"+writing.writingId;
+        $http.delete(link).
+            success(function (data, status) {
+                $scope.authorDetails = data;
+                $scope.status = status;
+            }).
+            error(function (data, status) {
+                $scope.authorDetails = data || "Request failed";
+                $scope.status = status;
+            });
+    }
+
+    function addToUnreadList(writing){
+        var link = "/subscription/"+$scope.authorDetails.subscriptionId+"/unread/"+writing.writingId;
+        $http.post(link).
+            success(function (data, status) {
+                $scope.authorDetails = data;
+                $scope.status = status;
+            }).
+            error(function (data, status) {
+                $scope.authorDetails = data || "Request failed";
+                $scope.status = status;
+            });
+    }
+
     $scope.getAuthorDetails = function(authorId){
         $http.get("/author/"+authorId).
             success(function (data, status) {
                 $scope.authorDetails = data;
                 $scope.status = status;
-                console.log($scope.authorDetails);
             }).
             error(function (data, status) {
                 $scope.authorDetails = data || "Request failed";
                 $scope.status = status;
             });
     };
+
+    $scope.changeUnreadState = function(writing){
+        if(writing.unread){
+            addToUnreadList(writing);
+        }else{
+            removeFromUnreadList(writing);
+        }
+    }
+
+
+
     $scope.getAuthorDetails($routeParams.authorId);
+
 });

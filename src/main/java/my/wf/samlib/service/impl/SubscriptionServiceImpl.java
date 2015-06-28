@@ -152,6 +152,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionRepository.save(subscriptions);
     }
 
+    @Override
+    public Subscription getSubscriptionByCustomerAndAuthorId(Long customerId, Long authorId) {
+        return subscriptionRepository.findByCustomerAndAuthorWithUnread(customerId, authorId);
+    }
+
     protected void checkExists(Long customerId, Long subscriptionId){
         if(!subscriptionRepository.exists(customerId, subscriptionId)){
             throw new InvalidAccessException("Wrong Subscription Id");

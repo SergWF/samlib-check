@@ -50,7 +50,7 @@ public class SamlibAuthorParserImplTest {
                         Matchers.hasProperty("groupName", Matchers.equalTo("Воздушный стрелок (рабочее)")),
                         Matchers.hasProperty("name", Matchers.equalTo("Воздушный стрелок 2")),
                         Matchers.hasProperty("link", Matchers.equalTo("vs2.shtml")),
-                        Matchers.hasProperty("description", Matchers.equalTo("18.06.15. <dd> + Часть 6. Глава 9.")),
+                        Matchers.hasProperty("description", Matchers.equalTo("18.06.15.  + Часть 6. Глава 9.")),
                         Matchers.hasProperty("size", Matchers.equalTo("612"))
                 )
         );

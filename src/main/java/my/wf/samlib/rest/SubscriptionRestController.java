@@ -1,12 +1,17 @@
 package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
+import my.wf.samlib.model.dto.AuthorDetailsDto;
 import my.wf.samlib.model.dto.SubscriptionDto;
+import my.wf.samlib.model.dto.builder.AuthorDtoBuilder;
 import my.wf.samlib.model.dto.builder.SubscriptionDtoBuilder;
 import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.model.statistic.SubscriptionStatistic;
+import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.SamlibService;
 import my.wf.samlib.service.SubscriptionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +22,12 @@ import java.util.Set;
 @RequestMapping(value = "/subscription", produces= MediaType.APPLICATION_JSON_VALUE)
 public class SubscriptionRestController {
 
+    private static final Logger logger  = LoggerFactory.getLogger(SubscriptionRestController.class);
+
     @Autowired
     SubscriptionService subscriptionService;
+    @Autowired
+    AuthorService authorService;
     @Autowired
     SamlibService samlibService;
 
@@ -70,13 +79,18 @@ public class SubscriptionRestController {
 
     @ApiOperation(value = "Remove writing from unread list in subscription")
     @RequestMapping(value = "/{subscriptionId}/unread/{writingId}", method = RequestMethod.DELETE)
-    public Subscription markWritingAsRead(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
-        return subscriptionService.removeWritingFromUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
+    public AuthorDetailsDto removeFromUnreadList(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
+        logger.info("Remove from UnreadList, subscriptionId={}, writing.id={}",subscriptionId, writingId);
+        Subscription subscription = subscriptionService.removeWritingFromUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
+        return AuthorDtoBuilder.buildDto(authorService.findAuthor(subscription.getAuthor().getId()),subscription);
     }
+
     @ApiOperation(value = "Add writing to unread list in subscription")
     @RequestMapping(value = "/{subscriptionId}/unread/{writingId}", method = RequestMethod.POST)
-    public Subscription markWritingAsUnread(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
-        return subscriptionService.addWritingToUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
+    public AuthorDetailsDto addToUnreadList(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
+        logger.info("Add to UnreadList, subscriptionId={}, writing.id={}",subscriptionId, writingId);
+        Subscription subscription = subscriptionService.addWritingToUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
+        return AuthorDtoBuilder.buildDto(authorService.findAuthor(subscription.getAuthor().getId()),subscription);
     }
 
 }

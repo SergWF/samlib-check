@@ -1,16 +1,18 @@
 package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
+import my.wf.samlib.model.dto.AuthorDetailsDto;
+import my.wf.samlib.model.dto.builder.AuthorDtoBuilder;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.rest.hateoas.HateoasResourceBuilder;
+import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.service.SamlibService;
+import my.wf.samlib.service.SubscriptionService;
+import my.wf.samlib.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +29,8 @@ public class AuthorRestController {
     UtilsService utilsService;
     @Autowired
     SamlibService samlibService;
+    @Autowired
+    SubscriptionService subscriptionService;
 
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
@@ -42,9 +46,11 @@ public class AuthorRestController {
     @ApiOperation(value = "Returns Author's data")
     @RequestMapping(value = "/{authorId}", method = RequestMethod.GET)
     @ResponseBody
-    public Resource<Author> getDetails(@PathVariable long authorId) {
+    public AuthorDetailsDto getDetails(@PathVariable long authorId) {
         logger.info("GET AUTHOR BY ID {}", authorId);
-        return HateoasResourceBuilder.createResource(authorService.findAuthor(authorId));
+        Customer customer = samlibService.getActiveCustomer();
+        Subscription subscription = subscriptionService.getSubscriptionByCustomerAndAuthorId(customer.getId(), authorId);
+        return AuthorDtoBuilder.buildDto(authorService.findAuthor(authorId),subscription);
     }
 
 //    @ApiOperation(value = "Deletes Author")

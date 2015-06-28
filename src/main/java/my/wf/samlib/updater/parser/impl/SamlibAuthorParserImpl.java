@@ -47,7 +47,10 @@ public class SamlibAuthorParserImpl implements SamlibAuthorParser {
         Writing w = new Writing();
         w.setName(matcher.group("NameOfText"));
         w.setLink(matcher.group("LinkToText"));
-        w.setDescription(matcher.group("Description"));
+        String description = matcher.group("Description");
+        if(null != description) {
+            w.setDescription(description.replaceAll("\\<[^>]*>", ""));
+        }
         w.setSize(matcher.group("SizeOfText"));
         w.setGroupName(matcher.group("Section"));
         return w;

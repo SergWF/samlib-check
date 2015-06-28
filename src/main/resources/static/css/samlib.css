@@ -25,11 +25,14 @@
 .writing_date{
     font-size: smaller;
 }
+.writing_description{
+    font-size: smaller;
+}
 
 .statistic{
     font-size: small;
 }
 
-.has_new{
+.unread{
     font-weight: bold;
 }

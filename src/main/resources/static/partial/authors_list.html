@@ -25,17 +25,14 @@
         <tr>
             <th>Author</th>
             <th>Total</th>
-            <th>Unread</th>
+            <th colspan="2">Unread</th>
             <th>Last Changed</th>
         </tr>
         <tr ng-repeat="subscription in subscriptions | orderBy: ['-(0 < unreadCount)', '-lastUpdateDate']"  ng-class-odd="'odd'" ng-class-even="'even'">
             <td><a href="#/subscriptions/{{subscription.authorId}}">{{subscription.authorName}}</a></td>
             <td>{{subscription.writingCount}}</td>
-            <td><span ng-if="subscription.unreadCount > 0">
-                    {{subscription.unreadCount}}
-                    <button ng-click="cleanUnread(subscription)">x</button>
-                </span>
-            </td>
+            <td><span ng-if="subscription.unreadCount > 0">{{subscription.unreadCount}}</span></td>
+            <td><button ng-click="cleanUnread(subscription)">x</button></td>
             <td>{{subscription.lastUpdateDate | date:"dd.MM.yy HH:mm"}}</td>
         </tr>
     </table>
