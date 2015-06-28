@@ -14,19 +14,20 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("SELECT CASE WHEN COUNT(s) > 0 THEN 'true' ELSE 'false' END FROM Subscription s WHERE s.customer.id=:customerId AND s.id = :subscriptionId")
     Boolean exists(@Param("customerId") Long customerId, @Param("subscriptionId") Long subscriptionId);
 
-    @Query("SELECT DISTINCT s, u FROM Subscription s  LEFT JOIN FETCH s.subscriptionUnreads u  WHERE s.customer.id = :customerId")
+    @Query("SELECT s, u, a FROM Subscription s  INNER JOIN s.author a LEFT JOIN FETCH s.subscriptionUnreads u  WHERE s.customer.id = :customerId")
     Set<Subscription> findAllByCustomerId(@Param("customerId") Long customerId);
 
     @Query("SELECT s FROM Subscription s WHERE s.customer.id = :customerId AND s.author.id = :authorId ")
     Subscription findByCustomerAndAuthor(@Param("customerId") Long customerId, @Param("authorId") Long authorId);
+
+    @Query("SELECT s FROM Subscription s WHERE s.author.id = :authorId ")
+    Set<Subscription> findAllByAndAuthor(@Param("authorId") Long authorId);
 
     @Query("SELECT s,u FROM Subscription s LEFT JOIN FETCH s.subscriptionUnreads u WHERE s.customer.id = :customerId AND s.author.id = :authorId ")
     Subscription findByCustomerAndAuthorWithUnread(@Param("customerId") Long customerId, @Param("authorId") Long authorId);
 
     @Query("SELECT s, u FROM Subscription s INNER JOIN FETCH s.subscriptionUnreads u  WHERE s.customer.id = :customerId")
     Set<Subscription> findUnreadOnly(Long customerId);
-
-    Set<Subscription> findByAuthor(Author author);
 
     @Query("SELECT COUNT(s) FROM Subscription s  WHERE s.customer.id = :customerId")
     Integer subscriptionCountByCustomerID(@Param("customerId") Long customerId);

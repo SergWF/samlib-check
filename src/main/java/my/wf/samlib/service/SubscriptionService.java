@@ -1,11 +1,11 @@
 package my.wf.samlib.service;
 
-import my.wf.samlib.model.dto.NewAuthorDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Subscription;
-import my.wf.samlib.model.entity.Writing;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 public interface SubscriptionService {
@@ -13,7 +13,7 @@ public interface SubscriptionService {
 
     Subscription subscribe(Customer customer, Author author);
 
-    Subscription addAuthorAndSubscribe(Customer customer, NewAuthorDto authorDto);
+    Subscription addAuthorAndSubscribe(Customer customer, String authorUrl);
 
     Set<Subscription> getSubscriptionList(Customer customer);
 
@@ -29,5 +29,5 @@ public interface SubscriptionService {
 
     Set<Subscription> getUnreadInSubscription(Customer customer);
 
-    void updateUnreadState(Writing writing);
+    List<Subscription> updateUnreadState(Author author, Date updateDate);
 }

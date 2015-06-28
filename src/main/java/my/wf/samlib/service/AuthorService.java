@@ -3,7 +3,9 @@ package my.wf.samlib.service;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public interface AuthorService {
 
@@ -17,4 +19,6 @@ public interface AuthorService {
     void delete(long authorId);
 
     Writing getWritingById(long writingId);
+
+    Set<Author> findAllAuthorsWithUpdatedWritingsOnly(Date lastCheckDate);
 }

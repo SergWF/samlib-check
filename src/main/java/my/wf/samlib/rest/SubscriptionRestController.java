@@ -1,7 +1,6 @@
 package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
-import my.wf.samlib.model.dto.NewAuthorDto;
 import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.service.SamlibService;
 import my.wf.samlib.service.SubscriptionService;
@@ -27,9 +26,9 @@ public class SubscriptionRestController {
     }
 
     @ApiOperation(value = "Creates a new subscription")
-    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
-    public Subscription subscribe(@RequestBody NewAuthorDto authorDto){
-        return subscriptionService.addAuthorAndSubscribe(samlibService.getActiveCustomer(), authorDto);
+    @RequestMapping(value = "/subscribe/url", method = RequestMethod.POST)
+    public Subscription subscribe(@RequestBody String authorUrl){
+        return subscriptionService.addAuthorAndSubscribe(samlibService.getActiveCustomer(), authorUrl);
     }
 
     @ApiOperation(value = "Returns list of all subscribed Authors")

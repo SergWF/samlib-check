@@ -4,7 +4,6 @@ import my.wf.samlib.model.dto.StatisticDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Subscription;
-import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.model.repositoriy.SubscriptionRepository;
 import my.wf.samlib.model.repositoriy.SubscriptionUnreadRepository;
@@ -15,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
 @Service
 public class UtilsServiceImpl implements UtilsService {
@@ -57,15 +58,6 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
 
-
-    @Override
-    @Transactional
-    public void updateUnreadWritings(Date lastCheckDate) {
-        Set<Writing> updatedWritings = authorRepository.findUpdatedWritings(lastCheckDate);
-        for(Writing writing: updatedWritings){
-            subscriptionService.updateUnreadState(writing);
-        }
-    }
 
     protected Subscription addAuthor(Customer customer, Author author) {
         return subscriptionService.subscribe(customer, author);

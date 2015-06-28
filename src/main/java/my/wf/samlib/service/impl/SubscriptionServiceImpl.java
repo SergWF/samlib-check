@@ -1,7 +1,6 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.exception.InvalidAccessException;
-import my.wf.samlib.model.dto.NewAuthorDto;
 import my.wf.samlib.model.entity.*;
 import my.wf.samlib.model.repositoriy.SubscriptionRepository;
 import my.wf.samlib.model.repositoriy.SubscriptionUnreadRepository;
@@ -10,8 +9,7 @@ import my.wf.samlib.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -34,20 +32,20 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public Subscription subscribe(Customer customer, Author author) {
         Subscription subscription = subscriptionRepository.findByCustomerAndAuthor(customer.getId(), author.getId());
-        return (null == subscription)?createSubscription(customer, author): subscription;
+        return (null == subscription)? createAndSaveSubscription(customer, author): subscription;
     }
 
-    protected Subscription createSubscription(Customer customer, Author author) {
+    protected Subscription createAndSaveSubscription(Customer customer, Author author) {
         Subscription subscription = new Subscription();
         subscription.setAuthor(author);
         subscription.setCustomer(customer);
         subscription.setSubscribedDate(new Date());
-        return subscription;
+        return subscriptionRepository.save(subscription);
     }
 
     @Override
-    public Subscription addAuthorAndSubscribe(Customer customer, NewAuthorDto authorDto) {
-        Author author = authorService.addAuthor(authorDto.getUrl());
+    public Subscription addAuthorAndSubscribe(Customer customer, String authorUrl) {
+        Author author = authorService.addAuthor(authorUrl);
         return subscribe(customer, author);
     }
 
@@ -90,14 +88,23 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         checkExists(customer.getId(), subscriptionId);
         Subscription subscription = subscriptionRepository.findOne(subscriptionId);
         Writing writing = authorService.getWritingById(writingId);
-        return addToUnreadList(subscription, writing);
+        return subscriptionRepository.save(addToUnreadList(subscription, writing));
     }
 
     private Subscription addToUnreadList(Subscription subscription, Writing writing) {
         SubscriptionUnread subscriptionUnread = new SubscriptionUnread();
         subscriptionUnread.setSubscription(subscription);
         subscriptionUnread.setWriting(writing);
-        return subscriptionRepository.save(subscription);
+        subscription.getSubscriptionUnreads().add(subscriptionUnread);
+        return subscription;
+    }
+
+    protected void addAllUpdatedToUnreadList(Subscription subscription, Collection<Writing> writings, Date checkDate) {
+        for(Writing writing: writings){
+            if(0 >= checkDate.compareTo(writing.getLastChangedDate())){
+                addToUnreadList(subscription, writing);
+            }
+        }
     }
 
     @Override
@@ -106,11 +113,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public void updateUnreadState(Writing writing) {
-        Set<Subscription> subscriptions = subscriptionRepository.findByAuthor(writing.getAuthor());
-        for(Subscription subscription: subscriptions){
-            addToUnreadList(subscription, writing);
+    public List<Subscription> updateUnreadState(Author author, Date updateDate) {
+        if(null == author || updateDate.after(author.getLastChangedDate())){
+            return new ArrayList<>();
         }
+
+        Set<Subscription> subscriptions = subscriptionRepository.findAllByAndAuthor(author.getId());
+        for(Subscription subscription: subscriptions){
+            addAllUpdatedToUnreadList(subscription, author.getWritings(), updateDate);
+        }
+        return subscriptionRepository.save(subscriptions);
     }
 
     protected void checkExists(Long customerId, Long subscriptionId){
