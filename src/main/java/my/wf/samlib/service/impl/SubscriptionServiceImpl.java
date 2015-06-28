@@ -1,9 +1,11 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.exception.InvalidAccessException;
+import my.wf.samlib.model.dto.SubscriptionDto;
 import my.wf.samlib.model.entity.*;
 import my.wf.samlib.model.repositoriy.SubscriptionRepository;
 import my.wf.samlib.model.repositoriy.SubscriptionUnreadRepository;
+import my.wf.samlib.model.statistic.SubscriptionStatistic;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +52,39 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Set<Subscription> getSubscriptionList(Customer customer) {
-        return subscriptionRepository.findAllByCustomerId(customer.getId());
+    public Set<SubscriptionDto> getSubscriptionList(Customer customer) {
+        Set<Subscription> subscriptions = subscriptionRepository.findAllByCustomerId(customer.getId());
+        List<Object> dataList = subscriptionRepository.getAllSubscriptionStatistic(customer.getId());
+        Set<SubscriptionDto> subscriptionDtoSet = new HashSet<>(subscriptions.size());
+        for(Object data: dataList){
+            SubscriptionStatistic stat = new SubscriptionStatistic(data);
+            Subscription subscription = findInList(stat.getSubscriptionId(), subscriptions);
+            if(null != subscription) {
+                subscriptionDtoSet.add(createSubscriptionDto(subscription, stat));
+            }
+        }
+        return subscriptionDtoSet;
+    }
+
+    private SubscriptionDto createSubscriptionDto(Subscription subscription, SubscriptionStatistic subscriptionStatistic){
+        SubscriptionDto subscriptionDto = new SubscriptionDto();
+        subscriptionDto.setSubscriptionId(subscription.getId());
+        subscriptionDto.setAuthorId(subscription.getAuthor().getId());
+        subscriptionDto.setAuthorName(subscription.getAuthor().getName());
+        subscriptionDto.setAuthorLink(subscription.getAuthor().getLink());
+        subscriptionDto.setLastUpdateDate(subscriptionStatistic.getLastUpdateDate());
+        subscriptionDto.setUnreadCount(subscriptionStatistic.getUnreadCount());
+        subscriptionDto.setWritingCount(subscriptionStatistic.getWritingCount());
+        return subscriptionDto;
+    }
+
+    private Subscription findInList(Long id, Collection<Subscription> subscriptions){
+        for(Subscription subscription: subscriptions){
+            if(subscription.getId() == id){
+                return subscription;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -118,7 +151,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             return new ArrayList<>();
         }
 
-        Set<Subscription> subscriptions = subscriptionRepository.findAllByAndAuthor(author.getId());
+        Set<Subscription> subscriptions = subscriptionRepository.findAllByAndAuthorId(author.getId());
         for(Subscription subscription: subscriptions){
             addAllUpdatedToUnreadList(subscription, author.getWritings(), updateDate);
         }

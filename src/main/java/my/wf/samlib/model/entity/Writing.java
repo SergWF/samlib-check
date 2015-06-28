@@ -99,6 +99,7 @@ public class Writing extends BaseEntity implements LastDate {
 
 
     @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     public Set<SubscriptionUnread> getSubscriptionUnreads() {
         return subscriptionUnreads;
     }

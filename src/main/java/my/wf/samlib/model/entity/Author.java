@@ -1,5 +1,6 @@
 package my.wf.samlib.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import my.wf.samlib.model.compare.LastChangedDateComparator;
 import my.wf.samlib.model.compare.LastDate;
@@ -50,6 +51,7 @@ public class Author extends BaseEntity implements LastDate  {
 
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     public Set<Subscription> getSubscriptions() {
         return subscriptions;
     }

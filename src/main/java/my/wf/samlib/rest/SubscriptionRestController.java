@@ -1,7 +1,9 @@
 package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
+import my.wf.samlib.model.dto.SubscriptionDto;
 import my.wf.samlib.model.entity.Subscription;
+import my.wf.samlib.model.statistic.SubscriptionStatistic;
 import my.wf.samlib.service.SamlibService;
 import my.wf.samlib.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,7 @@ public class SubscriptionRestController {
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public Set<Subscription> getSubscriptionList(){
+    public Set<SubscriptionDto> getSubscriptionList(){
         return subscriptionService.getSubscriptionList(samlibService.getActiveCustomer());
     }
 

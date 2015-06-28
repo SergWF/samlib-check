@@ -31,4 +31,5 @@ public class SubscriptionStatistic {
     public Date getLastUpdateDate() {
         return lastUpdateDate;
     }
+
 }

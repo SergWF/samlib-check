@@ -30,7 +30,7 @@ public class Subscription extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    @JsonBackReference
+    @JsonManagedReference
     public Author getAuthor() {
         return author;
     }
@@ -66,7 +66,6 @@ public class Subscription extends BaseEntity {
                 ", customer=" + customer +
                 ", author=" + author +
                 ", subscribedDate=" + subscribedDate +
-                ", subscriptionUnreads=" + subscriptionUnreads +
                 '}';
     }
 }

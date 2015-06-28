@@ -1,5 +1,6 @@
 package my.wf.samlib.service;
 
+import my.wf.samlib.model.dto.SubscriptionDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Subscription;
@@ -15,7 +16,7 @@ public interface SubscriptionService {
 
     Subscription addAuthorAndSubscribe(Customer customer, String authorUrl);
 
-    Set<Subscription> getSubscriptionList(Customer customer);
+    Set<SubscriptionDto> getSubscriptionList(Customer customer);
 
     Subscription getSubscriptionById(Customer customer, long subscriptionId);
 
