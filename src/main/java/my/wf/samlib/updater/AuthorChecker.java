@@ -104,9 +104,9 @@ public class AuthorChecker {
     @Async
     public void checkAuthors(Collection<Author> authors, Date checkDate){
         logger.info("checkAuthorUpdates authors, started at{} found {} records", checkDate, authors.size());
+        int updatedCount = 0;
         for (Author author : authors) {
             try {
-                System.out.println(">>>" + author);
                 try {
                     Thread.sleep(checkPauseMs);
                 } catch (InterruptedException e) {
@@ -115,14 +115,15 @@ public class AuthorChecker {
                 Author updatedAuthor = checkUpdateAndSave(author);
                 if(null != updatedAuthor){
                     Collection<Subscription> subscriptions = subscriptionService.updateUnreadState(updatedAuthor, checkDate);
-                    logger.info("Updated {} subscriptions for author {}", subscriptions.size(), updatedAuthor.getName());
+                    updatedCount += subscriptions.size();
+                    logger.debug("Updated {} subscriptions for author {}", subscriptions.size(), updatedAuthor.getName());
                 }
                 processed.getAndAdd(1);
             } catch (SamlibException e) {
                 logger.error("Can not checkAuthorUpdates author", e);
             }
         }
-        logger.info("checkAuthorUpdates finished for {} authors", authors.size());
+        logger.info("checkAuthorUpdates finished for {} authors. updated {} writings", authors.size(), updatedCount);
     }
 
     protected Author checkUpdateAndSave(Author author){
@@ -137,15 +138,15 @@ public class AuthorChecker {
 
 
     protected Author checkAuthorUpdates(Author author) {
-        logger.info("check author {} by link {}", author.getName(), author.getLink());
+        logger.debug("check author {} by link {}", author.getName(), author.getLink());
         Date checkDate = new Date();
         author.setLink(LinkTool.getAuthorLink(author.getLink(), linkSuffix));
         String fullLink = LinkTool.getFullAuthorLink(author.getLink(), linkSuffix);
         String pageString = samlibPageReader.readPage(fullLink);
-        logger.info("loaded {} symbols", pageString.length());
+        logger.debug("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
-        logger.info("name= {}, writings={}", authorName, parsedWritings);
+        logger.debug("name= {}, writings={}", authorName, parsedWritings);
         Author updatedAuthor = implementChanges(author, parsedWritings, authorName, checkDate);
         return authorRepository.save(updatedAuthor);
     }

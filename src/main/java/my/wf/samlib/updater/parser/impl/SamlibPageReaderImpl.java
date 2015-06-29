@@ -40,7 +40,7 @@ public class SamlibPageReaderImpl implements SamlibPageReader {
     }
 
     private String readPageByLink(String link) throws IOException {
-        logger.info("read by link [{}]", link);
+        logger.debug("read by link [{}]", link);
         URL url = new URL(link);
         URLConnection con = url.openConnection();
         Reader r = new InputStreamReader(con.getInputStream(), getCharset(con.getContentType(), DEFAULT_ENCODING));

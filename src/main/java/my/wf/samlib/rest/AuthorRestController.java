@@ -39,7 +39,7 @@ public class AuthorRestController {
     public List<Author> listAuthors(){
         logger.info("GET AUTHORS LIST");
         List<Author> authorsList = authorService.findAllAuthors();
-        logger.info("found {} authors", authorsList.size());
+        logger.debug("found {} authors", authorsList.size());
         return authorsList;
     }
 

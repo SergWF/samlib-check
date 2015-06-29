@@ -32,7 +32,7 @@
             <td><a href="#/subscriptions/{{subscription.authorId}}">{{subscription.authorName}}</a></td>
             <td>{{subscription.writingCount}}</td>
             <td><span ng-if="subscription.unreadCount > 0">{{subscription.unreadCount}}</span></td>
-            <td><button ng-click="cleanUnread(subscription)">x</button></td>
+            <td><button ng-if="subscription.unreadCount > 0" ng-click="cleanUnread(subscription)">x</button></td>
             <td>{{subscription.lastUpdateDate | date:"dd.MM.yy HH:mm"}}</td>
         </tr>
     </table>
