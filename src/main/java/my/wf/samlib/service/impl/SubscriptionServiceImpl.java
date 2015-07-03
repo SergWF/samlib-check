@@ -145,7 +145,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             return new ArrayList<>();
         }
 
-        Set<Subscription> subscriptions = subscriptionRepository.findAllByAndAuthorId(author.getId());
+        Set<Subscription> subscriptions = subscriptionRepository.findAllWithUnreadsByAndAuthorId(author.getId());
         for(Subscription subscription: subscriptions){
             addAllUpdatedToUnreadList(subscription, author.getWritings(), updateDate);
         }

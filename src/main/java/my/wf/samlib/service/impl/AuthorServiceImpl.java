@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -60,6 +58,11 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    public Author findAuthorWithWritings(long authorId) {
+        return authorRepository.findOneWithWritings(authorId);
+    }
+
+    @Override
     public List<Author> findAllAuthors() {
         return authorRepository.findAll();
     }
@@ -75,8 +78,8 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Set<Author> findAllAuthorsWithUpdatedWritingsOnly(Date lastCheckDate) {
-        return authorRepository.findUpdatedAuthorsWithUpdatedWritingsOnly(lastCheckDate);
+    public Author saveAuthor(Author author) {
+        return authorRepository.save(author);
     }
 
 }

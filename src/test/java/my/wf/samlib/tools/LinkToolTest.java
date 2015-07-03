@@ -20,13 +20,22 @@ public class LinkToolTest {
         Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, LINK_SUFFIX));
         Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL_NO_SLASH, LINK_SUFFIX));
         Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(FULL_AUTHOR_URL, LINK_SUFFIX));
+        Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, null));
+        Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, ""));
+        Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, "       "));
+        Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, "\t"));
+        Assert.assertEquals(AUTHOR_URL, LinkTool.getAuthorLink(AUTHOR_URL, "\n"));
+        Assert.assertEquals("http://link.html", LinkTool.getAuthorLink("http://link.html", null));
+        Assert.assertEquals("http://link.shtml", LinkTool.getAuthorLink("http://link.shtml", null));
     }
 
     @Test
     public void testGetFullAuthorLink() {
-        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getFullAuthorLink(AUTHOR_URL, LINK_SUFFIX));
-        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getFullAuthorLink(AUTHOR_URL_NO_SLASH, LINK_SUFFIX));
-        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getFullAuthorLink(FULL_AUTHOR_URL, LINK_SUFFIX));
+        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getAuthorIndexPage(AUTHOR_URL, LINK_SUFFIX));
+        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getAuthorIndexPage(AUTHOR_URL_NO_SLASH, LINK_SUFFIX));
+        Assert.assertEquals(FULL_AUTHOR_URL, LinkTool.getAuthorIndexPage(FULL_AUTHOR_URL, LINK_SUFFIX));
+        Assert.assertEquals("http://link.html", LinkTool.getAuthorIndexPage("http://link.html", null));
+        Assert.assertEquals("http://link.shtml", LinkTool.getAuthorIndexPage("http://link.shtml", null));
     }
 
     @Test

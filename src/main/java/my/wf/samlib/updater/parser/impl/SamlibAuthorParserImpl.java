@@ -2,17 +2,12 @@ package my.wf.samlib.updater.parser.impl;
 
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-@Scope(value = "prototype",  proxyMode = ScopedProxyMode.INTERFACES)
 public class SamlibAuthorParserImpl implements SamlibAuthorParser {
 
     private static final Pattern namePattern = Pattern.compile("<center>\\s*<h3>(?<authorName>.*?):<br>");

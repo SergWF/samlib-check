@@ -1,31 +1,24 @@
 package my.wf.samlib.updater;
 
-import my.wf.samlib.exception.SamlibException;
 import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
-import my.wf.samlib.service.SubscriptionService;
-import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.tools.LinkTool;
+import my.wf.samlib.updater.parser.AuthorCheckCallback;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
-@Component
-public class AuthorChecker {
-    private static final Logger logger = LoggerFactory.getLogger(AuthorChecker.class);
+public class AuthorCheckerOld {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorCheckerOld.class);
     private static final AtomicBoolean updateFlag = new AtomicBoolean(false);
 
     private String linkSuffix;
@@ -33,12 +26,6 @@ public class AuthorChecker {
     private AuthorRepository authorRepository;
     private SamlibAuthorParser samlibAuthorParser;
     private SamlibPageReader samlibPageReader;
-    private UtilsService utilsService;
-    private SubscriptionService subscriptionService;
-
-    private static final AtomicInteger total = new AtomicInteger(0);
-    private static final AtomicInteger processed = new AtomicInteger(0);
-    private static final AtomicInteger errors = new AtomicInteger(0);
 
     private int checkPauseMs;
 
@@ -63,85 +50,35 @@ public class AuthorChecker {
     }
 
     @Autowired
-    public void setUtilsService(UtilsService utilsService) {
-        this.utilsService = utilsService;
-    }
-
-    @Autowired
     public void setSamlibPageReader(SamlibPageReader samlibPageReader) {
         this.samlibPageReader = samlibPageReader;
     }
 
-    @Autowired
-    public void setSubscriptionService(SubscriptionService subscriptionService) {
-        this.subscriptionService = subscriptionService;
-    }
-
-    @Async
-    public UpdatingProcessDto checkAll() {
-        if (updateFlag.get()) {
-            return getUpdateStatus();
-        }
-        updateFlag.set(true);
-        doCheckUpdates();
-        updateFlag.set(false);
-        return getUpdateStatus();
-    }
-
-    public UpdatingProcessDto getUpdateStatus() {
-        return new UpdatingProcessDto(total.get(), processed.get(), errors.get());
-    }
-
-    public UpdatingProcessDto doCheckUpdates() {
-        Set<Author> authors = authorRepository.findAllWithWritings();
-        total.set(authors.size());
-        processed.set(0);
-        errors.set(0);
-        checkAuthors(authors, new Date());
-        return getUpdateStatus();
-    }
-
-    @Async
-    public void checkAuthors(Collection<Author> authors, Date checkDate){
+    public UpdatingProcessDto checkAuthors(Collection<Author> authors, Date checkDate, AuthorCheckCallback callback){
         logger.info("checkAuthorUpdates authors, started at{} found {} records", checkDate, authors.size());
+        UpdatingProcessDto updatingProcessDto = new UpdatingProcessDto();
+        updatingProcessDto.setDate(checkDate);
+        updatingProcessDto.setProcessed(0);
+        updatingProcessDto.setTotal(authors.size());
         int updatedCount = 0;
         for (Author author : authors) {
             try {
-                try {
-                    Thread.sleep(checkPauseMs);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Author updatedAuthor = checkUpdateAndSave(author);
-                if(null != updatedAuthor){
-                    Collection<Subscription> subscriptions = subscriptionService.updateUnreadState(updatedAuthor, checkDate);
-                    updatedCount += subscriptions.size();
-                    logger.debug("Updated {} subscriptions for author {}", subscriptions.size(), updatedAuthor.getName());
-                }
-                processed.getAndAdd(1);
-            } catch (SamlibException e) {
+                callback.onAuthorCheck(checkAuthorUpdates(author));
+                updatingProcessDto.increaseProcessed(1);
+            } catch (RuntimeException e) {
+                updatingProcessDto.getErrors().putIfAbsent(author, e);
                 logger.error("Can not checkAuthorUpdates author", e);
             }
         }
         logger.info("checkAuthorUpdates finished for {} authors. updated {} writings", authors.size(), updatedCount);
+        return updatingProcessDto;
     }
-
-    protected Author checkUpdateAndSave(Author author){
-        try {
-            return authorRepository.save(checkAuthorUpdates(author));
-        }catch (RuntimeException e){
-            errors.getAndAdd(1);
-            logger.error("can not process author by link {}", author.getLink());
-            return null;
-        }
-    }
-
 
     protected Author checkAuthorUpdates(Author author) {
         logger.debug("check author {} by link {}", author.getName(), author.getLink());
         Date checkDate = new Date();
         author.setLink(LinkTool.getAuthorLink(author.getLink(), linkSuffix));
-        String fullLink = LinkTool.getFullAuthorLink(author.getLink(), linkSuffix);
+        String fullLink = LinkTool.getAuthorIndexPage(author.getLink(), linkSuffix);
         String pageString = samlibPageReader.readPage(fullLink);
         logger.debug("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);

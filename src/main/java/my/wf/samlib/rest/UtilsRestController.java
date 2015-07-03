@@ -2,7 +2,6 @@ package my.wf.samlib.rest;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 import my.wf.samlib.model.dto.StatisticDto;
-import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.service.SamlibService;
 import my.wf.samlib.service.UtilsService;
@@ -28,9 +27,8 @@ public class UtilsRestController {
 
     @ApiOperation(value = "Triggers check of author updates")
     @RequestMapping(value = "/check", method = RequestMethod.GET)
-    @ResponseBody
-    public UpdatingProcessDto checkAuthors(){
-        return  updateRunner.runUpdate();
+    public void checkAuthors(){
+        updateRunner.runUpdate();
     }
 
 

@@ -1,48 +1,53 @@
 package my.wf.samlib.model.dto;
 
+import my.wf.samlib.model.entity.Author;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UpdatingProcessDto {
     private int total;
     private int processed;
-    private int errors;
+    private Map<Author, RuntimeException> errors = new HashMap<>();
     private Date date;
+    private Map<Author, Integer> authorsUpdated = new HashMap<>();
 
-    public UpdatingProcessDto(int total, int processed, int errors) {
-        this.total = total;
-        this.processed = processed;
-        this.date = new Date();
-        this.errors = errors;
-    }
 
     public int getTotal() {
         return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     public int getProcessed() {
         return processed;
     }
 
+    public void setProcessed(int processed) {
+        this.processed = processed;
+    }
+
+    public Map<Author, RuntimeException> getErrors() {
+        return errors;
+    }
+
     public Date getDate() {
         return date;
     }
 
-    public boolean inProcess(){
-        return processed < total;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public int getErrors() {
-        return errors;
+    public Map<Author, Integer> getAuthorsUpdated() {
+        return authorsUpdated;
     }
 
-    @Override
-    public String toString() {
-        return "UpdatingProcessDto{" +
-                "total=" + total +
-                ", processed=" + processed +
-                ", errors=" + errors +
-                ", date=" + date +
-                ", inProcess=" + inProcess() +
-                '}';
+    public void increaseProcessed(int delta){
+        processed += delta;
     }
+
 }

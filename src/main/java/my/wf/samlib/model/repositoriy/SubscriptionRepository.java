@@ -21,8 +21,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("SELECT s FROM Subscription s WHERE s.customer.id = :customerId AND s.author.id = :authorId ")
     Subscription findByCustomerAndAuthor(@Param("customerId") Long customerId, @Param("authorId") Long authorId);
 
-    @Query("SELECT s FROM Subscription s WHERE s.author.id = :authorId ")
-    Set<Subscription> findAllByAndAuthorId(@Param("authorId") Long authorId);
+    @Query("SELECT s,u FROM Subscription s LEFT JOIN FETCH s.subscriptionUnreads u WHERE s.author.id = :authorId ")
+    Set<Subscription> findAllWithUnreadsByAndAuthorId(@Param("authorId") Long authorId);
 
     @Query("SELECT s,u FROM Subscription s LEFT JOIN FETCH s.subscriptionUnreads u WHERE s.customer.id = :customerId AND s.author.id = :authorId ")
     Subscription findByCustomerAndAuthorWithUnread(@Param("customerId") Long customerId, @Param("authorId") Long authorId);

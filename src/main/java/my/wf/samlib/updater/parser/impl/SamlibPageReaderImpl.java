@@ -4,9 +4,6 @@ import my.wf.samlib.exception.PageReadException;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,14 +13,17 @@ import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-@Scope(value = "prototype",  proxyMode = ScopedProxyMode.INTERFACES)
 public class SamlibPageReaderImpl implements SamlibPageReader {
     private static  final Logger logger = LoggerFactory.getLogger(SamlibPageReaderImpl.class);
     public static final String DEFAULT_ENCODING = "windows-1251";
     private static final Pattern charsetPattern = Pattern.compile("text/html;\\s+charset=([^\\s]+)\\s*");
 
     public static final String LINK_SUFFIX = "indextitle.shtml";
+
+    @Override
+    public String aa() {
+        return "URL";
+    }
 
     @Override
     public String readPage(String link) {
