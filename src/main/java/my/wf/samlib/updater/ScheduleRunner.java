@@ -28,6 +28,6 @@ public class ScheduleRunner {
     public void doScheduledUpdate(){
         Date date = new Date();
         logger.info("Run Update at {}", date);
-        updateRunner.doUpdate(date);
+        //updateRunner.doUpdate(date);
     }
 }

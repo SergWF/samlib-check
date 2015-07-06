@@ -1,5 +1,6 @@
 package my.wf.samlib.updater.parser.impl;
 
+import my.wf.samlib.model.dto.IpCheckState;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,8 @@ public class SamlibAuthorParserImplTest {
 
     private String fullWritingString="<DL><DT><li><A HREF=vs2.shtml><b>Воздушный стрелок 2</b></A> &nbsp; <b>612k</b> &nbsp; <small>Оценка:<b>7.74*861</b> &nbsp;  \"Воздушный стрелок (рабочее)\"  Фантастика  <A HREF=\"/comment/d/demchenko_aw/vs2\">Комментарии: 1003 (18/06/2015)</A> </small><br><DD><font color=\"#555555\">18.06.15. <dd> + Часть 6. Глава 9.</font><DD><small><a href=/img/d/demchenko_aw/vs2/index.shtml>Иллюстрации/приложения: 1 шт.</a></small></DL>";
     private String weakWritingString="<DL><DT><li><A HREF=ch1gl01-02.shtml><b>Глава 1-2</b></A> &nbsp; <b>19k</b> &nbsp; <small> \"@Герой проигранной войны\"  Фэнтези </small><br></DL>";
+    private String checkPageStringBlocked = "<html><head><link title=\"Wrap Long Lines\" href=\"resource://gre-resources/plaintext.css\" type=\"text/css\" rel=\"alternate stylesheet\"></head><body><pre> Ваш IP: 127.0.0.1 и он: 1. не занесен в спам-лист (not in spam-list). 2. полностью ЗАБЛОКИРОВАН</pre></body></html>";
+    private String checkPageStringNotBlocked = "<html><head><link title=\"Wrap Long Lines\" href=\"resource://gre-resources/plaintext.css\" type=\"text/css\" rel=\"alternate stylesheet\"></head><body><pre> Ваш IP: 127.0.0.1 и он: 1. не занесен в спам-лист (not in spam-list). 2. не блокирован</pre></body></html>";
 
 
     private Author author;
@@ -38,6 +41,34 @@ public class SamlibAuthorParserImplTest {
     @Test
     public void testExtractAuthorName() throws Exception {
         Assert.assertEquals("Демченко А.В.", samlibAuthorParser.parseAuthorName(pageString));
+    }
+
+    @Test
+    public void testParseIpCheckStateBlocked() {
+        IpCheckState ipCheckState = samlibAuthorParser.parseIpCheckState(checkPageStringBlocked);
+        Assert.assertThat(ipCheckState,
+                Matchers.allOf(
+                        Matchers.hasProperty("ip", Matchers.equalTo("127.0.0.1")),
+                        Matchers.hasProperty("inSpamList", Matchers.equalTo(false)),
+                        Matchers.hasProperty("blocked", Matchers.equalTo(true)),
+                        Matchers.hasProperty("info", Matchers.equalTo("Ваш IP: 127.0.0.1 и он: 1. не занесен в спам-лист (not in spam-list). 2. полностью ЗАБЛОКИРОВАН"))
+                )
+        );
+        Assert.assertFalse(ipCheckState.isOk());
+    }
+
+    @Test
+    public void testParseIpCheckStateOk() {
+        IpCheckState ipCheckState = samlibAuthorParser.parseIpCheckState(checkPageStringNotBlocked);
+        Assert.assertThat(ipCheckState,
+                Matchers.allOf(
+                        Matchers.hasProperty("ip", Matchers.equalTo("127.0.0.1")),
+                        Matchers.hasProperty("inSpamList", Matchers.equalTo(false)),
+                        Matchers.hasProperty("blocked", Matchers.equalTo(false)),
+                        Matchers.hasProperty("info", Matchers.equalTo("Ваш IP: 127.0.0.1 и он: 1. не занесен в спам-лист (not in spam-list). 2. не блокирован"))
+                )
+        );
+        Assert.assertTrue(ipCheckState.isOk());
     }
 
     @Test

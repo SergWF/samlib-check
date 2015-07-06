@@ -1,4 +1,4 @@
-package my.wf.samlib.updater;
+package my.wf.samlib.updater.parser.impl;
 
 import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
@@ -6,7 +6,6 @@ import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.updater.parser.SamlibPageReader;
-import my.wf.samlib.updater.parser.impl.SamlibAuthorParserImpl;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -27,7 +26,7 @@ public class AuthorCheckerTest {
     private static final String SHORT_LINK = "http://1/";
     @InjectMocks
     @Spy
-    AuthorCheckerOld authorChecker;
+    AuthorCheckerImpl authorChecker;
     @Mock
     SamlibPageReader samlibPageReader;
     @Spy

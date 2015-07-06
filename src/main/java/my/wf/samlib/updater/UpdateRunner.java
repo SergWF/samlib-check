@@ -61,6 +61,9 @@ public class UpdateRunner {
     }
 
     protected void doUpdate(Date checkDate){
+        if(!authorCheckerFactory.getAuthorChecker().checkIpState()){
+            return;
+        }
         List<Author> authors = authorService.findAllAuthors();
         updatingProcessDto = new UpdatingProcessDto();
         updatingProcessDto.setProcessed(0);

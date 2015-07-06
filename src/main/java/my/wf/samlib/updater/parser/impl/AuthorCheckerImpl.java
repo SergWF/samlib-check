@@ -1,5 +1,6 @@
 package my.wf.samlib.updater.parser.impl;
 
+import my.wf.samlib.model.dto.IpCheckState;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.tools.LinkTool;
@@ -29,6 +30,9 @@ public class AuthorCheckerImpl implements AuthorChecker {
         this.linkSuffix = linkSuffix;
     }
 
+    @Value("${ban.check.url}")
+    private String banCheckUrl;
+
     @Autowired
     public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {
         this.samlibAuthorParser = samlibAuthorParser;
@@ -38,19 +42,6 @@ public class AuthorCheckerImpl implements AuthorChecker {
     public void setSamlibPageReader(SamlibPageReader samlibPageReader) {
         this.samlibPageReader = samlibPageReader;
     }
-
-//    @Override
-//    public void checkAuthors(Collection<Author> authors, Date checkDate, AuthorCheckCallback callback){
-//        logger.info("checkAuthorUpdates authors, started at{} found {} records", checkDate, authors.size());
-//        for (Author author : authors) {
-//            try {
-//                callback.onAuthorCheck(checkAuthorUpdates(author));
-//            } catch (RuntimeException e) {
-//                logger.error("Can not checkAuthorUpdates author", e);
-//            }
-//        }
-//        logger.info("checkAuthorUpdates finished for {} authors.", authors.size());
-//    }
 
     @Override
     public Author checkAuthorUpdates(Author author) {
@@ -64,6 +55,28 @@ public class AuthorCheckerImpl implements AuthorChecker {
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
         logger.debug("name= {}, writings={}", authorName, parsedWritings);
         return implementChanges(author, parsedWritings, authorName, checkDate);
+    }
+
+    @Override
+    public boolean checkIpState() {
+        IpCheckState ipCheckState = new IpCheckState();
+        try{
+            logger.debug("check IP state {}", banCheckUrl);
+            String checkPage = samlibPageReader.readPage(banCheckUrl);
+            ipCheckState = samlibAuthorParser.parseIpCheckState(checkPage);
+        }catch (Exception e){
+            ipCheckState.setInfo(e.getMessage());
+            ipCheckState.setOtherError(true);
+        }
+        printCheckState(ipCheckState);
+        return ipCheckState.isOk();
+    }
+    private void printCheckState(IpCheckState ipCheckState){
+        logger.info("ip: {}, in spam: {}, is blocked: {}", ipCheckState.getIp(), ipCheckState.isInSpamList(), ipCheckState.isBlocked());
+        if(!ipCheckState.isOk()){
+            logger.error("IP Check problems:");
+            logger.error(ipCheckState.getInfo());
+        }
     }
 
     protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, Date checkDate) {
