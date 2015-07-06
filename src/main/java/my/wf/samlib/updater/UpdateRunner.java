@@ -9,6 +9,7 @@ import my.wf.samlib.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +32,13 @@ public class UpdateRunner {
     private UpdatingProcessDto updatingProcessDto = null;
     private Future<UpdatingProcessDto> updatingState = null;
     private AtomicBoolean inProcessFlag = new AtomicBoolean(false);
-
+    @Value("${pause.between.authors:1000}")
+    private Long pauseBetweenAuthors;
 
     @Async
     public void runUpdate(){
         if (inProcessFlag.get()) {
+            logger.info("Update is already started");
                 return;
         }
         inProcessFlag.set(true);
@@ -68,11 +71,29 @@ public class UpdateRunner {
                 Author updated = doUpdateAuthor(author, checkDate);
                 updatingProcessDto.getAuthorsUpdated().putIfAbsent(updated, findUpdatedWritingCount(updated, checkDate));
                 logger.debug("Updated {} writings for author {}", updatingProcessDto.getAuthorsUpdated().get(updated), updated.getName());
+                makePause();
             }catch (SamlibException e){
                 logger.error("Exception on Author update", e);
             }
         }
+        printUpdateResult();
     }
+
+    private void makePause(){
+        logger.debug("make pause {} ms between checking authors", pauseBetweenAuthors);
+        try {
+            Thread.sleep(pauseBetweenAuthors);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printUpdateResult() {
+        for(Author author: updatingProcessDto.getAuthorsUpdated().keySet()){
+            logger.info("{} ({})", author.getName(), updatingProcessDto.getAuthorsUpdated().get(author));
+        }
+    }
+
 
     protected Author doUpdateAuthor(Author author, Date checkDate){
         author = authorService.findAuthorWithWritings(author.getId());

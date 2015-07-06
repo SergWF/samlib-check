@@ -1,16 +1,18 @@
 package my.wf.samlib;
 
-import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.service.SamlibService;
+import my.wf.samlib.service.UtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableScheduling
+@EnableAutoConfiguration
 public class SamlibWebApplication {
 
     @Autowired
@@ -20,10 +22,8 @@ public class SamlibWebApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SamlibWebApplication.class, args);
+
     }
 
-    @PostConstruct
-    public void showStatistic(){
-        System.out.println(utilsService.getStatistic(samlibService.getActiveCustomer()));
-    }
+
 }
