@@ -10,28 +10,26 @@ import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AuthorCheckerImpl implements AuthorChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorCheckerImpl.class);
-    private static final AtomicBoolean updateFlag = new AtomicBoolean(false);
 
+    private String banCheckUrl;
     private String linkSuffix;
 
     private SamlibAuthorParser samlibAuthorParser;
     private SamlibPageReader samlibPageReader;
 
-    @Value("${link.suffix}")
     public void setLinkSuffix(String linkSuffix) {
         this.linkSuffix = linkSuffix;
     }
 
-    @Value("${ban.check.url}")
-    private String banCheckUrl;
+    public void setBanCheckUrl(String banCheckUrl) {
+        this.banCheckUrl = banCheckUrl;
+    }
 
     @Autowired
     public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {

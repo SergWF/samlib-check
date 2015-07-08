@@ -48,7 +48,9 @@ public class AuthorServiceImpl implements AuthorService {
         author = new Author();
         author.setName("author " + url);
         author.setLink(url);
-        return authorRepository.save(author);
+        author = authorRepository.save(author);
+        logger.info("New Author was added by link [{}] and got an id={}", author.getLink(), author.getId());
+        return author;
     }
 
     @Override

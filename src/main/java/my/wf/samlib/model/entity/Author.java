@@ -13,7 +13,7 @@ import java.util.Set;
 
 
 @Entity
-@Table(name = "author")
+@Table(name = "author", uniqueConstraints = {@UniqueConstraint(columnNames = {"link"})})
 public class Author extends BaseEntity implements LastDate  {
 
     private String name;

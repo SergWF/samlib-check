@@ -7,6 +7,8 @@ import my.wf.samlib.model.repositoriy.SubscriptionUnreadRepository;
 import my.wf.samlib.model.statistic.SubscriptionStatistic;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.SubscriptionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.*;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
+    private static final Logger logger = LoggerFactory.getLogger(SubscriptionServiceImpl.class);
 
     @Autowired
     AuthorService authorService;
@@ -33,7 +36,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public Subscription subscribe(Customer customer, Author author) {
         Subscription subscription = subscriptionRepository.findByCustomerAndAuthor(customer.getId(), author.getId());
-        return (null == subscription)? createAndSaveSubscription(customer, author): subscription;
+        subscription =  (null == subscription)? createAndSaveSubscription(customer, author): subscription;
+        logger.info("Customer [{}] subscribed to author [{}, id={}] ", customer.getName(), author.getName(), author.getId());
+        return subscription;
     }
 
     protected Subscription createAndSaveSubscription(Customer customer, Author author) {
@@ -46,7 +51,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Subscription addAuthorAndSubscribe(Customer customer, String authorUrl) {
+        logger.info("Customer {} added Author by url {} for subscription", customer.getName(), authorUrl);
         Author author = authorService.addAuthor(authorUrl);
+        logger.debug("Author: {}", author.getName());
         return subscribe(customer, author);
     }
 

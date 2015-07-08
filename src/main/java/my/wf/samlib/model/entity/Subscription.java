@@ -9,7 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "subscription")
+@Table(name = "subscription",
+uniqueConstraints = {@UniqueConstraint(columnNames = {"customer_id", "author_id"})})
 public class Subscription extends BaseEntity {
     private Customer customer;
     private Author author;

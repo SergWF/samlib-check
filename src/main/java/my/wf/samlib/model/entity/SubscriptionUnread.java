@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "subscription_unread")
+@Table(name = "subscription_unread"
+        , uniqueConstraints = {@UniqueConstraint(columnNames = {"subscription_id", "writing_id"})}
+)
 public class SubscriptionUnread  extends BaseEntity{
     private Subscription subscription;
     private Writing writing;

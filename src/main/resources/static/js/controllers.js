@@ -4,6 +4,21 @@ var samlibControllers = angular.module('samlibControllers', ['ngRoute']);
 
 samlibControllers.controller("UtilsCtrl", function($scope, $http){
     $scope.updateStatistic={};
+
+    $scope.addAuthor = function(){
+        var authorUrl = $scope.newAuthorUrl;
+        console.log("add:", authorUrl);
+
+        $http.post("/subscription/subscribe/url", authorUrl).success(function (data, status) {
+            $scope.statistic = data;
+            $scope.status = status;
+        })
+            .error(function (data, status) {
+                $scope.statistic = data;
+                $scope.status = status;
+            });
+    };
+
     $scope.checkUpdates = function(){
         $http.get("/utils/check").
             success(function (data, status) {
@@ -40,27 +55,11 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
             success(function (data, status) {
                 $scope.subscriptions = data;
                 $scope.status = status;
-                console.log("subscriptions OK:", $scope.subscriptions);
             }).
             error(function (data, status) {
                 $scope.subscriptions = data || "Request failed";
                 $scope.status = status;
                 console.error("subscriptions ERROR:", $scope.subscriptions);
-            });
-    };
-
-
-    $scope.addAuthor = function(){
-        var authorUrl = $scope.newAuthorUrl;
-        console.log("add:", authorUrl);
-
-        $http.post("/subscription/subscribe/url", authorUrl).success(function (data, status) {
-            $scope.statistic = data;
-            $scope.status = status;
-        })
-            .error(function (data, status) {
-                $scope.statistic = data;
-                $scope.status = status;
             });
     };
 
@@ -71,7 +70,6 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         $http.delete(link).success(function (data, status) {
             $scope.subscriptions[s_index] = data;
             $scope.status = status;
-            console.log($scope.subscription1);
         })
             .error(function (data, status) {
                 $scope.subscriptions[s_index] = data;
