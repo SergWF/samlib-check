@@ -5,7 +5,6 @@ import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.model.repositoriy.WritingRepository;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.tools.LinkTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -25,8 +25,7 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorRepository authorRepository;
     @Autowired
     WritingRepository writingRepository;
-    @Autowired
-    private UtilsService utilsService;
+
     private String linkSuffix;
 
     @Value("${link.suffix}")
@@ -65,6 +64,11 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public List<Author> findAllAuthors() {
         return authorRepository.findAll();
+    }
+
+    @Override
+    public Set<Author> findAllAuthorsWithWritings() {
+        return authorRepository.findAllWithWritings();
     }
 
     @Override

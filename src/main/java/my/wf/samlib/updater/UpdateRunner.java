@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
@@ -30,10 +29,13 @@ public class UpdateRunner {
     @Autowired
     SubscriptionService subscriptionService;
     private UpdatingProcessDto updatingProcessDto = null;
-    private Future<UpdatingProcessDto> updatingState = null;
     private AtomicBoolean inProcessFlag = new AtomicBoolean(false);
-    @Value("${pause.between.authors:1000}")
     private Long pauseBetweenAuthors;
+
+    @Value("${pause.between.authors:1000}")
+    public void setPauseBetweenAuthors(Long pauseBetweenAuthors) {
+        this.pauseBetweenAuthors = pauseBetweenAuthors;
+    }
 
     @Async
     public void runUpdate(){
@@ -46,10 +48,6 @@ public class UpdateRunner {
         inProcessFlag.set(false);
     }
 
-    public UpdatingProcessDto getUpdateState(){
-        return updatingProcessDto;
-    }
-
     private int findUpdatedWritingCount(Author author, Date checkDateStart) {
         int count = 0;
         for(Writing writing: author.getWritings()){
@@ -60,8 +58,12 @@ public class UpdateRunner {
         return count;
     }
 
+    protected boolean isCanUpdate(){
+        return authorCheckerFactory.getAuthorChecker().checkIpState();
+    }
+
     protected void doUpdate(Date checkDate){
-        if(!authorCheckerFactory.getAuthorChecker().checkIpState()){
+        if(isCanUpdate()){
             return;
         }
         List<Author> authors = authorService.findAllAuthors();

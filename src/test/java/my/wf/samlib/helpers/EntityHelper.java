@@ -1,5 +1,6 @@
 package my.wf.samlib.helpers;
 
+import my.wf.samlib.model.dto.backup.WritingBackupDto;
 import my.wf.samlib.model.entity.*;
 import my.wf.samlib.tools.LinkTool;
 import org.apache.commons.io.IOUtils;
@@ -12,6 +13,15 @@ import java.util.Date;
 
 public class EntityHelper {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
+
+    public static Subscription findByAuthor(Collection<Subscription> subscriptions, Author author){
+        for(Subscription subscription: subscriptions){
+            if(subscription.getAuthor().equals(author)){
+                return subscription;
+            }
+        }
+        return null;
+    }
 
     public static Author createAuthor(String link, String name){
         Author author = new Author();
@@ -50,6 +60,13 @@ public class EntityHelper {
             for(Writing writing: author.getWritings()){
                 subscription.getSubscriptionUnreads().add(createSubscriptionUnread(subscription, writing));
             }
+        }
+        return subscription;
+    }
+
+    public static Subscription addSubscriptionUnreads(Subscription subscription, Writing... writings){
+        for(Writing writing: writings){
+            createSubscriptionUnread(subscription, writing);
         }
         return subscription;
     }
@@ -112,5 +129,14 @@ public class EntityHelper {
 
     public static String loadPage(String path) throws IOException {
         return IOUtils.toString(EntityHelper.class.getResourceAsStream(path), Charset.forName("Cp1251"));
+    }
+
+    public static WritingBackupDto createWrigingBackupDto(String name, String size, Date lastChangedDate) {
+        WritingBackupDto dto = new WritingBackupDto();
+        dto.setLink("/" + name);
+        dto.setName(name);
+        dto.setSize(size);
+        dto.setLastChangedDate(lastChangedDate);
+        return dto;
     }
 }
