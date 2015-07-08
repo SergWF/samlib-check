@@ -94,8 +94,11 @@ public class UpdateRunner {
     }
 
     private void printUpdateResult() {
+        logger.info("checked {} authors ", updatingProcessDto.getAuthorsUpdated().size());
         for(Author author: updatingProcessDto.getAuthorsUpdated().keySet()){
-            logger.info("{} ({})", author.getName(), updatingProcessDto.getAuthorsUpdated().get(author));
+            if(0 < updatingProcessDto.getAuthorsUpdated().get(author)) {
+                logger.info("({})\t{}", updatingProcessDto.getAuthorsUpdated().get(author), author.getName());
+            }
         }
     }
 
