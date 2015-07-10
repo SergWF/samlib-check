@@ -13,9 +13,11 @@ public class SamlibAuthorParserImpl implements SamlibAuthorParser {
 
     private static final Pattern namePattern = Pattern.compile("<center>\\s*<h3>(?<authorName>.*?):<br>");
     private static final Pattern writingPattern = Pattern.compile("<DL><DT><li>(?:<font.*?>.*?</font>)?\\s*(<b>(?<Authors>.*?)\\s*</b>\\s*)?<A HREF=(?<LinkToText>.*?)><b>\\s*(?<NameOfText>.*?)\\s*</b></A>.*?<b>(?<SizeOfText>\\d+)k</b>.*?<small>(?:Оценка:<b>(?<DescriptionOfRating>(?<rating>\\d+(?:\\.\\d+)?).*?)</b>.*?)?\\s*\"@*(?<Section>.*?)\"\\s*(?<Genres>.*?)?\\s*(?:<A HREF=\"(?<LinkToComments>.*?)\">Комментарии:\\s*(?<CommentsDescription>(?<CommentCount>\\d+).*?)</A>\\s*)?</small>.*?(?:<br><DD>(<font(.*?)?>)?(?<Description>.*?))?(</font><DD>.*?)?</DL>");
-    private static final Pattern checkStatePattern = Pattern.compile("<pre>\\s*(?<info>.*?IP:\\s(?<ip>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*?1\\.\\s*(?<inSpam>.*?)2\\.(?<Blocked>.*?))</pre>");
+    private static final Pattern ipPattern = Pattern.compile("(?<ip>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
+    //private static final Pattern checkStatePattern = Pattern.compile("<pre>\\s*(?<info>.*?IP:\\s(?<ip>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*?1\\.\\s*(?<inSpam>.*?)2\\.(?<Blocked>.*?))</pre>");
+    private static final Pattern infoPattern = Pattern.compile("(<pre>)?.*?(?<info>IP:\\s(?<ip>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*?)(</pre>|$)");
 
-    private static final String NOT_IN_SPAM="(not in spam-list)";
+    private static final String NOT_IN_SPAM="1. не занесен в спам-лист (not in spam-list)";
     private static final String NOT_IS_BLOCKED="не блокирован";
 
     @Override
@@ -37,21 +39,23 @@ public class SamlibAuthorParserImpl implements SamlibAuthorParser {
 
     @Override
     public IpCheckState parseIpCheckState(String checkPageString) {
-        Matcher matcher = checkStatePattern.matcher(removeSpaces(checkPageString));
         IpCheckState ipCheckState = new IpCheckState();
-        if(matcher.find()){
-            System.out.println("info: " + matcher.group("info"));
-            System.out.println("ip: " + matcher.group("ip"));
-            System.out.println("inSpam: " + matcher.group("inSpam"));
-            System.out.println("Blocked: " + matcher.group("Blocked"));
+        String preparedString = removeSpaces(checkPageString);
 
-            ipCheckState.setInfo(matcher.group("info"));
-            ipCheckState.setInSpamList(getInSpamValue(matcher.group("inSpam")));
-            ipCheckState.setBlocked(getIsBlockedValue(matcher.group("Blocked")));
-            ipCheckState.setIp(matcher.group("ip"));
-        }else{
-            System.out.println("---");
+        if(null == checkPageString){
+            ipCheckState.setOtherError(true);
+            ipCheckState.setInfo("EMPTY check By IP");
+        }else {
+            Matcher infoMatcher = infoPattern.matcher(preparedString);
+            if(infoMatcher.find()){
+                ipCheckState.setInfo(infoMatcher.group("info"));
+                ipCheckState.setIp(infoMatcher.group("ip"));
+            }
+            ipCheckState.setInSpamList(!preparedString.contains(NOT_IN_SPAM));
+            ipCheckState.setBlocked(!preparedString.contains(NOT_IS_BLOCKED));
+            //ipCheckState.setInfo(preparedString);
         }
+
         return ipCheckState;
     }
 

@@ -11,13 +11,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AuthorCheckerImplTest {
 
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
     private static  final String AUTHOR_LINK = "http://some link/";
     private static  final String AUTHOR_NAME = "some name";
     private static  final String AUTHOR_NOT_PARSED_PAGE_SRING = "some not parsed String";
+
     AuthorCheckerImpl authorChecker;
 
     //Author author;
@@ -81,6 +85,18 @@ public class AuthorCheckerImplTest {
 
     }
 
+    @Test
+    public void testFindUnreadCount() throws ParseException {
+        Author author = EntityHelper.createAuthor("http://a1", "a1");
+        Writing w1 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:30:00"));
+        Writing w2 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:30:00"));
+        Writing w3 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:30:00"));
+        Writing w4 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:35:00"));
+        Writing w5 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:40:00"));
+        Writing w6 = EntityHelper.createWriting("w1", author, SIMPLE_DATE_FORMAT.parse("2015.01.01 12:40:00"));
+
+        Assert.assertEquals(3, authorChecker.findUpdatedCount(author.getWritings(), SIMPLE_DATE_FORMAT.parse("2015.01.01 12:35:00")));
+    }
 
     @Test
     public void testCheckAuthorUpdatesNewAuthor() {

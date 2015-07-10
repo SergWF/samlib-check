@@ -49,7 +49,6 @@ samlibControllers.controller("UtilsCtrl", function($scope, $http){
                 $scope.status = status;
             });
     };
-
 });
 
 samlibControllers.controller("AuthorListCtrl", function($scope, $http){
@@ -67,8 +66,9 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         return data;
     }
 
-    function refreshTitle() {
-        var data = getTitleData($scope.subscriptions);
+    function refreshStatistic() {
+        //$scope.getStatistic();
+        var data = getTitleData($scope.subscriptions)
         $scope.changeTitle("Samlib", data.unread, data.total);
     }
 
@@ -78,7 +78,7 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
             success(function (data, status) {
                 $scope.subscriptions = data;
                 $scope.status = status;
-                refreshTitle();
+                refreshStatistic();
             }).
             error(function (data, status) {
                 $scope.subscriptions = data || "Request failed";
@@ -94,7 +94,7 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         $http.delete(link).success(function (data, status) {
             $scope.subscriptions[s_index] = data;
             $scope.status = status;
-            refreshTitle();
+            refreshStatistic();
         })
             .error(function (data, status) {
                 $scope.subscriptions[s_index] = data;

@@ -51,7 +51,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
         logger.debug("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
-        logger.debug("name= {}, writings={}", authorName, parsedWritings);
+        logger.debug("name: {}, writings found:{}", authorName, parsedWritings.size());
         return implementChanges(author, parsedWritings, authorName, checkDate);
     }
 
@@ -70,7 +70,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
         return ipCheckState.isOk();
     }
     private void printCheckState(IpCheckState ipCheckState){
-        logger.info("ip: {}, in spam: {}, is blocked: {}", ipCheckState.getIp(), ipCheckState.isInSpamList(), ipCheckState.isBlocked());
+        logger.info("ip: {}, in spam: {}, is blocked: {}, other: {}", ipCheckState.getIp(), ipCheckState.isInSpamList(), ipCheckState.isBlocked(), ipCheckState.isOtherError());
         if(!ipCheckState.isOk()){
             logger.error("IP Check problems:");
             logger.error(ipCheckState.getInfo());
@@ -88,7 +88,18 @@ public class AuthorCheckerImpl implements AuthorChecker {
             writing.setAuthor(author);
             writing.setLastChangedDate(checkDate);
         }
+        logger.info("checked: {}. Author: {}, writings: {}, updated: {}", author.getLink(), author.getName(), author.getWritings().size(), findUpdatedCount(author.getWritings(), checkDate));
         return author;
+    }
+
+    protected int findUpdatedCount(Collection<Writing> writings, Date checkDate){
+        int count = 0;
+        for(Writing writing: writings){
+            if(0 >= checkDate.compareTo(writing.getLastChangedDate())){
+                count++;
+            }
+        }
+        return count;
     }
 
     protected Author handleOldWritings(Author author, Map<Writing, Writing> writingMap, Date checkDate) {

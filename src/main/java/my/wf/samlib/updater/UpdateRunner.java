@@ -31,10 +31,17 @@ public class UpdateRunner {
     private UpdatingProcessDto updatingProcessDto = null;
     private AtomicBoolean inProcessFlag = new AtomicBoolean(false);
     private Long pauseBetweenAuthors;
+    private boolean skipBanUrlChecking;
 
-    @Value("${pause.between.authors:1000}")
+
+    @Value("${pause.between.authors:20000}")
     public void setPauseBetweenAuthors(Long pauseBetweenAuthors) {
         this.pauseBetweenAuthors = pauseBetweenAuthors;
+    }
+
+    @Value("${skip.ban.url.checking:false}")
+    public void setSkipBanUrlChecking(boolean skipBanUrlChecking) {
+        this.skipBanUrlChecking = skipBanUrlChecking;
     }
 
     @Async
@@ -59,11 +66,12 @@ public class UpdateRunner {
     }
 
     protected boolean isCanUpdate(){
-        return authorCheckerFactory.getAuthorChecker().checkIpState();
+        return skipBanUrlChecking || authorCheckerFactory.getAuthorChecker().checkIpState();
     }
 
     protected void doUpdate(Date checkDate){
-        if(isCanUpdate()){
+        if(!isCanUpdate()){
+            logger.error("Problems with IP Checking");
             return;
         }
         List<Author> authors = authorService.findAllAuthors();
