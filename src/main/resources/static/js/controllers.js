@@ -2,6 +2,14 @@
 
 var samlibControllers = angular.module('samlibControllers', ['ngRoute']);
 
+
+samlibControllers.controller("CommonCtrl", function($scope){
+    $scope.changeTitle = function(pageTitle, unread, total){
+        $scope.pageTitle = pageTitle + " " + (unread > 0 ? "(" + unread + "/" + total + ")" : "");
+
+    }
+});
+
 samlibControllers.controller("UtilsCtrl", function($scope, $http){
     $scope.updateStatistic={};
 
@@ -41,6 +49,7 @@ samlibControllers.controller("UtilsCtrl", function($scope, $http){
                 $scope.status = status;
             });
     };
+
 });
 
 samlibControllers.controller("AuthorListCtrl", function($scope, $http){
@@ -49,12 +58,27 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         return $scope.subscriptions.length;
     };
 
+    function getTitleData(subscriptions){
+        var data = { unread:0, total:0};
+        subscriptions.forEach(function(subscription){
+            data.total++;
+            data.unread+=subscription.unreadCount;
+        });
+        return data;
+    }
+
+    function refreshTitle() {
+        var data = getTitleData($scope.subscriptions);
+        $scope.changeTitle("Samlib", data.unread, data.total);
+    }
+
     $scope.getAuthors = function () {
         console.log("get authors");
         $http.get("/subscription/list").
             success(function (data, status) {
                 $scope.subscriptions = data;
                 $scope.status = status;
+                refreshTitle();
             }).
             error(function (data, status) {
                 $scope.subscriptions = data || "Request failed";
@@ -70,6 +94,7 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
         $http.delete(link).success(function (data, status) {
             $scope.subscriptions[s_index] = data;
             $scope.status = status;
+            refreshTitle();
         })
             .error(function (data, status) {
                 $scope.subscriptions[s_index] = data;
@@ -84,12 +109,29 @@ samlibControllers.controller("AuthorListCtrl", function($scope, $http){
 
 samlibControllers.controller("AuthorDetailsCtrl", function($scope, $http, $routeParams){
 
+    function getTitleData(writings){
+        var data = { unread:0, total:0};
+        writings.forEach(function(writing){
+            data.total++;
+            if(writing.unread){
+                data.unread++;
+            }
+        });
+        return data;
+    }
+
+    function refreshTitle(authorDetails) {
+        var data = getTitleData(authorDetails.writings);
+        $scope.changeTitle(authorDetails.name, data.unread, data.total);
+    }
+
     function removeFromUnreadList(writing){
         var link = "/subscription/"+$scope.authorDetails.subscriptionId+"/unread/"+writing.writingId;
         $http.delete(link).
             success(function (data, status) {
                 $scope.authorDetails = data;
                 $scope.status = status;
+                refreshTitle($scope.authorDetails);
             }).
             error(function (data, status) {
                 $scope.authorDetails = data || "Request failed";
@@ -103,6 +145,7 @@ samlibControllers.controller("AuthorDetailsCtrl", function($scope, $http, $route
             success(function (data, status) {
                 $scope.authorDetails = data;
                 $scope.status = status;
+                refreshTitle($scope.authorDetails);
             }).
             error(function (data, status) {
                 $scope.authorDetails = data || "Request failed";
@@ -115,6 +158,7 @@ samlibControllers.controller("AuthorDetailsCtrl", function($scope, $http, $route
             success(function (data, status) {
                 $scope.authorDetails = data;
                 $scope.status = status;
+                refreshTitle($scope.authorDetails);
             }).
             error(function (data, status) {
                 $scope.authorDetails = data || "Request failed";

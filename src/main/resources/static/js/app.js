@@ -4,6 +4,7 @@ var samlibApp = angular.module('samlibApp', [
     "samlibControllers"
 ]);
 
+
 samlibApp.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
@@ -19,3 +20,4 @@ samlibApp.config(['$routeProvider',
                 redirectTo: '/subscriptions'
             });
     }]);
+
