@@ -16,6 +16,6 @@ samlibApp.config(['$routeProvider',
                 controller: 'AuthorDetailsCtrl'
             }).
             otherwise({
-                redirectTo: '/index.html'
+                redirectTo: '/subscriptions'
             });
     }]);
