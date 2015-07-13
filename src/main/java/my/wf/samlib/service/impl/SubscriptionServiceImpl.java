@@ -126,6 +126,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private Subscription addToUnreadList(Subscription subscription, Writing writing) {
+        if(null != subscriptionUnreadRepository.findBySubscriptionIdAndWritingId(subscription.getId(), writing.getId())){
+            return subscription;
+        }
         SubscriptionUnread subscriptionUnread = new SubscriptionUnread();
         subscriptionUnread.setSubscription(subscription);
         subscriptionUnread.setWriting(writing);
