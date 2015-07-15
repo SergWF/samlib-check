@@ -16,9 +16,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableScheduling
 @EnableAutoConfiguration
 @PropertySources({
-        @PropertySource(value = "file:${external.config}", ignoreResourceNotFound = true),
-        @PropertySource("classpath:default.properties")
-
+        @PropertySource("classpath:default.properties"),
+        @PropertySource(value = "file:${external.config}", ignoreResourceNotFound = true)
 })
 public class SamlibWebApplication {
 
