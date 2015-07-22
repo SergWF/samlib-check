@@ -88,7 +88,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
             writing.setAuthor(author);
             writing.setLastChangedDate(checkDate);
         }
-        logger.info("checked: {}. Author: {}, writings: {}, updated: {}", author.getLink(), author.getName(), author.getWritings().size(), findUpdatedCount(author.getWritings(), checkDate));
+        logger.info("({}/{}) {}, [{}]", findUpdatedCount(author.getWritings(), checkDate), author.getWritings().size(), author.getName(), author.getLink());
         return author;
     }
 
