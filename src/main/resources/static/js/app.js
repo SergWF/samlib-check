@@ -1,7 +1,7 @@
 'use strict';
 
 var samlibApp = angular.module('samlibApp', [
-    "samlibControllers"
+    'samlibControllers', 'samlibServices'
 ]);
 
 

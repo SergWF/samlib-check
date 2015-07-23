@@ -53,14 +53,14 @@ public class AuthorRestController {
         return AuthorDtoBuilder.buildDto(authorService.findAuthor(authorId),subscription);
     }
 
-//    @ApiOperation(value = "Deletes Author")
-//    @RequestMapping(value = "/{authorId}", method = RequestMethod.DELETE)
-//    @ResponseBody
-//    public Long deleteAuthor(@PathVariable long authorId) {
-//        logger.info("GET AUTHOR BY ID {}", authorId);
-//        utilsService.delete(authorId);
-//        return authorId;
-//    }
+    @ApiOperation(value = "Deletes Author")
+    @RequestMapping(value = "/{authorId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public Long deleteAuthor(@PathVariable long authorId) {
+        logger.info("DELETE AUTHOR BY ID {}", authorId);
+        authorService.delete(authorId);
+        return authorId;
+    }
 //
 //
 //    @ApiOperation(value = "Adds new author")
