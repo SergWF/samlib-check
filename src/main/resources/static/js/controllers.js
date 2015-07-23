@@ -40,7 +40,7 @@ samlibControllers.controller("AuthorListCtrl", function($scope, SubscriptionServ
     };
 
     $scope.cleanUnread = function(subscription){
-        SubscriptionService.cleanUnread($ccope, subscription);
+        SubscriptionService.cleanUnread($scope, subscription);
         refreshStatistic();
     }
 
@@ -66,5 +66,37 @@ samlibControllers.controller("AuthorDetailsCtrl", function($scope, $routeParams,
     }
 
     $scope.getAuthorDetails($routeParams.authorId);
+
+});
+
+
+samlibControllers.controller("AdminCtrl", function($scope, $routeParams, AdminService){
+    $scope.doImport = function(authors){
+        AdminService.doImport($scope, authors);
+    };
+
+    $scope.doExport = function(){
+        AdminService.doExport($scope);
+    };
+
+    $scope.doBackup = function(){
+        AdminService.doBackup($scope);
+    };
+
+    $scope.doRestore = function(data){
+        AdminService.doRestore($scope, data);
+    };
+
+    $scope.getAllAuthors = function(){
+        AdminService.getAuthorList($scope);
+    };
+    $scope.removeAuthor = function(author){
+        if(confirm("Do you really want to delete " + author.name + "?")) {
+            console.log("delete", author);
+            AdminService.removeAuthor($scope, author.id);
+        }
+    };
+
+    $scope.getAllAuthors();
 
 });

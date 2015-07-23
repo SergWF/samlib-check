@@ -123,7 +123,7 @@ samlibServices.factory('SubscriptionService', function($http){
 
 samlibServices.factory('AdminService', function($http){
     return {
-        doImport: function (authors){
+        doImport: function ($scope, authors){
             $http.post("/utils/import", authors)
                 .success(function(data, status){
                     $scope.importResult = data;
@@ -134,7 +134,7 @@ samlibServices.factory('AdminService', function($http){
                     $scope.status = status;
                 });
         },
-        doExport: function(){
+        doExport: function($scope){
             $http.get('/utils/export')
                 .success(function(data, status){
                     $scope.exportResult = data;
@@ -146,14 +146,15 @@ samlibServices.factory('AdminService', function($http){
                 });
 
         },
-        doBackup: function(){
-
-        },
-        doRestore: function(){
+        doBackup: function($scope){
 
         },
 
-        getAuthoirList: function(){
+        doRestore: function($scope, data){
+
+        },
+
+        getAuthorList: function($scope){
             $http.get('/author/list')
                 .success(function(data, status){
                     $scope.allAuthors = data;
@@ -165,16 +166,17 @@ samlibServices.factory('AdminService', function($http){
                 });
         },
 
-        removeAuthor: function(){
+        removeAuthor: function($scope, authorId){
             $http.delete("/author/"+authorId)
                 .success(function(data, status){
-                    $scope.importResult = data;
+                    $scope.removeResult = data;
                     $scope.status = status;
                 })
                 .error(function(data, status){
-                    $scope.importResult = data || "Request failed";
+                    $scope.removeResult = data || "Request failed";
                     $scope.status = status;
                 });
+            getAuthorList($scope);
         }
     }
 });
