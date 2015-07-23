@@ -45,10 +45,8 @@ public class SubscriptionRestController {
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public Set<SubscriptionDto> getSubscriptionList(){
-        Set<Subscription> subscriptionList = subscriptionService.getSubscriptionList(samlibService.getActiveCustomer());
-        Set<SubscriptionStatistic> subscriptionStatisticList = subscriptionService.getSubscriptionStatisticList(samlibService.getActiveCustomer());
-        return SubscriptionDtoBuilder.buildDtoSet(subscriptionList, subscriptionStatisticList);
+    public Set<SubscriptionStatistic> getSubscriptionList(){
+        return subscriptionService.getSubscriptionStatisticList(samlibService.getActiveCustomer());
     }
 
     @ApiOperation(value = "Returns subscription data")

@@ -118,6 +118,9 @@ public class SubscriptionRepositoryIntegrationTest {
         SubscriptionStatistic statistics = new SubscriptionStatistic(data);
         Assert.assertThat(statistics, Matchers.allOf(
                         Matchers.hasProperty("subscriptionId", Matchers.equalTo(subscription.getId())),
+                        Matchers.hasProperty("authorId", Matchers.equalTo(authorId)),
+                        Matchers.hasProperty("authorName", Matchers.equalTo(author2.getName())),
+                        Matchers.hasProperty("authorLink", Matchers.equalTo(author2.getLink())),
                         Matchers.hasProperty("unreadCount", Matchers.equalTo(2L)),
                         Matchers.hasProperty("writingCount", Matchers.equalTo(3L)),
                         Matchers.hasProperty("lastUpdateDate", Matchers.greaterThanOrEqualTo(dateMax))

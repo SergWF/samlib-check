@@ -36,9 +36,9 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("SELECT MAX(w.lastChangedDate) FROM Subscription s  INNER JOIN s.author.writings w WHERE s.customer.id = :customerId")
     Date getLastChangedDateByCustomerId(@Param("customerId") Long customerId);
 
-    @Query("SELECT s.id, COUNT(DISTINCT u), COUNT(DISTINCT w), MAX(w.lastChangedDate) FROM Subscription s LEFT JOIN s.subscriptionUnreads u INNER JOIN s.author a INNER JOIN a.writings w WHERE  s.id = :subscriptionId")
+    @Query("SELECT s.id, a.id, a.name, a.link, COUNT(DISTINCT u), COUNT(DISTINCT w), MAX(w.lastChangedDate) FROM Subscription s LEFT JOIN s.subscriptionUnreads u INNER JOIN s.author a INNER JOIN a.writings w WHERE  s.id = :subscriptionId")
     Object getSubscriptionStatistic(@Param("subscriptionId") Long subscriptionId);
 
-    @Query("SELECT s.id, COUNT(DISTINCT u), COUNT(DISTINCT w), MAX(w.lastChangedDate) FROM Subscription s LEFT JOIN s.subscriptionUnreads u INNER JOIN s.author a INNER JOIN a.writings w WHERE  s.customer.id = :customerId GROUP BY s.id")
+    @Query("SELECT s.id, a.id, a.name, a.link, COUNT(DISTINCT u), COUNT(DISTINCT w), MAX(w.lastChangedDate) FROM Subscription s LEFT JOIN s.subscriptionUnreads u INNER JOIN s.author a INNER JOIN a.writings w WHERE  s.customer.id = :customerId GROUP BY s.id, a.id, a.name, a.link")
     List<Object> getAllSubscriptionStatistic(@Param("customerId") Long customerId);
 }

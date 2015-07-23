@@ -30,6 +30,8 @@ public class SubscriptionDtoBuilder {
             Subscription subscription = findInList(subscriptionStatistic.getSubscriptionId(), subscriptions);
             if(null != subscription) {
                 subscriptionDtoSet.add(buildDto(subscription, subscriptionStatistic));
+            }else{
+                System.err.println("NOT FOUND " + subscriptionStatistic);
             }
         }
         return subscriptionDtoSet;
