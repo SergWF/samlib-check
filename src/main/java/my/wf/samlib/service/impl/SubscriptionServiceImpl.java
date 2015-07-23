@@ -59,12 +59,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Set<Subscription> getSubscriptionList(Customer customer) {
-        System.out.println("*********************");
-        Set<Subscription> allByCustomerId = subscriptionRepository.findAllByCustomerId(customer.getId());
-        System.out.println("*********************");
-        System.out.println(allByCustomerId.size());
-        System.out.println("*********************");
-        return allByCustomerId;
+        return subscriptionRepository.findAllByCustomerId(customer.getId());
     }
 
     @Override
