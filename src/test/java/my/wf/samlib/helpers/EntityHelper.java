@@ -1,5 +1,8 @@
 package my.wf.samlib.helpers;
 
+import my.wf.samlib.model.dto.backup.AuthorBackupDto;
+import my.wf.samlib.model.dto.backup.CustomerBackupDto;
+import my.wf.samlib.model.dto.backup.SubscriptionBackupDto;
 import my.wf.samlib.model.dto.backup.WritingBackupDto;
 import my.wf.samlib.model.entity.*;
 import my.wf.samlib.tools.LinkTool;
@@ -138,5 +141,43 @@ public class EntityHelper {
         dto.setSize(size);
         dto.setLastChangedDate(lastChangedDate);
         return dto;
+    }
+
+
+    public static AuthorBackupDto createAuthorBackupDto(String link, String name, String... writingNames) {
+        AuthorBackupDto authorBackupDto = new AuthorBackupDto();
+        authorBackupDto.setName(name);
+        authorBackupDto.setLink(link);
+        for(String writingName: writingNames){
+            authorBackupDto.getWritings().add(createWritingBackupDto(writingName));
+        }
+        return authorBackupDto;
+    }
+
+    public static WritingBackupDto createWritingBackupDto(String writingName) {
+        WritingBackupDto writingBackupDto = new WritingBackupDto();
+        writingBackupDto.setLink("/" + writingName);
+        writingBackupDto.setName(writingName);
+        writingBackupDto.setLastChangedDate(new Date());
+        writingBackupDto.setSize("10k");
+        writingBackupDto.setDescription("descr for " + writingName);
+        writingBackupDto.setGroupName("group " + writingName);
+        writingBackupDto.setPrevSize("2k");
+        return writingBackupDto;
+    }
+
+    public static CustomerBackupDto createCustomerBackupDto(String name) {
+        CustomerBackupDto customerBackupDto = new CustomerBackupDto();
+        customerBackupDto.setName(name);
+        return customerBackupDto;
+    }
+
+
+
+    public static SubscriptionBackupDto createSubscriptionBackupDto(AuthorBackupDto authorBackupDto, Collection<String> writingNames) {
+        SubscriptionBackupDto subscriptionBackupDto = new SubscriptionBackupDto();
+        subscriptionBackupDto.setAuthorLink(authorBackupDto.getLink());
+        subscriptionBackupDto.getUnreadWritings().addAll(writingNames);
+        return subscriptionBackupDto;
     }
 }

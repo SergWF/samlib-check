@@ -85,28 +85,7 @@ public class BackupServiceImplTest {
         Mockito.doReturn(new HashSet<>(Arrays.asList(author1, author2, author3))).when(authorService).findAllAuthorsWithWritings();
     }
 
-    @Test
-    public void testRestoreSingleAuthorExistsInDb() throws Exception {
-        AuthorBackupDto authorBackupDto = new AuthorBackupDto();
-        authorBackupDto.setLink(author1.getLink());
-        authorBackupDto.setName(author1.getName());
 
-        backupService.restoreSingleAuthor(authorBackupDto);
-    }
-
-    @Test
-    public void testRestoreSingleAuthorNotExistsInDb() throws Exception {
-        Date date = new Date(new Date().getTime() - 1000000);
-        AuthorBackupDto authorBackupDto = new AuthorBackupDto();
-        authorBackupDto.setLink("http://newLink");
-        authorBackupDto.setName("newName");
-        authorBackupDto.getWritings().add(EntityHelper.createWrigingBackupDto("w1an", "10k", date));
-        authorBackupDto.getWritings().add(EntityHelper.createWrigingBackupDto("w2an", "20k", date));
-        authorBackupDto.getWritings().add(EntityHelper.createWrigingBackupDto("w3an", "30k", date));
-
-        Author restoredAuthor = backupService.restoreSingleAuthor(authorBackupDto);
-
-    }
 
     @Test
     public void testGetAllAuthors() {

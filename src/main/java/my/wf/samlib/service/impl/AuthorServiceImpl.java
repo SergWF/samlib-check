@@ -88,6 +88,11 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.save(author);
     }
 
+    @Override
+    public Writing findWritingByLink(String authorLink, String writingLink) {
+        return authorRepository.findWritingByLink(authorLink, writingLink);
+    }
+
 }
 
 

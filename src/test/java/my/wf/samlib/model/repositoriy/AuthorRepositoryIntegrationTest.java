@@ -133,4 +133,31 @@ public class AuthorRepositoryIntegrationTest {
         Assert.assertNotNull(customerRepository.findOne(customer.getId()));
     }
 
+    @Test
+    public void testFindWritingByLink(){
+        String name = UUID.randomUUID().toString();
+        Author author1 = authorRepository.save(EntityHelper.createAuthor("http://" + name, name));
+        Writing w1 = EntityHelper.createWriting("w1", author1);
+        Writing w2 = EntityHelper.createWriting("w2", author1);
+        Writing w3 = EntityHelper.createWriting("w3", author1);
+        author1 = authorRepository.save(author1);
+        name = UUID.randomUUID().toString();
+        Author author2 = authorRepository.save(EntityHelper.createAuthor("http://" + name, name));
+        Writing w11 = EntityHelper.createWriting("w11", author2);
+        Writing w12 = EntityHelper.createWriting("w12", author2);
+        Writing w13 = EntityHelper.createWriting("w13", author2);
+        author2 = authorRepository.save(author2);
+
+        Writing found = authorRepository.findWritingByLink(author1.getLink(), w2.getLink());
+        Assert.assertThat(found,
+                Matchers.allOf(
+                        Matchers.hasProperty("id", Matchers.notNullValue()),
+                        Matchers.hasProperty("name", Matchers.equalTo("w2"))
+                )
+        );
+
+
+    }
+
+
 }

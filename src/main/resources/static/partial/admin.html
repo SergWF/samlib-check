@@ -1,11 +1,13 @@
 <div ng-controller="AdminCtrl">
     <div>
-        <button ng-click="doImport()">Import</button>
+        <a download="export.json" href="/admin/export">Export Authors</a>
+        <a download="backup.json" href="/admin/backup">Backup Data</a>
         <button ng-click="doExport()">Export</button>
+        <button ng-click="doImport()">Import</button>
         <button ng-click="doBackup()">Backup</button>
         <button ng-click="doRestore()">Restore</button>
     </div>
-    <div>
+    <div class="left">
         <table class="author_table">
             <tr>
                 <th>Author</th>

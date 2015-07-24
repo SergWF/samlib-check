@@ -2,7 +2,7 @@ package my.wf.samlib.service;
 
 import my.wf.samlib.model.dto.backup.BackupDto;
 
-public interface BackupService {
+public interface RestoreService {
 
-    BackupDto backup();
+    void restore(BackupDto backupDto);
 }

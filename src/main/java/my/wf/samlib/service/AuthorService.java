@@ -24,4 +24,6 @@ public interface AuthorService {
     Writing getWritingById(long writingId);
 
     Author saveAuthor(Author updated);
+
+    Writing findWritingByLink(String authorLink, String writingLink);
 }

@@ -126,32 +126,47 @@ samlibServices.factory('AdminService', function($http){
         doImport: function ($scope, authors){
             $http.post("/utils/import", authors)
                 .success(function(data, status){
-                    $scope.importResult = data;
+                    $scope.externalData = JSON.stringify(data);
+                    console.log('json', $scope.externalData);
                     $scope.status = status;
                 })
                 .error(function(data, status){
-                    $scope.importResult = data || "Request failed";
+                    $scope.externalData = data || "Request failed";
                     $scope.status = status;
                 });
         },
         doExport: function($scope){
-            $http.get('/utils/export')
-                .success(function(data, status){
-                    $scope.exportResult = data;
-                    $scope.status = status;
-                })
-                .error(function(data, status){
-                    $scope.exportResult = data || "Request failed";
-                    $scope.status = status;
-                });
+            $http.get('/admin/export');
+                //.success(function(data, status){
+                //    $scope.externalData = data;
+                //    $scope.status = status;
+                //
+                //})
+                //.error(function(data, status){
+                //    $scope.externalData = data || "Request failed";
+                //    $scope.status = status;
+                //});
 
         },
         doBackup: function($scope){
-
+            $http.get('/admin/backup')
+                .succsess(function(data, status){
+                    console.log("backup OK", data);
+                })
+                .error(function(data, status){
+                    console.error("backup failed", status, data)
+                });
         },
 
         doRestore: function($scope, data){
-
+            $http.post('/admin/restore', data)
+                .succsess(function(data, status){
+                    console.log("restored", data);
+                })
+                .error(function(data, status){
+                    console.error("not restored", status, data)
+                })
+            ;
         },
 
         getAuthorList: function($scope){
