@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @Service
 public class RestoreServiceImpl implements RestoreService {
     private static final Logger logger = LoggerFactory.getLogger(RestoreServiceImpl.class);
@@ -28,19 +30,19 @@ public class RestoreServiceImpl implements RestoreService {
 
     @Override
     public void restore(BackupDto backupDto) {
-        restoreAuthors(backupDto);
-        restoreCustomers(backupDto);
+        restoreAuthors(backupDto.getAuthors());
+        restoreCustomers(backupDto.getCustomers());
     }
 
-    protected void restoreCustomers(BackupDto backupDto) {
+    protected void restoreCustomers(Collection<CustomerBackupDto> customerBackupDtos) {
         logger.info("restore customers");
-        long count = backupDto.getCustomers().stream().map(this::restoreSingleCustomer).count();
+        long count = customerBackupDtos.stream().map(this::restoreSingleCustomer).count();
         logger.debug("{} customers restored", count);
     }
 
-    protected void restoreAuthors(BackupDto backupDto) {
+    protected void restoreAuthors(Collection<AuthorBackupDto> authorBackupDtos) {
         logger.info("restore authors");
-        long count = backupDto.getAuthors().stream().map(this::restoreSingleAuthor).count();
+        long count = authorBackupDtos.stream().map(this::restoreSingleAuthor).count();
         logger.debug("{} authors restored", count);
     }
 
@@ -56,6 +58,7 @@ public class RestoreServiceImpl implements RestoreService {
     }
 
     protected Customer restoreSingleCustomer(CustomerBackupDto customerBackupDto){
+        logger.debug("restore customer {}", customerBackupDto.getName());
         Customer customer = new Customer();
         customer.setName(customerBackupDto.getName());
         customer = customerService.save(customer);
@@ -67,10 +70,16 @@ public class RestoreServiceImpl implements RestoreService {
 
     private Subscription restoreSubscription(Customer customer, SubscriptionBackupDto subscriptionBackupDto) {
         Subscription subscription = subscriptionService.addAuthorAndSubscribe(customer, subscriptionBackupDto.getAuthorLink());
+        logger.debug("restore subscription {} to {} with {} unreads", customer.getName(), subscription.getAuthor().getName(), subscriptionBackupDto.getUnreadWritings().size());
         for (String writingLink : subscriptionBackupDto.getUnreadWritings()) {
+            logger.debug("unread link: {}", writingLink);
+            System.out.println("*************************************************************");
             Writing writing = findWriting(subscriptionBackupDto.getAuthorLink(), writingLink);
+            System.out.println("*************************************************************");
+            logger.debug("writing: {}", writing);
             if(null != writing){
                 subscriptionService.addWritingToUnreadList(customer, subscription.getId(), writing.getId());
+                logger.debug("add writing to unreads {}", writing.getId());
             }
         }
         return subscription;

@@ -120,7 +120,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public Subscription addWritingToUnreadList(Customer customer, Long subscriptionId, Long writingId) {
         checkExists(customer.getId(), subscriptionId);
-        Subscription subscription = subscriptionRepository.findOne(subscriptionId);
+        Subscription subscription = subscriptionRepository.findOneWithUnreadList(subscriptionId);
         Writing writing = authorService.getWritingById(writingId);
         return subscriptionRepository.save(addToUnreadList(subscription, writing));
     }

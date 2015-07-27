@@ -1,6 +1,5 @@
 package my.wf.samlib.model.repositoriy;
 
-import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Subscription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,4 +40,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     @Query("SELECT s.id, a.id, a.name, a.link, COUNT(DISTINCT u), COUNT(DISTINCT w), MAX(w.lastChangedDate) FROM Subscription s LEFT JOIN s.subscriptionUnreads u INNER JOIN s.author a INNER JOIN a.writings w WHERE  s.customer.id = :customerId GROUP BY s.id, a.id, a.name, a.link")
     List<Object> getAllSubscriptionStatistic(@Param("customerId") Long customerId);
+
+    @Query("SELECT s, u FROM Subscription s LEFT JOIN FETCH s.subscriptionUnreads u WHERE s.id=:subscriptionId")
+    Subscription findOneWithUnreadList(@Param("subscriptionId") Long subscriptionId);
 }

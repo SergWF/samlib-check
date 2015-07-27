@@ -174,10 +174,10 @@ public class EntityHelper {
 
 
 
-    public static SubscriptionBackupDto createSubscriptionBackupDto(AuthorBackupDto authorBackupDto, Collection<String> writingNames) {
+    public static SubscriptionBackupDto createSubscriptionBackupDto(String  authorLink, Collection<String> writingLinks) {
         SubscriptionBackupDto subscriptionBackupDto = new SubscriptionBackupDto();
-        subscriptionBackupDto.setAuthorLink(authorBackupDto.getLink());
-        subscriptionBackupDto.getUnreadWritings().addAll(writingNames);
+        subscriptionBackupDto.setAuthorLink(authorLink);
+        subscriptionBackupDto.getUnreadWritings().addAll(writingLinks);
         return subscriptionBackupDto;
     }
 }

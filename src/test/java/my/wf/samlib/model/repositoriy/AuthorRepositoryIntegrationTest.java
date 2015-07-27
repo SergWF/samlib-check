@@ -148,7 +148,7 @@ public class AuthorRepositoryIntegrationTest {
         Writing w13 = EntityHelper.createWriting("w13", author2);
         author2 = authorRepository.save(author2);
 
-        Writing found = authorRepository.findWritingByLink(author1.getLink(), w2.getLink());
+        Writing found = authorRepository.findWritingByLink(author1.getLink(), "http://w2");
         Assert.assertThat(found,
                 Matchers.allOf(
                         Matchers.hasProperty("id", Matchers.notNullValue()),

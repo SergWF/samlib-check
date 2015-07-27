@@ -30,6 +30,6 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
     @Query("SELECT a, w FROM Author a INNER JOIN FETCH a.writings w WHERE w.lastChangedDate >= :lastCheckDate")
     Set<Author> findAllWithWritings(@Param("lastCheckDate") Date lastCheckDate);
 
-    @Query("SELECT w FROM Writing w WHERE w.link=:writingLink AND w.author.link=:authorLink")
+    @Query("SELECT w FROM Writing w INNER JOIN w.author a WHERE w.link=:writingLink AND w.author.link=:authorLink")
     Writing findWritingByLink(@Param("authorLink") String authorLink, @Param("writingLink") String writingLink);
 }

@@ -90,7 +90,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Writing findWritingByLink(String authorLink, String writingLink) {
-        return authorRepository.findWritingByLink(authorLink, writingLink);
+        return authorRepository.findWritingByLink(LinkTool.getAuthorLink(authorLink, linkSuffix), writingLink);
     }
 
 }
