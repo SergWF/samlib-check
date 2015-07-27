@@ -72,14 +72,9 @@ public class RestoreServiceImpl implements RestoreService {
         Subscription subscription = subscriptionService.addAuthorAndSubscribe(customer, subscriptionBackupDto.getAuthorLink());
         logger.debug("restore subscription {} to {} with {} unreads", customer.getName(), subscription.getAuthor().getName(), subscriptionBackupDto.getUnreadWritings().size());
         for (String writingLink : subscriptionBackupDto.getUnreadWritings()) {
-            logger.debug("unread link: {}", writingLink);
-            System.out.println("*************************************************************");
             Writing writing = findWriting(subscriptionBackupDto.getAuthorLink(), writingLink);
-            System.out.println("*************************************************************");
-            logger.debug("writing: {}", writing);
             if(null != writing){
                 subscriptionService.addWritingToUnreadList(customer, subscription.getId(), writing.getId());
-                logger.debug("add writing to unreads {}", writing.getId());
             }
         }
         return subscription;
