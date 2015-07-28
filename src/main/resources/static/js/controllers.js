@@ -71,8 +71,10 @@ samlibControllers.controller("AuthorDetailsCtrl", function($scope, $routeParams,
 
 
 samlibControllers.controller("AdminCtrl", function($scope, $routeParams, AdminService){
-    $scope.doImport = function(authors){
-        AdminService.doImport($scope, authors);
+    $scope.doImport = function(authorsFiles){
+        var file = authorsFiles[0];
+        console.log('file:', file);
+        AdminService.doImport($scope, file);
     };
 
     $scope.doExport = function(){
@@ -83,8 +85,10 @@ samlibControllers.controller("AdminCtrl", function($scope, $routeParams, AdminSe
         AdminService.doBackup($scope);
     };
 
-    $scope.doRestore = function(data){
-        AdminService.doRestore($scope, data);
+    $scope.doRestore = function(backupFiles){
+        var file = backupFiles[0];
+        console.log('file:', file);
+        AdminService.doRestore($scope, file);
     };
 
     $scope.getAllAuthors = function(){

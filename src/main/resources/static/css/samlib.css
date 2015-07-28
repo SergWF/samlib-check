@@ -13,11 +13,11 @@
     background-color: aliceblue;
 }
 
-div.left{
+.left{
     float:left;
     padding-left:10px;
 }
-div.right{
+.right{
     float:right;
     padding-right:10px;
 }

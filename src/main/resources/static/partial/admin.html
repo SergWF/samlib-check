@@ -1,12 +1,4 @@
 <div ng-controller="AdminCtrl">
-    <div>
-        <a download="export.json" href="/admin/export">Export Authors</a>
-        <a download="backup.json" href="/admin/backup">Backup Data</a>
-        <button ng-click="doExport()">Export</button>
-        <button ng-click="doImport()">Import</button>
-        <button ng-click="doBackup()">Backup</button>
-        <button ng-click="doRestore()">Restore</button>
-    </div>
     <div class="left">
         <table class="author_table">
             <tr>
@@ -20,6 +12,24 @@
                 <td><button ng-click="removeAuthor(author)">x</button></td>
             </tr>
         </table>
+    </div>
+
+    <div class="left">
+        <div>
+            <fieldset>
+                <legend>Export/Import</legend>
+                <a download="export.json" href="/admin/export">Export Author List</a>
+                <input type="file" name="authorsFile" onchange="angular.element(this).scope().doImport(this.files)"/>
+
+            </fieldset>
+        </div>
+        <div>
+            <fieldset>
+                <legend>Backup/Restore</legend>
+                <a download="backup.json" href="/admin/backup">Backup Data</a>
+                <input type="file" name="backupFile" onchange="angular.element(this).scope().doRestore(this.files)"/>
+            </fieldset>
+        </div>
     </div>
 </div>
 

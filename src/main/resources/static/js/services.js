@@ -123,8 +123,15 @@ samlibServices.factory('SubscriptionService', function($http){
 
 samlibServices.factory('AdminService', function($http){
     return {
-        doImport: function ($scope, authors){
-            $http.post("/utils/import", authors)
+        doImport: function ($scope, authorsFile){
+            var formData = new FormData();
+            formData.append("file", authorsFile);
+            $http.post("/admin/import"
+                , formData
+                ,{
+                    headers: {'Content-Type': undefined}
+                    , transformRequest: angular.identity
+                })
                 .success(function(data, status){
                     $scope.externalData = JSON.stringify(data);
                     console.log('json', $scope.externalData);
@@ -136,17 +143,13 @@ samlibServices.factory('AdminService', function($http){
                 });
         },
         doExport: function($scope){
-            $http.get('/admin/export');
-                //.success(function(data, status){
-                //    $scope.externalData = data;
-                //    $scope.status = status;
-                //
-                //})
-                //.error(function(data, status){
-                //    $scope.externalData = data || "Request failed";
-                //    $scope.status = status;
-                //});
-
+            $http.get('/admin/export')
+                .succsess(function(data, status){
+                    console.log("export OK", data);
+                })
+                .error(function(data, status){
+                    console.error("export failed", status, data)
+                });
         },
         doBackup: function($scope){
             $http.get('/admin/backup')
@@ -158,15 +161,21 @@ samlibServices.factory('AdminService', function($http){
                 });
         },
 
-        doRestore: function($scope, data){
-            $http.post('/admin/restore', data)
-                .succsess(function(data, status){
+        doRestore: function($scope, backupFile){
+            var formData = new FormData();
+            formData.append("file", backupFile);
+            $http.post("/admin/restore"
+                , formData
+                ,{
+                    headers: {'Content-Type': undefined}
+                    , transformRequest: angular.identity
+                })
+                .success(function(data, status){
                     console.log("restored", data);
                 })
                 .error(function(data, status){
                     console.error("not restored", status, data)
-                })
-            ;
+                });
         },
 
         getAuthorList: function($scope){
