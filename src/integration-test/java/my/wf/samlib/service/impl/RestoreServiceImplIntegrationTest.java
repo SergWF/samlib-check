@@ -1,9 +1,6 @@
 package my.wf.samlib.service.impl;
 
-import my.wf.samlib.TestConfig;
-import my.wf.samlib.WebStubConfig;
 import my.wf.samlib.config.MainConfig;
-import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.dto.backup.AuthorBackupDto;
 import my.wf.samlib.model.dto.backup.CustomerBackupDto;
 import my.wf.samlib.model.dto.backup.SubscriptionBackupDto;
@@ -21,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import my.wf.samlib.TestConfig;
+import my.wf.samlib.WebStubConfig;
+import my.wf.samlib.helpers.EntityHelper;
 
 import java.util.Arrays;
 import java.util.HashSet;

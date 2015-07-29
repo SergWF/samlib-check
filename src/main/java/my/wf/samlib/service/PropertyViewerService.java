@@ -7,4 +7,9 @@ public interface PropertyViewerService {
     String getBanCheckUrl();
     boolean getSkipBanChecking();
     String getBackupPath();
+
+    String getVersionNumber();
+    Integer getBuildNumber();
+    String getBuildDate();
+
 }

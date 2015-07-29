@@ -21,6 +21,13 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
     @Value("${backup.path}")
     private String backupPath;
 
+    @Value("${version.number:unknown}")
+    private String versionNumber;
+    @Value("${build.number:0}")
+    private Integer buildNumber;
+    @Value("${build.time:unknown}")
+    private String buildDate;
+
     @Override
     public String getStorageUrl() {
         return storageUrl;
@@ -49,5 +56,20 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
     @Override
     public String getBackupPath() {
         return backupPath;
+    }
+
+    @Override
+    public String getVersionNumber() {
+        return versionNumber;
+    }
+
+    @Override
+    public Integer getBuildNumber() {
+        return buildNumber;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return buildDate;
     }
 }

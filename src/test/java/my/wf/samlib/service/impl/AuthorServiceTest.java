@@ -36,29 +36,6 @@ public class AuthorServiceTest {
     }
 
     @Test
-    public void testAddNewAuthorUrlWithSlash(){
-        authorService.addAuthor(NEW_AUTHOR_URL_SLASH);
-        ArgumentCaptor<Author> authorArgumentCaptor = ArgumentCaptor.forClass(Author.class);
-        Mockito.verify(authorRepository, Mockito.times(1)).save(authorArgumentCaptor.capture());
-        Assert.assertThat(authorArgumentCaptor.getValue(), org.hamcrest.Matchers.allOf(
-                        org.hamcrest.Matchers.hasProperty("id", org.hamcrest.Matchers.nullValue()),
-                        org.hamcrest.Matchers.hasProperty("link", org.hamcrest.Matchers.equalTo(NEW_AUTHOR_URL_SLASH))
-                )
-        );
-    }
-    @Test
-    public void testAddNewAuthorUrlWithoutSlash(){
-        authorService.addAuthor(NEW_AUTHOR_URL_SLASH);
-        ArgumentCaptor<Author> authorArgumentCaptor = ArgumentCaptor.forClass(Author.class);
-        Mockito.verify(authorRepository, Mockito.times(1)).save(authorArgumentCaptor.capture());
-        Assert.assertThat(authorArgumentCaptor.getValue(), org.hamcrest.Matchers.allOf(
-                        org.hamcrest.Matchers.hasProperty("id", org.hamcrest.Matchers.nullValue()),
-                        org.hamcrest.Matchers.hasProperty("link", org.hamcrest.Matchers.equalTo(NEW_AUTHOR_URL_SLASH))
-                )
-        );
-    }
-
-    @Test
     public void testAddExistingAuthor(){
         Assert.assertEquals(author, authorService.addAuthor(AUTHOR_URL));
         Mockito.verify(authorRepository, Mockito.never()).save(Mockito.any(Author.class));

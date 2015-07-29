@@ -8,11 +8,11 @@ import org.junit.Test;
 
 public class LinkToolTest {
 
-    private static final String AUTHOR_URL = "http://samlib.ru/d/demchenko_aw/";
-    private static final String AUTHOR_URL_NO_SLASH = "http://samlib.ru/d/demchenko_aw";
-    private static final String FULL_AUTHOR_URL ="http://samlib.ru/d/demchenko_aw/indextitle.shtml";
+    private static final String AUTHOR_URL = "http://my.wf.samlib.ru/d/demchenko_aw/";
+    private static final String AUTHOR_URL_NO_SLASH = "http://my.wf.samlib.ru/d/demchenko_aw";
+    private static final String FULL_AUTHOR_URL ="http://my.wf.samlib.ru/d/demchenko_aw/indextitle.shtml";
     private static final String LINK_SUFFIX ="indextitle.shtml";
-    private static final String WRITING_URL = "http://samlib.ru/d/demchenko_aw/page1.shtml";
+    private static final String WRITING_URL = "http://my.wf.samlib.ru/d/demchenko_aw/page1.shtml";
 
 
     @Test

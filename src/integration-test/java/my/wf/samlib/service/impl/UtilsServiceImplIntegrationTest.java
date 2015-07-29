@@ -1,9 +1,6 @@
 package my.wf.samlib.service.impl;
 
-import my.wf.samlib.TestConfig;
-import my.wf.samlib.WebStubConfig;
 import my.wf.samlib.config.MainConfig;
-import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Subscription;
@@ -18,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import my.wf.samlib.TestConfig;
+import my.wf.samlib.WebStubConfig;
+import my.wf.samlib.helpers.EntityHelper;
 
 import java.util.Arrays;
 import java.util.Collection;

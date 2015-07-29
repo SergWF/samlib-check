@@ -1,8 +1,6 @@
 package my.wf.samlib.service.impl;
 
-import my.wf.samlib.TestConfig;
 import my.wf.samlib.config.MainConfig;
-import my.wf.samlib.helpers.InitHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.repositoriy.AuthorRepository;
 import my.wf.samlib.service.AuthorService;
@@ -13,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import my.wf.samlib.TestConfig;
+import my.wf.samlib.helpers.InitHelper;
 
 import java.util.Map;
 import java.util.UUID;

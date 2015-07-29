@@ -34,7 +34,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .apis(RequestHandlerSelectors.basePackage("my.wf.samlib.rest"))
+                .apis(RequestHandlerSelectors.basePackage("my.wf.my.wf.samlib.rest"))
                 .paths(PathSelectors.any())
                 .build()
                 .pathMapping("/")

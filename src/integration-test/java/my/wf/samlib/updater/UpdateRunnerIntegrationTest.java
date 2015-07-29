@@ -17,10 +17,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,7 +60,7 @@ public class UpdateRunnerIntegrationTest {
         sortedAuthors.add(authorService.findAuthorWithWritings(a2.getId()));
         sortedAuthors.add(authorService.findAuthorWithWritings(a3.getId()));
         sortedAuthors.add(authorService.findAuthorWithWritings(a4.getId()));
-        Collections.sort(sortedAuthors, (o1, o2) -> o1.getLastChangedDate().compareTo(o2.getLastChangedDate()));
+        Collections.sort(sortedAuthors, (o1, o2) -> ((null == o1 ||null == o1.getLastChangedDate()) ? new Date(0) : o1.getLastChangedDate()).compareTo((null == o2 || null == o2.getLastChangedDate()) ? new Date(0) : o2.getLastChangedDate()));
         Author prevAuthor = null;
         for(Author author: sortedAuthors){
             if(null != prevAuthor){

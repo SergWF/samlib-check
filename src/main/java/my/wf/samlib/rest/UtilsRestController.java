@@ -1,6 +1,6 @@
 package my.wf.samlib.rest;
 
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 import my.wf.samlib.model.dto.StatisticDto;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.service.SamlibService;

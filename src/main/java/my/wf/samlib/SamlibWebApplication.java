@@ -19,7 +19,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAutoConfiguration
 @PropertySources({
         @PropertySource("classpath:default.properties"),
-        @PropertySource(value = "file:${external.config}", ignoreResourceNotFound = true)
+        @PropertySource(value = "file:${external.config}", ignoreResourceNotFound = true),
+        @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true)
 })
 public class SamlibWebApplication {
 
@@ -40,6 +41,10 @@ public class SamlibWebApplication {
         System.out.println("Update pause   : " + propertyViewerService.getPauseValue());
         System.out.println("banCheck Url   : " + propertyViewerService.getBanCheckUrl());
         System.out.println("Skip Ban Check : " + propertyViewerService.getSkipBanChecking());
+
+        System.out.println("version : " + propertyViewerService.getVersionNumber());
+        System.out.println("build : " + propertyViewerService.getBuildNumber());
+        System.out.println("build date: " + propertyViewerService.getBuildDate());
     }
 
 

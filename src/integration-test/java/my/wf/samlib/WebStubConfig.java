@@ -1,7 +1,6 @@
 package my.wf.samlib;
 
 import my.wf.samlib.exception.PageReadException;
-import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.updater.AuthorCheckerFactory;
 import my.wf.samlib.updater.parser.AuthorChecker;
 import my.wf.samlib.updater.parser.SamlibPageReader;
@@ -10,6 +9,7 @@ import my.wf.samlib.updater.parser.impl.SamlibAuthorParserImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import my.wf.samlib.helpers.EntityHelper;
 
 import java.io.IOException;
 

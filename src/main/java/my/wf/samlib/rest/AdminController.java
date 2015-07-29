@@ -4,13 +4,11 @@ package my.wf.samlib.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
+import my.wf.samlib.model.dto.VersionInfoDto;
 import my.wf.samlib.model.dto.backup.BackupDto;
 import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.service.BackupService;
-import my.wf.samlib.service.RestoreService;
-import my.wf.samlib.service.SamlibService;
-import my.wf.samlib.service.UtilsService;
+import my.wf.samlib.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,10 @@ public class AdminController {
     BackupService backupService;
     @Autowired
     RestoreService restoreService;
+    @Autowired
+    PropertyViewerService propertyViewerService;
+
+
 
     @ApiOperation(value = "Import author list from customer")
     @RequestMapping(value = "/import", method = RequestMethod.POST)
@@ -52,13 +54,14 @@ public class AdminController {
         String jsonData = new String(file.getBytes(), StandardCharsets.UTF_8);
         logger.debug("import Authors");
         logger.debug(jsonData);
-        return utilsService.importAuthors(getActiveCustomer(), new ObjectMapper().readValue(jsonData, new TypeReference<List<String>>() { }));
+        return utilsService.importAuthors(getActiveCustomer(), new ObjectMapper().readValue(jsonData, new TypeReference<List<String>>() {
+        }));
     }
 
     @ApiOperation(value = "Export customer author lkist")
     @RequestMapping(value = "/export", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> doExport() throws JsonProcessingException {
-        return makeFileForDownload(utilsService.exportAuthors(), "export-"+SIMPLE_DATE_FORMAT.format(new Date())+".json");
+        return makeFileForDownload(utilsService.exportAuthors(), "export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".json");
     }
 
     @ApiOperation(value = "Backups all data to a file")
@@ -78,6 +81,13 @@ public class AdminController {
         logger.debug(jsonData);
         restoreService.restore(new ObjectMapper().readValue(jsonData, BackupDto.class));
         return 1;
+    }
+
+    @ApiOperation(value = "Version Info")
+    @RequestMapping(value = "/version", method = RequestMethod.GET)
+    @ResponseBody
+    public VersionInfoDto getVersionInfo(){
+        return new VersionInfoDto(propertyViewerService.getVersionNumber(), propertyViewerService.getBuildNumber(), propertyViewerService.getBuildDate());
     }
 
 

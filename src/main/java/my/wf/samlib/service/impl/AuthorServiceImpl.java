@@ -44,8 +44,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     protected Author createAndSaveNewAuthor(String url) {
-        Author author;
-        author = new Author();
+        Author author = new Author();
         author.setName("author " + url);
         author.setLink(url);
         author = authorRepository.save(author);
