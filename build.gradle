@@ -6,6 +6,20 @@ version '1.1'
 apply plugin: 'java'
 apply plugin: "idea"
 
+ext {
+    integrationTestDir="integration-test"
+    commonsIoVersion="2.4"
+    h2Version="1.4.187"
+    jUnitVersion="4.12"
+    jacksonVersion="2.5.4"
+    mockitoVersion="1.10.19"
+    slf4jVersion = "1.7.12"
+    //check buildscript.dependencies when change
+    springBootVersion="1.2.5.RELEASE"
+    swaggerVersion="2.1.2"
+    springSecurityVersion="4.0.1.RELEASE"
+}
+
 repositories {
     repositories {
         mavenCentral()
@@ -14,6 +28,7 @@ repositories {
 }
 
 buildscript {
+
     repositories {
         maven{
             url "http://repo.spring.io/release"
@@ -22,7 +37,6 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        //classpath("commons-logging:commons-logging:1.2")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
         //classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
     }
@@ -34,32 +48,8 @@ apply plugin: 'spring-boot'
 
 
 
-sourceSets {
-
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integration-test/java')
-        }
-        resources.srcDir file('src/integration-test/resources')
-    }
-}
-
-ext {
-    commonsIoVersion="2.4"
-    h2Version="1.4.187"
-    jUnitVersion="4.12"
-    jacksonVersion="2.5.4"
-    mockitoVersion="1.10.19"
-    slf4jVersion = "1.7.12"
-    springBootVersion="1.2.5.RELEASE"
-    swaggerVersion="2.1.2"
-    springSecurityVersion="4.0.1.RELEASE"
-}
 
 configurations{
-    //all*.exclude module : "spring-boot-starter-logging"
     all*.exclude module : "jcl-over-slf4j"
     all*.exclude module : "logback-classic"
     all*.exclude module : "hamcrest-core"
@@ -67,6 +57,48 @@ configurations{
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
 
+}
+
+sourceSets {
+
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file("src/${integrationTestDir}/java")
+        }
+        resources.srcDir file("src/${integrationTestDir}/resources")
+    }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    reports.junitXml.destination = file("${project.testResultsDir}/$name")
+    reports.html.destination = file("${project.reporting.baseDir}/$name")
+    outputs.upToDateWhen { false }
+    shouldRunAfter test
+}
+check.dependsOn integrationTest
+
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+task increaseBuildNumber << {
+    Properties props = new Properties()
+    File propsFile = new File('src/main/resources/version.properties')
+    props.load(propsFile.newDataInputStream())
+    Integer buildNumber = ((props.getProperty('build.number')) as BigDecimal);
+    props.setProperty('version.number', project.version)
+    props.setProperty('build.number', (++(null == buildNumber ? 0 : buildNumber)).toString())
+    props.setProperty('build.time', new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date()))
+    props.store(propsFile.newWriter(), null)
+    props.load(propsFile.newDataInputStream())
 }
 
 dependencies {
@@ -87,39 +119,12 @@ dependencies {
     testCompile "org.mockito:mockito-all:${mockitoVersion}"
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 
-    integrationTestCompile ("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
-//            {
-//        //exclude module: "spring-boot-starter-tomcat"
-//        exclude module: "logback-classic"
-//    }
+    integrationTestCompile "junit:junit:${jUnitVersion}"
+    integrationTestCompile "org.hamcrest:hamcrest-all:1.3"
+    integrationTestCompile "org.mockito:mockito-all:${mockitoVersion}"
+    integrationTestCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+
 
 }
-
-task integrationTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-}
-
-tasks.withType(JavaCompile) {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-    //reports.html.destination = file("${reporting.baseDir}/${name}")
-}
-
-task increaseBuildNumber << {
-    Properties props = new Properties()
-    File propsFile = new File('src/main/resources/version.properties')
-    props.load(propsFile.newDataInputStream())
-    Integer buildNumber = ((props.getProperty('build.number')) as BigDecimal);
-    props.setProperty('version.number', project.version)
-    props.setProperty('build.number', (++(null == buildNumber ? 0 : buildNumber)).toString())
-    props.setProperty('build.time', new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date()))
-    props.store(propsFile.newWriter(), null)
-    props.load(propsFile.newDataInputStream())
-}
-
-//check.dependsOn integrationTest
-//integrationTest.mustRunAfter test
 
 jar.dependsOn increaseBuildNumber

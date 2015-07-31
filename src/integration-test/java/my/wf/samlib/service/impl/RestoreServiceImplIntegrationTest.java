@@ -1,6 +1,8 @@
 package my.wf.samlib.service.impl;
 
+import my.wf.samlib.TestConfig;
 import my.wf.samlib.config.MainConfig;
+import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.dto.backup.AuthorBackupDto;
 import my.wf.samlib.model.dto.backup.CustomerBackupDto;
 import my.wf.samlib.model.dto.backup.SubscriptionBackupDto;
@@ -18,16 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import my.wf.samlib.TestConfig;
-import my.wf.samlib.WebStubConfig;
-import my.wf.samlib.helpers.EntityHelper;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {MainConfig.class, TestConfig.class, WebStubConfig.class})
+@SpringApplicationConfiguration(classes = {MainConfig.class, TestConfig.class/*, WebStubConfig.class*/})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RestoreServiceImplIntegrationTest {
 
@@ -44,6 +43,7 @@ public class RestoreServiceImplIntegrationTest {
 
     @Test
     public void testRestoreAuthors() throws Exception {
+        Assert.assertTrue(authorService.findAllAuthorsWithWritings().isEmpty());
         Set<AuthorBackupDto> dtos = new HashSet<>();
         dtos.add(EntityHelper.createAuthorBackupDto("http://a1", "a1", "w11", "w12", "w13"));
         dtos.add(EntityHelper.createAuthorBackupDto("http://a2", "a2", "w21", "w22", "w23"));
