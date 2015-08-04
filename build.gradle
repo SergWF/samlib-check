@@ -89,6 +89,10 @@ tasks.withType(JavaCompile) {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+task showMeCache << {
+    configurations.compile.each { println it }
+}
+
 task increaseBuildNumber << {
     Properties props = new Properties()
     File propsFile = new File('src/main/resources/version.properties')
