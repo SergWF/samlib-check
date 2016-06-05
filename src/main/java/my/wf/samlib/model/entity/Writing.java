@@ -3,7 +3,6 @@ package my.wf.samlib.model.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import my.wf.samlib.model.compare.LastDate;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;

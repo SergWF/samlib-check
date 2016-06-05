@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -31,7 +30,6 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    @Transactional
     public Author addAuthor(String url) throws IOException {
         String authorUrl = LinkTool.getAuthorLink(url, linkSuffix);
         Author author = authorStorage.findByLink(authorUrl);

@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import sun.plugin2.applet.Applet2ClassLoaderCache;
 
 import java.util.Date;
 import java.util.Set;

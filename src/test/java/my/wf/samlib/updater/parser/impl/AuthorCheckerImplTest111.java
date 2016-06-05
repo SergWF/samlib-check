@@ -5,15 +5,17 @@ import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class AuthorCheckerImplTest111 {
 

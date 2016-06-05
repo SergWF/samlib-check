@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.storage.AuthorStorage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -16,10 +19,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Component
 public class AuthorStorageImpl implements AuthorStorage {
 
     private ConcurrentHashMap<Long, Author> authors = new ConcurrentHashMap<>();
+    @Autowired
     private ObjectMapper objectMapper;
+    @Value("${samlib.check.storage.file}")
     private String storageFileName;
     private Date lastUpdateDate;
 

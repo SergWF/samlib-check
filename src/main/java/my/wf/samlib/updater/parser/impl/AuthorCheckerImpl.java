@@ -10,7 +10,6 @@ import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.Date;
@@ -35,12 +34,10 @@ public class AuthorCheckerImpl implements AuthorChecker {
         this.banCheckUrl = banCheckUrl;
     }
 
-    @Autowired
     public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {
         this.samlibAuthorParser = samlibAuthorParser;
     }
 
-    @Autowired
     public void setSamlibPageReader(SamlibPageReader samlibPageReader) {
         this.samlibPageReader = samlibPageReader;
     }
@@ -96,7 +93,6 @@ public class AuthorCheckerImpl implements AuthorChecker {
             writing.getChangesIn().add(Changed.NEW);
         } else {
             writing.setUnread(old.isUnread());
-            writing.setPrevSize(old.getSize());
             writing.setLastChangedDate(old.getLastChangedDate());
             if(!writing.getName()
                     .equals(old.getName())) {
@@ -108,10 +104,11 @@ public class AuthorCheckerImpl implements AuthorChecker {
                 writing.getChangesIn()
                         .add(Changed.DESCRIPTION);
             }
-            if(!writing.getSize()
-                    .equals(old.getSize())) {
-                writing.getChangesIn()
-                        .add(Changed.SIZE);
+            if(!writing.getSize().equals(old.getSize())) {
+                writing.getChangesIn().add(Changed.SIZE);
+                writing.setPrevSize(old.getSize());
+            }else{
+                writing.setPrevSize(old.getPrevSize());
             }
         }
         if(!writing.getChangesIn().isEmpty()){

@@ -5,19 +5,13 @@ import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.updater.parser.SamlibPageReader;
-import org.apache.commons.io.IOUtils;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Date;
 
 public class AuthorCheckerTest {
 

@@ -1,13 +1,7 @@
 package my.wf.samlib.service.impl;
 
 
-import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.service.UtilsService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.*;
 
 public class AuthorServiceTest {
     private static final String AUTHOR_URL = "http://1/";

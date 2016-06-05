@@ -39,7 +39,9 @@ public class EntityHelper {
         writing.setGroupName("grp");
         writing.setLastChangedDate(lastChangedDate);
         writing.setSize("10k");
-        author.getWritings().add(writing);
+        if(null != author) {
+            author.getWritings().add(writing);
+        }
         return writing;
     }
 

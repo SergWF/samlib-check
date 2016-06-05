@@ -8,7 +8,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class LastChangedDateComparatorTest {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
