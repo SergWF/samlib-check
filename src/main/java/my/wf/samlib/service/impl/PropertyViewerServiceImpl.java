@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class PropertyViewerServiceImpl implements PropertyViewerService {
 
 
-    @Value("${spring.datasource.url}")
-    private String storageUrl;
+    @Value("${samlib.check.storage.file}")
+    private String storageFile;
     @Value("${update.cron.job}")
     private String cronData;
     @Value("${pause.between.authors}")
@@ -28,9 +28,8 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
     @Value("${build.time:unknown}")
     private String buildDate;
 
-    @Override
-    public String getStorageUrl() {
-        return storageUrl;
+    public String getStorageFile() {
+        return storageFile;
     }
 
     @Override

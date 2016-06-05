@@ -10,10 +10,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.io.File;
 
 @SpringBootApplication
-@EnableSwagger2
 @EnableScheduling
 @EnableAutoConfiguration
 @PropertySources({
@@ -31,8 +31,8 @@ public class SamlibWebApplication {
         printProperties(context.getBean(PropertyViewerService.class));
     }
 
-    private static void printProperties(PropertyViewerService propertyViewerService){
-        System.out.println("storage url    : " + propertyViewerService.getStorageUrl());
+    public static void printProperties(PropertyViewerService propertyViewerService){
+        System.out.println("storage file    : " + new File(propertyViewerService.getStorageFile()).getAbsolutePath());
         System.out.println("backup path    : " + propertyViewerService.getBackupPath());
         System.out.println("cron data      : " + propertyViewerService.getCronData());
         System.out.println("Update pause   : " + propertyViewerService.getPauseValue());

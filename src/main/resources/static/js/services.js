@@ -6,7 +6,7 @@ samlibServices.factory('AuthorService', function($http){
     return {
         getAuthorDetails: function($scope, authorId){
             console.log("AuthorService.getAuthorDetails("+authorId+")");
-            $http.get("/author/"+authorId)
+            $http.get("/authors/"+authorId)
                 .success(function (data, status) {
                     $scope.authorDetails = data;
                     $scope.pageTitle = $scope.authorDetails.name;
@@ -52,7 +52,7 @@ samlibServices.factory('SubscriptionService', function($http){
     return {
         getAuthorList: function ($scope) {
             console.log("AuthorService.getAuthorList");
-            $http.get("/subscription/list")
+            $http.get("/authors")
                 .success(function (data, status) {
                     $scope.subscriptions = data;
                     $scope.pageTitle='Samlib';
@@ -66,7 +66,7 @@ samlibServices.factory('SubscriptionService', function($http){
         },
 
         addAuthor: function($scope, authorUrl){
-            $http.post("/subscription/subscribe/url", authorUrl).success(function (data, status) {
+            $http.post("/authors/subscribe/url", authorUrl).success(function (data, status) {
                 $scope.statistic = data;
                 $scope.status = status;
             })
@@ -77,7 +77,7 @@ samlibServices.factory('SubscriptionService', function($http){
         },
 
         cleanUnread: function($scope, subscription){
-            var link = "/subscription/" + subscription.subscriptionId + "/unread/all";
+            var link = "/authors/" + subscription.subscriptionId + "/unread/all";
             var s_index = $scope.subscriptions.indexOf(subscription);
             console.log("s_index", s_index);
             $http.delete(link)
@@ -92,7 +92,7 @@ samlibServices.factory('SubscriptionService', function($http){
         },
 
         addWritingToUnreadList: function($scope, subscriptionId, writingId){
-        var link = "/subscription/"+subscriptionId+"/unread/"+writingId;
+        var link = "/authors/"+subscriptionId+"/unread/"+writingId;
         $http.post(link)
             .success(function (data, status) {
                 $scope.authorDetails = data;
@@ -106,7 +106,7 @@ samlibServices.factory('SubscriptionService', function($http){
 
 
         removeWritingFromUnreadList: function ($scope, subscriptionId, writingId){
-        var link = "/subscription/"+subscriptionId+"/unread/"+writingId;
+        var link = "/authors/"+subscriptionId+"/unread/"+writingId;
         $http.delete(link)
             .success(function (data, status) {
                 $scope.authorDetails = data;
@@ -179,7 +179,7 @@ samlibServices.factory('AdminService', function($http){
         },
 
         getAuthorList: function($scope){
-            $http.get('/author/list')
+            $http.get('/authors/list')
                 .success(function(data, status){
                     $scope.allAuthors = data;
                     $scope.status = status;
@@ -191,7 +191,7 @@ samlibServices.factory('AdminService', function($http){
         },
 
         removeAuthor: function($scope, authorId){
-            $http.delete("/author/"+authorId)
+            $http.delete("/authors/"+authorId)
                 .success(function(data, status){
                     $scope.removeResult = data;
                     $scope.status = status;

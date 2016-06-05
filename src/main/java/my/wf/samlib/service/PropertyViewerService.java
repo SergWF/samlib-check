@@ -1,7 +1,7 @@
 package my.wf.samlib.service;
 
 public interface PropertyViewerService {
-    String getStorageUrl();
+    String getStorageFile();
     String getCronData();
     int getPauseValue();
     String getBanCheckUrl();

@@ -12,9 +12,7 @@ public class AuthorDtoBuilder {
 
 
     public static Set<AuthorItemListDto> createList(Collection<Author> authors){
-        Set<AuthorItemListDto> result = new HashSet<>();
-        authors.stream().map((a)-> createDto(a)).collect(Collectors.toSet());
-        return result;
+        return authors.stream().map((a)-> createDto(a)).collect(Collectors.toSet());
     }
 
     public static AuthorItemListDto createDto(Author author) {

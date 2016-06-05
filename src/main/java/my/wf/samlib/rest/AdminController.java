@@ -4,7 +4,6 @@ package my.wf.samlib.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiOperation;
 import my.wf.samlib.model.dto.VersionInfoDto;
 import my.wf.samlib.service.PropertyViewerService;
 import my.wf.samlib.service.UtilsService;
@@ -44,7 +43,6 @@ public class AdminController {
 
 
 
-    @ApiOperation(value = "Import author list from customer")
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @ResponseBody
     public Integer doImport(@RequestBody MultipartFile file) throws IOException {
@@ -59,7 +57,6 @@ public class AdminController {
         }));
     }
 
-    @ApiOperation(value = "Export customer author lkist")
     @RequestMapping(value = "/export", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> doExport() throws JsonProcessingException {
         return makeFileForDownload(utilsService.exportAuthors(), "export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".json");
@@ -84,7 +81,6 @@ public class AdminController {
 //        return 1;
 //    }
 
-    @ApiOperation(value = "Version Info")
     @RequestMapping(value = "/version", method = RequestMethod.GET)
     @ResponseBody
     public VersionInfoDto getVersionInfo(){

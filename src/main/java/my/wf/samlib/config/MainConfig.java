@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
-@ComponentScan//(basePackages = {"my.wf.samlib.service", "my.wf.samlib.updater"})
+@ComponentScan
 @EnableAutoConfiguration
 @EnableAsync
 public class MainConfig {
