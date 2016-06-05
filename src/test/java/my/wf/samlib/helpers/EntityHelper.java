@@ -4,7 +4,8 @@ import my.wf.samlib.model.dto.backup.AuthorBackupDto;
 import my.wf.samlib.model.dto.backup.CustomerBackupDto;
 import my.wf.samlib.model.dto.backup.SubscriptionBackupDto;
 import my.wf.samlib.model.dto.backup.WritingBackupDto;
-import my.wf.samlib.model.entity.*;
+import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.tools.LinkTool;
 import org.apache.commons.io.IOUtils;
 
@@ -17,14 +18,6 @@ import java.util.Date;
 public class EntityHelper {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
 
-    public static Subscription findByAuthor(Collection<Subscription> subscriptions, Author author){
-        for(Subscription subscription: subscriptions){
-            if(subscription.getAuthor().equals(author)){
-                return subscription;
-            }
-        }
-        return null;
-    }
 
     public static Author createAuthor(String link, String name){
         Author author = new Author();
@@ -49,48 +42,6 @@ public class EntityHelper {
         author.getWritings().add(writing);
         return writing;
     }
-
-    public static Subscription createSubscription(Customer customer, Author author){
-        return createSubscription(customer, author, false);
-    }
-    public static Subscription createSubscription(Customer customer, Author author, boolean unread){
-        Subscription subscription = new Subscription();
-        subscription.setAuthor(author);
-        subscription.setCustomer(customer);
-        customer.getSubscriptions().add(subscription);
-        subscription.setSubscribedDate(new Date());
-        if(unread){
-            for(Writing writing: author.getWritings()){
-                subscription.getSubscriptionUnreads().add(createSubscriptionUnread(subscription, writing));
-            }
-        }
-        return subscription;
-    }
-
-    public static Subscription addSubscriptionUnreads(Subscription subscription, Writing... writings){
-        for(Writing writing: writings){
-            createSubscriptionUnread(subscription, writing);
-        }
-        return subscription;
-    }
-
-    public static SubscriptionUnread createSubscriptionUnread(Subscription subscription, Writing writing) {
-        SubscriptionUnread subscriptionUnread = new SubscriptionUnread();
-        subscriptionUnread.setSubscription(subscription);
-        subscriptionUnread.setWriting(writing);
-        subscription.getSubscriptionUnreads().add(subscriptionUnread);
-        return subscriptionUnread;
-    }
-
-    public static Customer createCustomerWithSubscription(String name, Author... authors){
-        Customer customer = new Customer();
-        customer.setName(name);
-        for(Author author: authors){
-            customer.getSubscriptions().add(createSubscription(customer, author));
-        }
-        return customer;
-    }
-
 
     public static Author makeCopy(Author authorTemplate){
         Author author = new Author();

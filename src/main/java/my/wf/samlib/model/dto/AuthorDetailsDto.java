@@ -4,20 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AuthorDetailsDto {
-    private Long subscriptionId;
     private Long authorId;
     private String name;
     private String Link;
-    private int unread;
+    private long unread;
     private Set<WritingDto> writings = new HashSet<>();
-
-    public Long getSubscriptionId() {
-        return subscriptionId;
-    }
-
-    public void setSubscriptionId(Long subscriptionId) {
-        this.subscriptionId = subscriptionId;
-    }
 
     public Long getAuthorId() {
         return authorId;
@@ -43,11 +34,11 @@ public class AuthorDetailsDto {
         Link = link;
     }
 
-    public int getUnread() {
+    public long getUnread() {
         return unread;
     }
 
-    public void setUnread(int unread) {
+    public void setUnread(long unread) {
         this.unread = unread;
     }
 

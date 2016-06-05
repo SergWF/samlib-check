@@ -2,6 +2,7 @@ package my.wf.samlib.updater.parser.impl;
 
 import my.wf.samlib.model.dto.IpCheckState;
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Changed;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.tools.LinkTool;
 import my.wf.samlib.updater.parser.AuthorChecker;
@@ -11,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AuthorCheckerImpl implements AuthorChecker {
 
@@ -51,7 +55,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
         logger.debug("loaded {} symbols", pageString.length());
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
-        logger.debug("name: {}, writings found:{}", authorName, parsedWritings.size());
+        logger.debug("author: {}, writings found:{}", authorName, parsedWritings.size());
         return implementChanges(author, parsedWritings, authorName, checkDate);
     }
 
@@ -78,71 +82,48 @@ public class AuthorCheckerImpl implements AuthorChecker {
     }
 
     protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, Date checkDate) {
-        Map<Writing, Writing> writingMap = findSame(author.getWritings(), parsedWritings);
-        Set<Writing> newWritings = new HashSet<>(parsedWritings);
-        newWritings.removeAll(writingMap.values());
         author.setName(authorName);
-        author = handleOldWritings(author, writingMap, checkDate);
-        author.getWritings().addAll(newWritings);
-        for (Writing writing : newWritings) {
-            writing.setAuthor(author);
+        Collection<Writing> oldWritings = new HashSet<>(author.getWritings());
+        author.getWritings().clear();
+        author.getWritings().addAll(parsedWritings);
+        author.getWritings().stream().forEach((w)->checkChanges(w, oldWritings, checkDate));
+        return author;
+    }
+
+    protected Writing checkChanges(Writing writing, Collection<Writing> oldWritings, Date checkDate) {
+        Writing old = findSameWriting(oldWritings, writing);
+        if(null ==old){
+            writing.getChangesIn().add(Changed.NEW);
+        } else {
+            writing.setUnread(old.isUnread());
+            writing.setPrevSize(old.getSize());
+            writing.setLastChangedDate(old.getLastChangedDate());
+            if(!writing.getName()
+                    .equals(old.getName())) {
+                writing.getChangesIn()
+                        .add(Changed.NAME);
+            }
+            if(!writing.getDescription()
+                    .equals(old.getDescription())) {
+                writing.getChangesIn()
+                        .add(Changed.DESCRIPTION);
+            }
+            if(!writing.getSize()
+                    .equals(old.getSize())) {
+                writing.getChangesIn()
+                        .add(Changed.SIZE);
+            }
+        }
+        if(!writing.getChangesIn().isEmpty()){
             writing.setLastChangedDate(checkDate);
+            writing.setUnread(true);
         }
-        logger.info("({}/{}) {}, [{}]", findUpdatedCount(author.getWritings(), checkDate), author.getWritings().size(), author.getName(), author.getLink());
-        return author;
+        return writing;
     }
 
-    protected int findUpdatedCount(Collection<Writing> writings, Date checkDate){
-        int count = 0;
-        for(Writing writing: writings){
-            if(0 >= checkDate.compareTo(writing.getLastChangedDate())){
-                count++;
-            }
-        }
-        return count;
-    }
 
-    protected Author handleOldWritings(Author author, Map<Writing, Writing> writingMap, Date checkDate) {
-        for (Writing oldWriting : writingMap.keySet()) {
-            Writing newWriting = writingMap.get(oldWriting);
-            if (null == newWriting) {
-                author.getWritings().remove(oldWriting);
-            } else if (hasChanges(newWriting, oldWriting)) {
-                oldWriting.setLastChangedDate(checkDate);
-                oldWriting.setPrevSize(oldWriting.getSize());
-                oldWriting.setSize(newWriting.getSize());
-                oldWriting.setDescription(newWriting.getDescription());
-                oldWriting.setGroupName(newWriting.getGroupName());
-            }
-        }
-        return author;
-    }
-
-    protected boolean hasChanges(Writing newWriting, Writing oldWriting) {
-        return !(isSame(newWriting.getDescription(), oldWriting.getDescription())
-                && isSame(newWriting.getSize(), oldWriting.getSize())
-                && isSame(newWriting.getGroupName(), oldWriting.getGroupName())
-        );
-    }
-
-    protected boolean isSame(Object o1, Object o2){
-        return null == o1 ? (null == o2):o1.equals(o2);
-    }
-
-    protected Map<Writing, Writing> findSame(Collection<Writing> oldWritings, Collection<Writing> newWritings) {
-        Map<Writing, Writing> map = new HashMap<>(oldWritings.size());
-        for (Writing oldWriting : oldWritings) {
-            map.put(oldWriting, findSameWriting(newWritings, oldWriting));
-        }
-        return map;
-    }
 
     protected Writing findSameWriting(Collection<Writing> writings, Writing baseWriting) {
-        for (Writing writing : writings) {
-            if (writing.getLink().equals(baseWriting.getLink())) {
-                return writing;
-            }
-        }
-        return null;
+        return writings.stream().filter((w) -> w.getLink().equals(baseWriting.getLink())).findFirst().orElse(null);
     }
 }

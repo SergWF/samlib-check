@@ -21,6 +21,7 @@ public class AuthorStorageImpl implements AuthorStorage {
     private ConcurrentHashMap<Long, Author> authors = new ConcurrentHashMap<>();
     private ObjectMapper objectMapper;
     private String storageFileName;
+    private Date lastUpdateDate;
 
     protected ConcurrentHashMap<Long, Author> getAuthors() {
         return authors;
@@ -56,13 +57,18 @@ public class AuthorStorageImpl implements AuthorStorage {
         return author;
     }
 
+    @Override
+    public void delete(long authorId) throws IOException {
+        if(authors.containsKey(authorId)) {
+            authors.remove(authorId);
+            saveToPhysicalStorage();
+        }
+    }
+
 
     @Override
     public synchronized void delete(Author author) throws IOException {
-        if(authors.containsKey(author.getId())) {
-            authors.remove(author.getId());
-            saveToPhysicalStorage();
-        }
+        delete(author.getId());
     }
 
     @Override
@@ -128,5 +134,12 @@ public class AuthorStorageImpl implements AuthorStorage {
         Arrays.asList(loaded).stream().forEach((a) -> authors.putIfAbsent(a.getId(), a));
     }
 
+    @Override
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
 
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
 }

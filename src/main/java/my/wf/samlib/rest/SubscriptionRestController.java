@@ -1,94 +1,81 @@
 package my.wf.samlib.rest;
 
 import io.swagger.annotations.ApiOperation;
-import my.wf.samlib.model.dto.AuthorDetailsDto;
-import my.wf.samlib.model.dto.SubscriptionDto;
+import my.wf.samlib.model.dto.AuthorItemListDto;
 import my.wf.samlib.model.dto.builder.AuthorDtoBuilder;
-import my.wf.samlib.model.dto.builder.SubscriptionDtoBuilder;
-import my.wf.samlib.model.entity.Subscription;
-import my.wf.samlib.model.statistic.SubscriptionStatistic;
+import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.SamlibService;
-import my.wf.samlib.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/subscription", produces= MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/authors", produces= MediaType.APPLICATION_JSON_VALUE)
 public class SubscriptionRestController {
 
     private static final Logger logger  = LoggerFactory.getLogger(SubscriptionRestController.class);
 
     @Autowired
-    SubscriptionService subscriptionService;
-    @Autowired
     AuthorService authorService;
-    @Autowired
-    SamlibService samlibService;
 
-    @ApiOperation(value = "Creates a new subscription")
-    @RequestMapping(value = "/subscribe/{authorId}", method = RequestMethod.POST)
-    public Subscription subscribe(@PathVariable(value = "authorId") long authorId){
-        return subscriptionService.subscribe(samlibService.getActiveCustomer(), authorId);
-    }
+
 
     @ApiOperation(value = "Creates a new subscription")
     @RequestMapping(value = "/subscribe/url", method = RequestMethod.POST)
-    public Subscription subscribe(@RequestBody String authorUrl){
-        return subscriptionService.addAuthorAndSubscribe(samlibService.getActiveCustomer(), authorUrl);
+    public Author subscribe(@RequestBody String authorUrl) throws IOException {
+        return authorService.addAuthor(authorUrl);
     }
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public Set<SubscriptionStatistic> getSubscriptionList(){
-        return subscriptionService.getSubscriptionStatisticList(samlibService.getActiveCustomer());
+    public Set<AuthorItemListDto> getAuthorList(){
+        return AuthorDtoBuilder.createList(authorService.findAllAuthors());
     }
 
     @ApiOperation(value = "Returns subscription data")
-    @RequestMapping(value = "/{subscriptionId}", method = RequestMethod.GET)
-    public Subscription getSubscriptionById(@PathVariable(value = "subscriptionId") long subscriptionId){
-        return subscriptionService.getSubscriptionById(samlibService.getActiveCustomer(), subscriptionId);
+    @RequestMapping(value = "/{authorId}", method = RequestMethod.GET)
+    public Author getSubscriptionById(@PathVariable(value = "authorId") long authorId){
+        return authorService.findAuthor(authorId);
     }
 
-    @ApiOperation(value = "Mark all writings in subscription as read")
-    @RequestMapping(value = "/{subscriptionId}/unread", method = RequestMethod.DELETE)
-    public void cancelSubscription(@PathVariable(value = "subscriptionId") Long subscriptionId){
-        subscriptionService.cancelSubscription(samlibService.getActiveCustomer(), subscriptionId);
+    @ApiOperation(value = "Mark all author writings as read")
+    @RequestMapping(value = "/{authorId}/unread/all", method = RequestMethod.DELETE)
+    public AuthorItemListDto markAllAsRead(@PathVariable(value = "authorId") Long authorId){
+        Author author = authorService.findAuthor(authorId);
+        authorService.markAllWritingsRead(author);
+        return AuthorDtoBuilder.createDto(authorService.findAuthor(authorId));
     }
 
-    @ApiOperation(value = "Get only Unread Subscriptions")
-    @RequestMapping(value = "/{subscriptionId}/unread", method = RequestMethod.GET)
-    public Set<Subscription> unreadList(){
-        return subscriptionService.getUnreadInSubscription(samlibService.getActiveCustomer());
-    }
-
-    @ApiOperation(value = "Mark all writings in subscription as read")
-    @RequestMapping(value = "/{subscriptionId}/unread/all", method = RequestMethod.DELETE)
-    public SubscriptionDto markAllAsRead(@PathVariable(value = "subscriptionId") Long subscriptionId){
-        Subscription subscription = subscriptionService.markAllAsRead(samlibService.getActiveCustomer(), subscriptionId);
-        SubscriptionStatistic subscriptionStatistic = subscriptionService.getSubscriptionStatistic(subscription);
-        return SubscriptionDtoBuilder.buildDto(subscription, subscriptionStatistic);
-    }
-
-    @ApiOperation(value = "Remove writing from unread list in subscription")
-    @RequestMapping(value = "/{subscriptionId}/unread/{writingId}", method = RequestMethod.DELETE)
-    public AuthorDetailsDto removeFromUnreadList(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
-        logger.info("Remove from UnreadList, subscriptionId={}, writing.id={}",subscriptionId, writingId);
-        Subscription subscription = subscriptionService.removeWritingFromUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
-        return AuthorDtoBuilder.buildDto(authorService.findAuthor(subscription.getAuthor().getId()),subscription);
+    @ApiOperation(value = "mark writing as read")
+    @RequestMapping(value = "/{authorId}/unread/", method = RequestMethod.DELETE)
+    public Author removeFromUnreadList(@PathVariable(value = "authorId") Long authorId, @RequestParam(value = "writingLink") String writingLink) throws IOException {
+        logger.info("Remove from UnreadList, authorId={}, writing.link={}",authorId, writingLink);
+        return changeWritingUnreadFlag(authorId, writingLink, false);
     }
 
     @ApiOperation(value = "Add writing to unread list in subscription")
     @RequestMapping(value = "/{subscriptionId}/unread/{writingId}", method = RequestMethod.POST)
-    public AuthorDetailsDto addToUnreadList(@PathVariable(value = "subscriptionId") Long subscriptionId, @PathVariable(value = "writingId") Long writingId){
-        logger.info("Add to UnreadList, subscriptionId={}, writing.id={}",subscriptionId, writingId);
-        Subscription subscription = subscriptionService.addWritingToUnreadList(samlibService.getActiveCustomer(), subscriptionId, writingId);
-        return AuthorDtoBuilder.buildDto(authorService.findAuthor(subscription.getAuthor().getId()),subscription);
+    public Author addToUnreadList(@PathVariable(value = "authorId") Long authorId, @RequestParam(value = "writingLink") String writingLink) throws IOException {
+        logger.info("Add to UnreadList, subscriptionId={}, writing.id={}",authorId, writingLink);
+        return changeWritingUnreadFlag(authorId, writingLink, true);
+    }
+
+    private Author changeWritingUnreadFlag(Long authorId, String writingLink, boolean unread) throws IOException {
+        Author author = authorService.findAuthor(authorId);
+        Writing writing = authorService.findWritingByLink(author.getLink(), writingLink);
+        writing.setUnread(false);
+        return authorService.saveAuthor(author);
     }
 
 }

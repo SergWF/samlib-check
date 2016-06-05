@@ -10,6 +10,7 @@ import java.util.Set;
 public interface AuthorStorage {
     Author addAuthor(Author author) throws IOException;
     Author save(Author author) throws IOException;
+    void delete(long authorId) throws IOException;
     void delete(Author author) throws IOException;
     Author findByLink(String authorUrl);
     Author getById(long id);
@@ -17,4 +18,6 @@ public interface AuthorStorage {
     Writing findWritingByLink(String authorLink, String writingLink);
     Set<Author> getUpdatedAfter(Date date);
     long getCount();
+
+    Date getLastUpdateDate();
 }

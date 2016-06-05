@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import my.wf.samlib.model.dto.VersionInfoDto;
-import my.wf.samlib.model.dto.backup.BackupDto;
-import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.service.*;
+import my.wf.samlib.service.PropertyViewerService;
+import my.wf.samlib.service.UtilsService;
+import my.wf.samlib.storage.AuthorStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,15 +36,11 @@ public class AdminController {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
     @Autowired
-    UtilsService utilsService;
+    private AuthorStorage authorStorage;
     @Autowired
-    SamlibService samlibService;
+    private UtilsService utilsService;
     @Autowired
-    BackupService backupService;
-    @Autowired
-    RestoreService restoreService;
-    @Autowired
-    PropertyViewerService propertyViewerService;
+    private PropertyViewerService propertyViewerService;
 
 
 
@@ -54,7 +54,8 @@ public class AdminController {
         String jsonData = new String(file.getBytes(), StandardCharsets.UTF_8);
         logger.debug("import Authors");
         logger.debug(jsonData);
-        return utilsService.importAuthors(getActiveCustomer(), new ObjectMapper().readValue(jsonData, new TypeReference<List<String>>() {
+
+        return utilsService.importAuthors(new ObjectMapper().readValue(jsonData, new TypeReference<List<String>>() {
         }));
     }
 
@@ -64,24 +65,24 @@ public class AdminController {
         return makeFileForDownload(utilsService.exportAuthors(), "export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".json");
     }
 
-    @ApiOperation(value = "Backups all data to a file")
-    @RequestMapping(value = "/backup", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]>  doBackup() throws IOException {
-        return makeFileForDownload(backupService.backup(), "backup-"+SIMPLE_DATE_FORMAT.format(new Date())+".json");
-    }
-
-    @ApiOperation(value = "Restores all data from sends a file")
-    @RequestMapping(value = "/restore", method = RequestMethod.POST)
-    public Integer doRestore(@RequestBody MultipartFile file) throws IOException {
-        if(file.isEmpty()){
-            return -1;
-        }
-        String jsonData = new String(file.getBytes(), StandardCharsets.UTF_8);
-        logger.debug("restore data");
-        logger.debug(jsonData);
-        restoreService.restore(new ObjectMapper().readValue(jsonData, BackupDto.class));
-        return 1;
-    }
+//    @ApiOperation(value = "Backups all data to a file")
+//    @RequestMapping(value = "/backup", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+//    public ResponseEntity<byte[]>  doBackup() throws IOException {
+//        return makeFileForDownload(backupService.backup(), "backup-"+SIMPLE_DATE_FORMAT.format(new Date())+".json");
+//    }
+//
+//    @ApiOperation(value = "Restores all data from sends a file")
+//    @RequestMapping(value = "/restore", method = RequestMethod.POST)
+//    public Integer doRestore(@RequestBody MultipartFile file) throws IOException {
+//        if(file.isEmpty()){
+//            return -1;
+//        }
+//        String jsonData = new String(file.getBytes(), StandardCharsets.UTF_8);
+//        logger.debug("restore data");
+//        logger.debug(jsonData);
+//        restoreService.restore(new ObjectMapper().readValue(jsonData, BackupDto.class));
+//        return 1;
+//    }
 
     @ApiOperation(value = "Version Info")
     @RequestMapping(value = "/version", method = RequestMethod.GET)
@@ -98,8 +99,4 @@ public class AdminController {
         return new ResponseEntity(json.getBytes(), responseHeaders, HttpStatus.OK);
     }
 
-
-    private Customer getActiveCustomer() {
-        return samlibService.getActiveCustomer();
-    }
 }

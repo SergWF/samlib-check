@@ -17,7 +17,6 @@ ext {
     //check buildscript.dependencies when change
     springBootVersion="1.2.5.RELEASE"
     swaggerVersion="2.1.2"
-    springSecurityVersion="4.0.1.RELEASE"
     commonsLangVersion="3.4"
 }
 
@@ -39,13 +38,11 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
-        //classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
     }
 }
 
 
 apply plugin: 'spring-boot'
-//apply plugin: 'io.spring.dependency-management'
 
 
 
@@ -109,16 +106,10 @@ task increaseBuildNumber << {
 dependencies {
     compile "org.slf4j:slf4j-log4j12:${slf4jVersion}"
     compile "commons-io:commons-io:${commonsIoVersion}"
-
-    compile "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-    compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
     compile "io.springfox:springfox-swagger-ui:${swaggerVersion}"
     compile "org.apache.commons:commons-lang3:${commonsLangVersion}"
-
     compile "io.springfox:springfox-swagger2:${swaggerVersion}"
-
-    runtime "com.h2database:h2:${h2Version}"
 
     testCompile "junit:junit:${jUnitVersion}"
     testCompile "org.hamcrest:hamcrest-all:1.3"

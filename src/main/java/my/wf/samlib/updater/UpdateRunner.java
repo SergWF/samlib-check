@@ -5,7 +5,6 @@ import my.wf.samlib.model.dto.UpdatingProcessDto;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
@@ -26,8 +26,7 @@ public class UpdateRunner {
     AuthorCheckerFactory authorCheckerFactory;
     @Autowired
     private AuthorService authorService;
-    @Autowired
-    SubscriptionService subscriptionService;
+
     private UpdatingProcessDto updatingProcessDto = null;
     private AtomicBoolean inProcessFlag = new AtomicBoolean(false);
     private Long pauseBetweenAuthors;
@@ -74,7 +73,7 @@ public class UpdateRunner {
             logger.error("Problems with IP Checking");
             return;
         }
-        List<Author> authors = authorService.findAllAuthors();
+        Set<Author> authors = authorService.findAllAuthors();
         updatingProcessDto = new UpdatingProcessDto();
         updatingProcessDto.setProcessed(0);
         updatingProcessDto.setTotal(authors.size());
@@ -85,7 +84,7 @@ public class UpdateRunner {
                 updatingProcessDto.getAuthorsUpdated().putIfAbsent(updated, findUpdatedWritingCount(updated, checkDate));
                 logger.debug("Updated {} writings for author {}", updatingProcessDto.getAuthorsUpdated().get(updated), updated.getName());
                 makePause();
-            }catch (SamlibException e){
+            }catch (IOException | SamlibException e){
                 logger.error("Exception on Author update", e);
             }
         }
@@ -111,11 +110,10 @@ public class UpdateRunner {
     }
 
 
-    protected Author doUpdateAuthor(Author author, Date checkDate){
-        author = authorService.findAuthorWithWritings(author.getId());
+    protected Author doUpdateAuthor(Author author, Date checkDate) throws IOException {
+        author = authorService.findAuthor(author.getId());
         Author updated = authorCheckerFactory.getAuthorChecker().checkAuthorUpdates(author);
-        subscriptionService.updateUnreadState(authorService.saveAuthor(updated), checkDate);
-        return updated;
+        return authorService.saveAuthor(updated);
     }
 
 }

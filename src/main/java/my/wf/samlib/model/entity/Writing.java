@@ -8,8 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "writing")
+
 public class Writing extends BaseEntity implements LastDate {
     private String name;
     private String link;
@@ -19,9 +18,9 @@ public class Writing extends BaseEntity implements LastDate {
     private String size;
     private String prevSize;
     private Date lastChangedDate;
-    private Set<SubscriptionUnread> subscriptionUnreads = new HashSet<>();
+    private boolean unread;
+    private Set<Changed> changesIn = new HashSet<>();
 
-    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -30,7 +29,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.name = name;
     }
 
-    @Column(name="link")
     public String getLink() {
         return link;
     }
@@ -39,8 +37,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.link = link;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
     @JsonBackReference
     public Author getAuthor() {
         return author;
@@ -50,7 +46,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.author = author;
     }
 
-    @Column(name = "description", length = 4096)
     public String getDescription() {
         return description;
     }
@@ -59,7 +54,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.description = description;
     }
 
-    @Column(name = "size")
     public String getSize() {
         return size;
     }
@@ -68,7 +62,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.size = size;
     }
 
-    @Column(name = "prev_size")
     public String getPrevSize() {
         return prevSize;
     }
@@ -77,8 +70,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.prevSize = prevSize;
     }
 
-    @Column(name = "last_changed_date")
-    @Temporal(TemporalType.TIMESTAMP)
     @Override
     public Date getLastChangedDate() {
         return lastChangedDate;
@@ -88,7 +79,6 @@ public class Writing extends BaseEntity implements LastDate {
         this.lastChangedDate = lastChangedDate;
     }
 
-    @Column(name = "group_name")
     public String getGroupName() {
         return groupName;
     }
@@ -98,14 +88,20 @@ public class Writing extends BaseEntity implements LastDate {
     }
 
 
-    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
-    public Set<SubscriptionUnread> getSubscriptionUnreads() {
-        return subscriptionUnreads;
+    public boolean isUnread() {
+        return unread;
     }
 
-    public void setSubscriptionUnreads(Set<SubscriptionUnread> subscriptionUnreads) {
-        this.subscriptionUnreads = subscriptionUnreads;
+    public void setUnread(boolean unread) {
+        this.unread = unread;
+    }
+
+    public Set<Changed> getChangesIn() {
+        return changesIn;
+    }
+
+    public void setChangesIn(Set<Changed> changesIn) {
+        this.changesIn = changesIn;
     }
 
     @Override

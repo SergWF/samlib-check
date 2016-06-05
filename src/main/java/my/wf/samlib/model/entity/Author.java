@@ -1,6 +1,7 @@
 package my.wf.samlib.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import my.wf.samlib.model.compare.LastChangedDateComparator;
 import my.wf.samlib.model.compare.LastDate;
@@ -12,16 +13,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Entity
-@Table(name = "author", uniqueConstraints = {@UniqueConstraint(columnNames = {"link"})})
 public class Author extends BaseEntity implements LastDate  {
 
     private String name;
     private Set<Writing> writings = new HashSet<>();
     private String link;
-    private Set<Subscription> subscriptions = new HashSet<>();
 
-    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -30,7 +27,6 @@ public class Author extends BaseEntity implements LastDate  {
         this.name = name;
     }
 
-    @Column(name="link", unique = true)
     public String getLink() {
         return link;
     }
@@ -39,7 +35,6 @@ public class Author extends BaseEntity implements LastDate  {
         this.link = link;
     }
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     public Set<Writing> getWritings() {
         return writings;
@@ -50,17 +45,6 @@ public class Author extends BaseEntity implements LastDate  {
     }
 
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
-    public Set<Subscription> getSubscriptions() {
-        return subscriptions;
-    }
-
-    public void setSubscriptions(Set<Subscription> subscriptions) {
-        this.subscriptions = subscriptions;
-    }
-
-    @Transient
     @Override
     public Date getLastChangedDate() {
         if(writings.isEmpty()){
@@ -77,5 +61,10 @@ public class Author extends BaseEntity implements LastDate  {
                 ", name='" + getName() + '\'' +
                 ", link='" + link + '\'' +
                 '}';
+    }
+
+    @JsonIgnore
+    public long getUnread() {
+        return writings.stream().filter((w)->w.isUnread()).count();
     }
 }

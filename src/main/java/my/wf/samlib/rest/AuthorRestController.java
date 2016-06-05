@@ -1,22 +1,20 @@
 package my.wf.samlib.rest;
 
 import io.swagger.annotations.ApiOperation;
-import my.wf.samlib.model.dto.AuthorDetailsDto;
-import my.wf.samlib.model.dto.builder.AuthorDtoBuilder;
 import my.wf.samlib.model.entity.Author;
-import my.wf.samlib.model.entity.Customer;
-import my.wf.samlib.model.entity.Subscription;
 import my.wf.samlib.service.AuthorService;
-import my.wf.samlib.service.SamlibService;
-import my.wf.samlib.service.SubscriptionService;
-import my.wf.samlib.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/author", produces= MediaType.APPLICATION_JSON_VALUE)
@@ -25,20 +23,15 @@ public class AuthorRestController {
 
     @Autowired
     AuthorService authorService;
-    @Autowired
-    UtilsService utilsService;
-    @Autowired
-    SamlibService samlibService;
-    @Autowired
-    SubscriptionService subscriptionService;
+
 
 
     @ApiOperation(value = "Returns list of all subscribed Authors")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public List<Author> listAuthors(){
+    public Set<Author> listAuthors(){
         logger.info("GET AUTHORS LIST");
-        List<Author> authorsList = authorService.findAllAuthors();
+        Set<Author> authorsList = authorService.findAllAuthors();
         logger.debug("found {} authors", authorsList.size());
         return authorsList;
     }
@@ -46,38 +39,18 @@ public class AuthorRestController {
     @ApiOperation(value = "Returns Author's data")
     @RequestMapping(value = "/{authorId}", method = RequestMethod.GET)
     @ResponseBody
-    public AuthorDetailsDto getDetails(@PathVariable long authorId) {
+    public Author getDetails(@PathVariable long authorId) {
         logger.info("GET AUTHOR BY ID {}", authorId);
-        Customer customer = samlibService.getActiveCustomer();
-        Subscription subscription = subscriptionService.getSubscriptionByCustomerAndAuthorId(customer.getId(), authorId);
-        return AuthorDtoBuilder.buildDto(authorService.findAuthor(authorId),subscription);
+        return authorService.findAuthor(authorId);
     }
 
     @ApiOperation(value = "Deletes Author")
     @RequestMapping(value = "/{authorId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Long deleteAuthor(@PathVariable long authorId) {
+    public Long deleteAuthor(@PathVariable long authorId) throws IOException {
         logger.info("DELETE AUTHOR BY ID {}", authorId);
         authorService.delete(authorId);
         return authorId;
     }
-//
-//
-//    @ApiOperation(value = "Adds new author")
-//    @RequestMapping(method = RequestMethod.POST)
-//    @ResponseBody
-//    public Resource<Author> addAuthor(@RequestBody NewAuthorDto newAuthorDto){
-//        logger.info("ADD AUTHOR BY URL: " + newAuthorDto.getUrl());
-//        Author author = utilsService.addAuthor(newAuthorDto.getUrl());
-//        customerService.addAuthor(getActiveCustomer(), author);
-//        return HateoasResourceBuilder.createResource(author);
-//    }
-
-
-
-    private Customer getActiveCustomer() {
-        return samlibService.getActiveCustomer();
-    }
-
 
 }

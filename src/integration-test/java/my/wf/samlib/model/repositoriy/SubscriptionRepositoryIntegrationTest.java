@@ -4,7 +4,7 @@ import my.wf.samlib.config.MainConfig;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Customer;
 import my.wf.samlib.model.entity.Subscription;
-import my.wf.samlib.model.statistic.SubscriptionStatistic;
+import my.wf.samlib.model.statistic.AuthorItemView;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,7 +115,7 @@ public class SubscriptionRepositoryIntegrationTest {
         System.out.println("===call start subscriptionRepository.getSubscriptionStatistic ====");
         Object data = subscriptionRepository.getSubscriptionStatistic(subscription.getId());
         System.out.println("===call end   subscriptionRepository.getSubscriptionStatistic ====");
-        SubscriptionStatistic statistics = new SubscriptionStatistic(data);
+        AuthorItemView statistics = new AuthorItemView(data);
         Assert.assertThat(statistics, Matchers.allOf(
                         Matchers.hasProperty("subscriptionId", Matchers.equalTo(subscription.getId())),
                         Matchers.hasProperty("authorId", Matchers.equalTo(authorId)),
