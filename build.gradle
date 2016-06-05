@@ -18,6 +18,7 @@ ext {
     springBootVersion="1.2.5.RELEASE"
     swaggerVersion="2.1.2"
     springSecurityVersion="4.0.1.RELEASE"
+    commonsLangVersion="3.4"
 }
 
 repositories {
@@ -113,6 +114,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
     compile "io.springfox:springfox-swagger-ui:${swaggerVersion}"
+    compile "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
     compile "io.springfox:springfox-swagger2:${swaggerVersion}"
 
