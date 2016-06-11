@@ -1,14 +1,15 @@
 package my.wf.samlib.model.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class StatisticDto {
     private long totalCount;
     private long subscribedCount;
     private long notReadCount;
-    private Date lastCheckDate;
+    private LocalDateTime lastCheckDate;
 
-    public StatisticDto(long totalCount, long subscribedCount, long notReadCount, Date lastCheckDate) {
+    public StatisticDto(long totalCount, long subscribedCount, long notReadCount, LocalDateTime lastCheckDate) {
         this.totalCount = totalCount;
         this.subscribedCount = subscribedCount;
         this.notReadCount = notReadCount;
@@ -27,7 +28,7 @@ public class StatisticDto {
         return notReadCount;
     }
 
-    public Date getLastCheckDate() {
+    public LocalDateTime getLastCheckDate() {
         return lastCheckDate;
     }
 }

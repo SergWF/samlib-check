@@ -12,12 +12,11 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
 public class EntityHelper {
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
-
 
     public static Author createAuthor(String link, String name){
         Author author = new Author();
@@ -27,10 +26,10 @@ public class EntityHelper {
     }
 
     public static Writing createWriting(String name, Author author){
-        return createWriting(name, author, new Date());
+        return createWriting(name, author, LocalDateTime.now());
     }
 
-    public static Writing createWriting(String name, Author author, Date lastChangedDate){
+    public static Writing createWriting(String name, Author author, LocalDateTime lastChangedDate){
         Writing writing = new Writing();
         writing.setName(name);
         writing.setLink("http://" + name);

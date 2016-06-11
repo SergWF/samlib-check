@@ -11,9 +11,9 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +27,7 @@ public class AuthorStorageImpl implements AuthorStorage {
     private ObjectMapper objectMapper;
     @Value("${samlib.check.storage.file}")
     private String storageFileName;
-    private Date lastUpdateDate;
+    private LocalDateTime lastUpdateDate;
 
     protected ConcurrentHashMap<Long, Author> getAuthors() {
         return authors;
@@ -107,10 +107,10 @@ public class AuthorStorageImpl implements AuthorStorage {
     }
 
     @Override
-    public Set<Author> getUpdatedAfter(Date date) {
+    public Set<Author> getUpdatedAfter(LocalDateTime date) {
         return authors.values()
                 .stream()
-                .filter((a) -> !date.after(a.getLastChangedDate()))
+                .filter((a) -> !date.isAfter(a.getLastChangedDate()))
                 .collect(Collectors.toSet());
     }
 
@@ -141,11 +141,11 @@ public class AuthorStorageImpl implements AuthorStorage {
     }
 
     @Override
-    public Date getLastUpdateDate() {
+    public LocalDateTime getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(Date lastUpdateDate) {
+    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 }

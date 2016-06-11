@@ -14,13 +14,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 public class AuthorCheckerImplTest {
-    private static final Date CHECK_DATE = new Date(2011, 11, 15, 10, 0, 0);
-    private static final Date BEFORE_CHECK_DATE = new Date(2010, 11, 15, 10, 0, 0);
+    private static final LocalDateTime CHECK_DATE = LocalDateTime.of(2011, 11, 15, 10, 0, 0);
+    private static final LocalDateTime BEFORE_CHECK_DATE =LocalDateTime.of(2010, 11, 15, 10, 0, 0);
 
     @Spy
     private AuthorCheckerImpl authorChecker;
@@ -174,7 +175,7 @@ public class AuthorCheckerImplTest {
 
     @Test
     public void applyChanges() throws Exception {
-        Date w2Date = new Date(2010, 10, 15, 10, 0, 0);
+        LocalDateTime w2Date = LocalDateTime.of(2010, 10, 15, 10, 0, 0);
         Writing w1 = EntityHelper.createWriting("w1", author);
         Writing w2 = EntityHelper.createWriting("w2", author, w2Date);
         Writing w3 = EntityHelper.createWriting("w3", author);

@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,11 +51,11 @@ public class UpdateRunner {
                 return;
         }
         inProcessFlag.set(true);
-        doUpdate(new Date());
+        doUpdate(LocalDateTime.now());
         inProcessFlag.set(false);
     }
 
-    private int findUpdatedWritingCount(Author author, Date checkDateStart) {
+    private int findUpdatedWritingCount(Author author, LocalDateTime checkDateStart) {
         int count = 0;
         for(Writing writing: author.getWritings()){
             if(0 >= checkDateStart.compareTo(writing.getLastChangedDate())){
@@ -68,7 +69,7 @@ public class UpdateRunner {
         return skipBanUrlChecking || authorCheckerFactory.getAuthorChecker().checkIpState();
     }
 
-    protected void doUpdate(Date checkDate){
+    protected void doUpdate(LocalDateTime checkDate){
         if(!isCanUpdate()){
             logger.error("Problems with IP Checking");
             return;
@@ -110,9 +111,9 @@ public class UpdateRunner {
     }
 
 
-    protected Author doUpdateAuthor(Author author, Date checkDate) throws IOException {
+    protected Author doUpdateAuthor(Author author, LocalDateTime checkDate) throws IOException {
         author = authorService.findAuthor(author.getId());
-        Author updated = authorCheckerFactory.getAuthorChecker().checkAuthorUpdates(author);
+        Author updated = authorCheckerFactory.getAuthorChecker().checkAuthorUpdates(author, checkDate);
         return authorService.saveAuthor(updated);
     }
 

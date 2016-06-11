@@ -3,7 +3,7 @@ package my.wf.samlib.model.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import my.wf.samlib.model.compare.LastDate;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +16,7 @@ public class Writing extends BaseEntity implements LastDate {
     private String groupName;
     private String size;
     private String prevSize;
-    private Date lastChangedDate;
+    private LocalDateTime lastChangedDate;
     private boolean unread;
     private Set<Changed> changesIn = new HashSet<>();
 
@@ -70,11 +70,11 @@ public class Writing extends BaseEntity implements LastDate {
     }
 
     @Override
-    public Date getLastChangedDate() {
+    public LocalDateTime getLastChangedDate() {
         return lastChangedDate;
     }
 
-    public void setLastChangedDate(Date lastChangedDate) {
+    public void setLastChangedDate(LocalDateTime lastChangedDate) {
         this.lastChangedDate = lastChangedDate;
     }
 

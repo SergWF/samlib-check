@@ -11,6 +11,7 @@ import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,9 +44,8 @@ public class AuthorCheckerImpl implements AuthorChecker {
     }
 
     @Override
-    public Author checkAuthorUpdates(Author author) {
+    public Author checkAuthorUpdates(Author author, LocalDateTime checkDate) {
         logger.debug("check author {} by link {}", author.getName(), author.getLink());
-        Date checkDate = new Date();
         author.setLink(LinkTool.getAuthorLink(author.getLink(), linkSuffix));
         String fullLink = LinkTool.getAuthorIndexPage(author.getLink(), linkSuffix);
         String pageString = samlibPageReader.readPage(fullLink);
@@ -78,7 +78,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
         }
     }
 
-    protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, Date checkDate) {
+    protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, LocalDateTime checkDate) {
         author.setName(authorName);
         Collection<Writing> oldWritings = new HashSet<>(author.getWritings());
         author.getWritings().clear();
@@ -91,22 +91,18 @@ public class AuthorCheckerImpl implements AuthorChecker {
         return author;
     }
 
-    protected Writing applyChanges(Writing writing, Collection<Writing> oldWritings, Date checkDate) {
+    protected Writing applyChanges(Writing writing, Collection<Writing> oldWritings, LocalDateTime checkDate) {
         Writing old = findSameWriting(oldWritings, writing);
         if(null ==old){
             writing.getChangesIn().add(Changed.NEW);
         } else {
             writing.setUnread(old.isUnread());
             writing.setLastChangedDate(old.getLastChangedDate());
-            if(!writing.getName()
-                    .equals(old.getName())) {
-                writing.getChangesIn()
-                        .add(Changed.NAME);
+            if(!writing.getName().equals(old.getName())) {
+                writing.getChangesIn().add(Changed.NAME);
             }
-            if(!writing.getDescription()
-                    .equals(old.getDescription())) {
-                writing.getChangesIn()
-                        .add(Changed.DESCRIPTION);
+            if(!writing.getDescription().equals(old.getDescription())) {
+                writing.getChangesIn().add(Changed.DESCRIPTION);
             }
             if(!writing.getSize().equals(old.getSize())) {
                 writing.getChangesIn().add(Changed.SIZE);

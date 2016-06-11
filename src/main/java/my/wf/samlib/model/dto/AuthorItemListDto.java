@@ -1,5 +1,6 @@
 package my.wf.samlib.model.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class AuthorItemListDto {
@@ -7,7 +8,7 @@ public class AuthorItemListDto {
     private Long id;
     private String name;
     private String link;
-    private Date lastChangedDate;
+    private LocalDateTime lastChangedDate;
     private long unread;
 
     public void setId(Long id) {
@@ -35,11 +36,11 @@ public class AuthorItemListDto {
     }
 
 
-    public void setLastChangedDate(Date lastChangedDate) {
+    public void setLastChangedDate(LocalDateTime lastChangedDate) {
         this.lastChangedDate = lastChangedDate;
     }
 
-    public Date getLastChangedDate() {
+    public LocalDateTime getLastChangedDate() {
         return lastChangedDate;
     }
 

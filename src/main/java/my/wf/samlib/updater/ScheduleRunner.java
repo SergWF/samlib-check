@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
@@ -26,7 +27,7 @@ public class ScheduleRunner {
 
     @Scheduled(cron = "${update.cron.job}")
     public void doScheduledUpdate(){
-        Date date = new Date();
+        LocalDateTime date = LocalDateTime.now();
         logger.info("Run Update at {}", date);
         updateRunner.doUpdate(date);
     }

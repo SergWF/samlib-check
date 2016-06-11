@@ -4,6 +4,7 @@ import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -30,6 +31,6 @@ public interface AuthorService {
 
     long getAllAuthorsCount();
 
-    Date getLastUpdateDate();
+    LocalDateTime getLastUpdateDate();
 
 }

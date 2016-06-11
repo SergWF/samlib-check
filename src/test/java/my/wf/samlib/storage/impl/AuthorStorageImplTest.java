@@ -13,16 +13,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
 public class AuthorStorageImplTest {
 
-    private static final Date DATE0 = new Date(2010, 10, 24, 10, 0, 0);
-    private static final Date DATE1 = new Date(2011, 10, 24, 10, 0, 0);
-    private static final Date DATE2 = new Date(2012, 10, 24, 10, 0, 0);
-    private static final Date DATE3 = new Date(2013, 10, 24, 10, 0, 0);
-    private static final Date TEST_DATE = new Date(2012, 11, 24, 10, 0, 0);
+    private static final LocalDateTime DATE0 = LocalDateTime.of(2010, 10, 24, 10, 0, 0);
+    private static final LocalDateTime DATE1 = LocalDateTime.of(2011, 10, 24, 10, 0, 0);
+    private static final LocalDateTime DATE2 = LocalDateTime.of(2012, 10, 24, 10, 0, 0);
+    private static final LocalDateTime DATE3 = LocalDateTime.of(2013, 10, 24, 10, 0, 0);
+    private static final LocalDateTime TEST_DATE = LocalDateTime.of(2012, 11, 24, 10, 0, 0);
     private static final String AUTHOR1_LINK = "http://a1/";
     private static final String AUTHOR2_LINK = "http://a2/";
     private static final String AUTHOR3_LINK = "http://a3/";

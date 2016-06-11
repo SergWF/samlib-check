@@ -85,7 +85,7 @@ public class AuthorsTest {
 
     @Test
     public void testConfiguration(){
-        Assert.assertEquals("prop. values should be read from test/resources/rest-test.properties", "build/samlib-storage-test.data", propertyViewerService.getStorageFile());
+        Assert.assertEquals("prop. values should be read from test/resources/rest-test.properties", "build/samlib-storage-test.json", propertyViewerService.getStorageFile());
     }
 
     @Test

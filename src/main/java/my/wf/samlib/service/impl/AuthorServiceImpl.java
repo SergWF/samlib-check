@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -99,7 +100,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Date getLastUpdateDate() {
+    public LocalDateTime getLastUpdateDate() {
         return authorStorage.getLastUpdateDate();
     }
 

@@ -21,11 +21,6 @@ public class SamlibPageReaderImpl implements SamlibPageReader {
     public static final String LINK_SUFFIX = "indextitle.shtml";
 
     @Override
-    public String aa() {
-        return "URL";
-    }
-
-    @Override
     public String readPage(String link) {
         logger.debug("read page [{}]", link);
         String pageString;

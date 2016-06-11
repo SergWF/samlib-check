@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -30,8 +31,8 @@ public class LastChangedDateComparatorTest {
         MockitoAnnotations.initMocks(this);
         Date nullDate = null;
         Mockito.doReturn(nullDate).when(lastDate1).getLastChangedDate();
-        Mockito.doReturn(sdf.parse("2015.03.20 14:33:00")).when(lastDate1).getLastChangedDate();
-        Mockito.doReturn(sdf.parse("2015.03.20 10:00:00")).when(lastDate2).getLastChangedDate();
+        Mockito.doReturn(LocalDateTime.of(2015, 03, 20, 14, 33, 00)).when(lastDate1).getLastChangedDate();
+        Mockito.doReturn(LocalDateTime.of(2015, 03, 20, 10, 00, 00)).when(lastDate2).getLastChangedDate();
     }
 
 
