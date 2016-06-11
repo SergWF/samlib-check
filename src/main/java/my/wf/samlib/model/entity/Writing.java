@@ -103,8 +103,7 @@ public class Writing extends BaseEntity implements LastDate {
         this.changesIn = changesIn;
     }
 
-    @Override
-    public String toString() {
+    public String info() {
         return "Writing{" +
                 "groupName='" + groupName + '\'' +
                 ", name='" + getName() + '\'' +
@@ -115,5 +114,39 @@ public class Writing extends BaseEntity implements LastDate {
                 ", prevSize='" + prevSize + '\'' +
                 ", lastChangedDate=" + lastChangedDate +
                 '}';
+    }
+
+    @Override
+    public String toString() {
+        return "Writing{" + link + '\'' + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if(!super.equals(o)) {
+            return false;
+        }
+
+        Writing writing = (Writing) o;
+
+        if(!getLink().equals(writing.getLink())) {
+            return false;
+        }
+        return getAuthor() != null ? getAuthor().equals(writing.getAuthor()) : writing.getAuthor() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + getLink().hashCode();
+        result = 31 * result + (getAuthor() != null ? getAuthor().hashCode() : 0);
+        return result;
     }
 }

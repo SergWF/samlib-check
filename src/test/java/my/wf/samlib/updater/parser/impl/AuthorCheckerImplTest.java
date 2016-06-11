@@ -16,6 +16,7 @@ import org.mockito.Spy;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class AuthorCheckerImplTest {
     private static final Date CHECK_DATE = new Date(2011, 11, 15, 10, 0, 0);
@@ -55,8 +56,13 @@ public class AuthorCheckerImplTest {
         Writing w1 = EntityHelper.createWriting("w1", author, BEFORE_CHECK_DATE);
         Writing w2 = EntityHelper.createWriting("w2", author, BEFORE_CHECK_DATE);
         Writing w3 = EntityHelper.createWriting("w3", author, BEFORE_CHECK_DATE);
+        List<Writing> parsedWritings = Arrays.asList(
+                EntityHelper.makeCopy(w1),
+                EntityHelper.makeCopy(w2),
+                EntityHelper.makeCopy(w3)
+        );
         String newName = "new name";
-        author = authorChecker.implementChanges(author, Arrays.asList(w1, w2, w3), newName, CHECK_DATE);
+        author = authorChecker.implementChanges(author, parsedWritings, newName, CHECK_DATE);
         Assert.assertThat(author,
                 Matchers.allOf(
                         Matchers.hasProperty("name", Matchers.equalTo(newName)),
@@ -75,14 +81,41 @@ public class AuthorCheckerImplTest {
 
         Writing w2Updated = EntityHelper.makeCopy(w2);
         w2Updated.setSize("20k");
+
+        List<Writing> parsedWritings = Arrays.asList(
+                EntityHelper.makeCopy(w1),
+                EntityHelper.makeCopy(w2Updated),
+                EntityHelper.makeCopy(w3)
+        );
         String newName = "new name";
-        author = authorChecker.implementChanges(author, Arrays.asList(w1, w2Updated, w3), newName, CHECK_DATE);
+        author = authorChecker.implementChanges(author, parsedWritings, newName, CHECK_DATE);
         Assert.assertThat(author,
                 Matchers.allOf(
                         Matchers.hasProperty("name", Matchers.equalTo(newName)),
                         Matchers.hasProperty("writings", Matchers.hasSize(3)),
                         Matchers.hasProperty("unread", Matchers.equalTo(1L)),
                         Matchers.hasProperty("lastChangedDate", Matchers.equalTo(CHECK_DATE))
+                )
+        );
+    }
+
+    @Test
+    public void implementChangesRemovedWriting() throws Exception {
+        Writing w1 = EntityHelper.createWriting("w1", author, BEFORE_CHECK_DATE);
+        Writing w2 = EntityHelper.createWriting("w2", author, BEFORE_CHECK_DATE);
+        Writing w3 = EntityHelper.createWriting("w3", author, BEFORE_CHECK_DATE);
+
+        Writing w1Parsed = EntityHelper.makeCopy(w1);
+        Writing w3Parsed = EntityHelper.makeCopy(w3);
+        String newName = "new name";
+        author = authorChecker.implementChanges(author, Arrays.asList(w1Parsed, w3Parsed), newName, CHECK_DATE);
+        Assert.assertThat(author,
+                Matchers.allOf(
+                        Matchers.hasProperty("name", Matchers.equalTo(newName)),
+                        Matchers.hasProperty("writings", Matchers.hasSize(2)),
+                        Matchers.hasProperty("writings", Matchers.containsInAnyOrder(w1Parsed, w3Parsed)),
+                        Matchers.hasProperty("unread", Matchers.equalTo(0L)),
+                        Matchers.hasProperty("lastChangedDate", Matchers.equalTo(BEFORE_CHECK_DATE))
                 )
         );
     }
@@ -98,6 +131,7 @@ public class AuthorCheckerImplTest {
                 Matchers.allOf(
                         Matchers.hasProperty("name", Matchers.equalTo(newName)),
                         Matchers.hasProperty("writings", Matchers.hasSize(3)),
+                        Matchers.hasProperty("writings", Matchers.containsInAnyOrder(w1, w2, w3)),
                         Matchers.hasProperty("unread", Matchers.equalTo(3L)),
                         Matchers.hasProperty("lastChangedDate", Matchers.equalTo(CHECK_DATE))
                 )
@@ -105,13 +139,13 @@ public class AuthorCheckerImplTest {
     }
 
     @Test
-    public void checkChangesNew() throws Exception {
+    public void applyChangesNew() throws Exception {
         Writing w1 = EntityHelper.createWriting("w1", author);
         Writing w2 = EntityHelper.createWriting("w2", author);
         Writing w3 = EntityHelper.createWriting("w3", author);
         Writing writing = EntityHelper.createWriting("wn", author);
 
-        writing = authorChecker.checkChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
+        writing = authorChecker.applyChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
         Assert.assertThat(writing,
                 Matchers.allOf(
                         Matchers.hasProperty("changesIn", Matchers.contains(Changed.NEW)),
@@ -122,13 +156,13 @@ public class AuthorCheckerImplTest {
     }
 
     @Test
-    public void checkChangesNoUpdates() throws Exception {
+    public void applyChangesNoUpdates() throws Exception {
 
         Writing w1 = EntityHelper.createWriting("w1", author);
         Writing w2 = EntityHelper.createWriting("w2", author, BEFORE_CHECK_DATE);
         Writing w3 = EntityHelper.createWriting("w3", author);
         Writing writing = EntityHelper.makeCopy(w2);
-        writing = authorChecker.checkChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
+        writing = authorChecker.applyChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
         Assert.assertThat(writing,
                 Matchers.allOf(
                         Matchers.hasProperty("changesIn", Matchers.empty()),
@@ -139,7 +173,7 @@ public class AuthorCheckerImplTest {
     }
 
     @Test
-    public void checkChanges() throws Exception {
+    public void applyChanges() throws Exception {
         Date w2Date = new Date(2010, 10, 15, 10, 0, 0);
         Writing w1 = EntityHelper.createWriting("w1", author);
         Writing w2 = EntityHelper.createWriting("w2", author, w2Date);
@@ -148,7 +182,7 @@ public class AuthorCheckerImplTest {
         writing.setSize("20k");
         writing.setDescription("ssssss");
         writing.setName("annn");
-        writing = authorChecker.checkChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
+        writing = authorChecker.applyChanges(writing, Arrays.asList(w1, w2, w3), CHECK_DATE);
         Assert.assertThat(writing,
                 Matchers.allOf(
                         Matchers.hasProperty("changesIn", Matchers.containsInAnyOrder(Changed.DESCRIPTION, Changed.NAME, Changed.SIZE)),

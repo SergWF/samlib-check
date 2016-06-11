@@ -83,11 +83,15 @@ public class AuthorCheckerImpl implements AuthorChecker {
         Collection<Writing> oldWritings = new HashSet<>(author.getWritings());
         author.getWritings().clear();
         author.getWritings().addAll(parsedWritings);
-        author.getWritings().stream().forEach((w)->checkChanges(w, oldWritings, checkDate));
+        author.getWritings().stream().forEach(
+                (w)->{
+                    w.setAuthor(author);
+                    applyChanges(w, oldWritings, checkDate);
+                });
         return author;
     }
 
-    protected Writing checkChanges(Writing writing, Collection<Writing> oldWritings, Date checkDate) {
+    protected Writing applyChanges(Writing writing, Collection<Writing> oldWritings, Date checkDate) {
         Writing old = findSameWriting(oldWritings, writing);
         if(null ==old){
             writing.getChangesIn().add(Changed.NEW);
