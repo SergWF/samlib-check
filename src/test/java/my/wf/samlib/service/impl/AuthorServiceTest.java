@@ -2,40 +2,49 @@ package my.wf.samlib.service.impl;
 
 
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.storage.AuthorStorage;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 public class AuthorServiceTest {
     private static final String AUTHOR_URL = "http://1/";
-    public static final String NEW_AUTHOR_URL_NO_SLASH = "http://new_author";
-    public static final String NEW_AUTHOR_URL_SLASH = "http://new_author/";
+    public static final String NEW_AUTHOR_LINK = "http://new_author/";
+    public static final String EXISING_AUTHOR_LINK = "http://existing_author/";
+
+    @Mock
     private Author author;
 
-//    @Spy
-//    @InjectMocks
-//    AuthorServiceImpl authorService;
-//    @Mock
-//    UtilsService utilsService;
-//
-//
-//    @Before
-//    public void setUp() throws Exception {
-//        author = EntityHelper.createAuthor(AUTHOR_URL, "Existing Author");
-//        author.setId(1L);
-//        MockitoAnnotations.initMocks(this);
-//        authorService.setLinkSuffix("suffix");
-//        Mockito.reset(authorService);
-//        Mockito.doReturn(author).when(authorRepository).findByLink(AUTHOR_URL);
-//    }
-//
-//    @Test
-//    public void testAddExistingAuthor(){
-//        Assert.assertEquals(author, authorService.addAuthor(AUTHOR_URL));
-//        Mockito.verify(authorRepository, Mockito.never()).save(Mockito.any(Author.class));
-//    }
-//    @Test
-//    public void testAddExistingAuthorUrlNoSlash(){
-//        String authorUrl = AUTHOR_URL.substring(0, AUTHOR_URL.length()  -1);
-//        Assert.assertEquals(AUTHOR_URL, authorUrl + "/");
-//        Assert.assertEquals(author, authorService.addAuthor(authorUrl));
-//        Mockito.verify(authorRepository, Mockito.never()).save(Mockito.any(Author.class));
-//    }
+    @Spy
+    @InjectMocks
+    private AuthorServiceImpl authorService;
+    @Mock
+    private AuthorStorage authorStorage;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        authorService.setLinkSuffix("");
+        Mockito.doReturn(1L).when(author).getId();
+        Mockito.doReturn(NEW_AUTHOR_LINK).when(author).getLink();
+    }
+
+    @Test
+    public void testAddNewAuthor() throws Exception {
+        Mockito.doReturn(null).when(authorStorage).findByLink(Mockito.eq(NEW_AUTHOR_LINK));
+        Mockito.doReturn(author).when(authorService).createAndSaveNewAuthor(Mockito.eq(NEW_AUTHOR_LINK));
+        authorService.addAuthor(NEW_AUTHOR_LINK);
+        Mockito.verify(authorService).createAndSaveNewAuthor(Mockito.eq(NEW_AUTHOR_LINK));
+    }
+
+    @Test
+    public void testAddExistingAuthor() throws Exception {
+        Mockito.doReturn(author).when(authorStorage).findByLink(Mockito.eq(EXISING_AUTHOR_LINK));
+        authorService.addAuthor(EXISING_AUTHOR_LINK);
+        Mockito.verify(authorService, Mockito.never()).createAndSaveNewAuthor(Mockito.eq(EXISING_AUTHOR_LINK));
+    }
 }

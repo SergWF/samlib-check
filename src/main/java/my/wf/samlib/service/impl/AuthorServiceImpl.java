@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -76,22 +77,25 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Set<Author> getUnreadAuthors() {
-        return null;
+        return authorStorage.getAll().stream().filter((a)->a.getUnread() > 0).collect(Collectors.toSet());
     }
 
     @Override
-    public void markAllWritingsRead(Author author) {
-
+    public void markAllWritingsRead(Author author) throws IOException {
+        author.getWritings().stream().forEach((w)->w.setUnread(false));
+        authorStorage.save(author);
     }
 
     @Override
-    public void markWritingUnread(Writing writing) {
-
+    public void markWritingUnread(Writing writing) throws IOException {
+        writing.setUnread(true);
+        authorStorage.save(writing.getAuthor());
     }
 
     @Override
-    public void markWritingRead(Writing writing) {
-
+    public void markWritingRead(Writing writing) throws IOException {
+        writing.setUnread(false);
+        authorStorage.save(writing.getAuthor());
     }
 
     @Override

@@ -23,11 +23,11 @@ public interface AuthorService {
 
     Set<Author> getUnreadAuthors();
 
-    void markAllWritingsRead(Author author);
+    void markAllWritingsRead(Author author) throws IOException;
 
-    void markWritingUnread(Writing writing);
+    void markWritingUnread(Writing writing) throws IOException;
 
-    void markWritingRead(Writing writing);
+    void markWritingRead(Writing writing) throws IOException;
 
     long getAllAuthorsCount();
 

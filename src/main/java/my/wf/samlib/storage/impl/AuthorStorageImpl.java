@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.storage.AuthorStorage;
+import my.wf.samlib.storage.DataContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,6 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +27,9 @@ public class AuthorStorageImpl implements AuthorStorage {
     private ObjectMapper objectMapper;
     @Value("${samlib.check.storage.file}")
     private String storageFileName;
+    @Value("samlib.check.flush.delay.time.sec}")
+    private int flushDelayTime;
+    private LocalDateTime lastFlushTime;
     private LocalDateTime lastUpdateDate;
 
     protected ConcurrentHashMap<Long, Author> getAuthors() {
@@ -59,7 +62,7 @@ public class AuthorStorageImpl implements AuthorStorage {
             author.setId(getNewId());
         }
         authors.put(author.getId(), author);
-        saveToPhysicalStorage();
+        flush();
         return author;
     }
 
@@ -67,7 +70,7 @@ public class AuthorStorageImpl implements AuthorStorage {
     public void delete(long authorId) throws IOException {
         if(authors.containsKey(authorId)) {
             authors.remove(authorId);
-            saveToPhysicalStorage();
+            flush();
         }
     }
 
@@ -124,20 +127,32 @@ public class AuthorStorageImpl implements AuthorStorage {
         return 1 + currentMax;
     }
 
-
-    public void saveToPhysicalStorage() throws IOException {
-        if(StringUtils.isEmpty(storageFileName)){
-            throw new IllegalStateException("StorageFileName can not be empty");
+    protected void flush() throws IOException {
+        LocalDateTime now = LocalDateTime.now();
+        if(now.isAfter(lastFlushTime.plusSeconds(flushDelayTime))){
+            saveToPhysicalStorage();
+            lastFlushTime = now;
         }
-        objectMapper.writeValue(new File(storageFileName), authors.values());
     }
 
-    public void LoadFromPhysicalStorage() throws IOException {
+    protected void saveToPhysicalStorage() throws IOException {
         if(StringUtils.isEmpty(storageFileName)){
             throw new IllegalStateException("StorageFileName can not be empty");
         }
-        Author[] loaded = objectMapper.readValue(new File(storageFileName), Author[].class);
-        Arrays.asList(loaded).stream().forEach((a) -> authors.putIfAbsent(a.getId(), a));
+        DataContainer data = new DataContainer();
+        data.setLastUpdateTime(lastUpdateDate);
+        data.setAuthors(authors.values());
+        objectMapper.writeValue(new File(storageFileName), data);
+    }
+
+    @Override
+    public void loadFromPhysicalStorage() throws IOException {
+        if(StringUtils.isEmpty(storageFileName)){
+            throw new IllegalStateException("StorageFileName can not be empty");
+        }
+        DataContainer data = objectMapper.readValue(new File(storageFileName), DataContainer.class);
+        lastUpdateDate = data.getLastUpdateDate();
+        data.getAuthors().stream().forEach((a) -> authors.putIfAbsent(a.getId(), a));
     }
 
     @Override
@@ -145,6 +160,7 @@ public class AuthorStorageImpl implements AuthorStorage {
         return lastUpdateDate;
     }
 
+    @Override
     public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }

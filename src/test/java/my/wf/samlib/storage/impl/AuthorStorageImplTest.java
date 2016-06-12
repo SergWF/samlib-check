@@ -147,7 +147,7 @@ public class AuthorStorageImplTest {
     public void deleteExists() throws Exception {
         Assert.assertTrue(authorStorage.getAuthors().contains(author1));
         authorStorage.delete(author1);
-        Mockito.verify(authorStorage).saveToPhysicalStorage();
+        Mockito.verify(authorStorage).flush();
         Assert.assertFalse(authorStorage.getAuthors().containsKey(author1.getId()));
         Assert.assertFalse(authorStorage.getAuthors().contains(author1));
     }
@@ -157,7 +157,7 @@ public class AuthorStorageImplTest {
         Author author = new Author();
         author.setId(1000L);
         authorStorage.delete(author);
-        Mockito.verify(authorStorage, Mockito.never()).saveToPhysicalStorage();
+        Mockito.verify(authorStorage, Mockito.never()).flush();
     }
 
     @Test

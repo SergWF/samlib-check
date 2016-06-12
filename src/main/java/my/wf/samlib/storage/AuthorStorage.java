@@ -21,4 +21,8 @@ public interface AuthorStorage {
     long getCount();
 
     LocalDateTime getLastUpdateDate();
+
+    public void loadFromPhysicalStorage() throws IOException;
+
+    void setLastUpdateDate(LocalDateTime lastUpdateDate);
 }

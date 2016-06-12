@@ -47,7 +47,7 @@ public class SubscriptionRestController {
     }
 
     @RequestMapping(value = "/{authorId}/unread/all", method = RequestMethod.DELETE)
-    public AuthorItemListDto markAllAsRead(@PathVariable(value = "authorId") Long authorId){
+    public AuthorItemListDto markAllAsRead(@PathVariable(value = "authorId") Long authorId) throws IOException {
         Author author = authorService.findAuthor(authorId);
         authorService.markAllWritingsRead(author);
         return AuthorDtoBuilder.createDto(authorService.findAuthor(authorId));
