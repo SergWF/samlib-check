@@ -2,12 +2,9 @@ package my.wf.samlib.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import my.wf.samlib.model.compare.LastChangedDateComparator;
 import my.wf.samlib.model.compare.LastDate;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
