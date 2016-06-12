@@ -5,6 +5,8 @@ import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.storage.AuthorStorage;
 import my.wf.samlib.storage.DataContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,16 +23,16 @@ import java.util.stream.Collectors;
 
 @Component
 public class AuthorStorageImpl implements AuthorStorage {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorStorageImpl.class);
 
     private ConcurrentHashMap<Long, Author> authors = new ConcurrentHashMap<>();
     @Autowired
     private ObjectMapper objectMapper;
     @Value("${samlib.check.storage.file}")
     private String storageFileName;
-    @Value("${samlib.check.flush.delay.time.sec}")
-    private int flushDelayTime;
     private LocalDateTime lastFlushTime;
     private LocalDateTime lastUpdateDate;
+    private boolean hasNotSaved = false;
 
     protected ConcurrentHashMap<Long, Author> getAuthors() {
         return authors;
@@ -62,7 +64,8 @@ public class AuthorStorageImpl implements AuthorStorage {
             author.setId(getNewId());
         }
         authors.put(author.getId(), author);
-        flush();
+        hasNotSaved = true;
+        saveToPhysicalStorage();
         return author;
     }
 
@@ -70,7 +73,7 @@ public class AuthorStorageImpl implements AuthorStorage {
     public void delete(long authorId) throws IOException {
         if(authors.containsKey(authorId)) {
             authors.remove(authorId);
-            flush();
+            saveToPhysicalStorage();
         }
     }
 
@@ -127,11 +130,10 @@ public class AuthorStorageImpl implements AuthorStorage {
         return 1 + currentMax;
     }
 
-    protected void flush() throws IOException {
-        LocalDateTime now = LocalDateTime.now();
-        if(now.isAfter(lastFlushTime.plusSeconds(flushDelayTime))){
+    @Override
+    public void flushIfRequired() throws IOException {
+        if(hasNotSaved){
             saveToPhysicalStorage();
-            lastFlushTime = now;
         }
     }
 
@@ -142,7 +144,10 @@ public class AuthorStorageImpl implements AuthorStorage {
         DataContainer data = new DataContainer();
         data.setLastUpdateDate(lastUpdateDate);
         data.setAuthors(authors.values());
-        objectMapper.writeValue(new File(storageFileName), data);
+        File storageFile = new File(storageFileName);
+        objectMapper.writeValue(storageFile, data);
+        logger.debug("save to file {}", storageFile.getAbsolutePath());
+        hasNotSaved = false;
     }
 
     @Override
@@ -154,6 +159,7 @@ public class AuthorStorageImpl implements AuthorStorage {
         if(!storageFile.exists()) {
             saveToPhysicalStorage();
         }
+        logger.debug("read from file {}", storageFile.getAbsolutePath());
         DataContainer data = objectMapper.readValue(storageFile, DataContainer.class);
         lastUpdateDate = data.getLastUpdateDate();
         data.getAuthors()
@@ -169,5 +175,10 @@ public class AuthorStorageImpl implements AuthorStorage {
     @Override
     public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    @Override
+    public void save(Writing writing) throws IOException {
+        hasNotSaved = true;
     }
 }

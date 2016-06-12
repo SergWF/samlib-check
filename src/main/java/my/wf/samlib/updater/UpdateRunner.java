@@ -69,7 +69,7 @@ public class UpdateRunner {
         return skipBanUrlChecking || authorCheckerFactory.getAuthorChecker().checkIpState();
     }
 
-    void doUpdate(LocalDateTime checkDate){
+    public void doUpdate(LocalDateTime checkDate){
         if(!isCanUpdate()){
             logger.error("Problems with IP Checking");
             return;
@@ -88,6 +88,7 @@ public class UpdateRunner {
             Author updated = doUpdateAuthor(author, checkDate);
             updatingProcessDto.getAuthorsUpdated().putIfAbsent(updated, findUpdatedWritingCount(updated, checkDate));
             logger.debug("Updated {} writings for author {}", updatingProcessDto.getAuthorsUpdated().get(updated), updated.getName());
+            authorService.setLastUpdateDate(checkDate);
             makePause();
         }catch (IOException | SamlibException e){
             logger.error("Exception on Author update", e);

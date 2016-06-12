@@ -12,11 +12,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 public class AuthorStorageImplTest {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorStorageImplTest.class);
 
     private static final LocalDateTime DATE0 = LocalDateTime.of(2010, 10, 24, 10, 0, 0);
     private static final LocalDateTime DATE1 = LocalDateTime.of(2011, 10, 24, 10, 0, 0);
@@ -27,10 +32,13 @@ public class AuthorStorageImplTest {
     private static final String AUTHOR2_LINK = "http://a2/";
     private static final String AUTHOR3_LINK = "http://a3/";
     private static final String NEW_AUTHOR_LINK = "http://an/";
+    private static final String STORAGE_FILE_NAME = "build/samlib-storage-test.json";
 
 
     @Spy
     private  AuthorStorageImpl authorStorage;
+    @Spy
+    private  AuthorStorageImpl authorStorageForLoad;
     @Mock
     ObjectMapper objectMapper;
     private Author author1;
@@ -41,8 +49,10 @@ public class AuthorStorageImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        authorStorage.setStorageFileName("aaa");
+        authorStorage.setStorageFileName(STORAGE_FILE_NAME);
+        authorStorageForLoad.setStorageFileName(STORAGE_FILE_NAME);
         authorStorage.setObjectMapper(objectMapper);
+        authorStorageForLoad.setObjectMapper(objectMapper);
         author1 = EntityHelper.createAuthor(AUTHOR1_LINK, "a1");
         author2 = EntityHelper.createAuthor(AUTHOR2_LINK, "a2");
         author3 = EntityHelper.createAuthor(AUTHOR3_LINK, "a3");
@@ -146,7 +156,7 @@ public class AuthorStorageImplTest {
     public void deleteExists() throws Exception {
         Assert.assertTrue(authorStorage.getAuthors().contains(author1));
         authorStorage.delete(author1);
-        Mockito.verify(authorStorage).flush();
+        Mockito.verify(authorStorage).flushIfRequired();
         Assert.assertFalse(authorStorage.getAuthors().containsKey(author1.getId()));
         Assert.assertFalse(authorStorage.getAuthors().contains(author1));
     }
@@ -156,7 +166,7 @@ public class AuthorStorageImplTest {
         Author author = new Author();
         author.setId(1000L);
         authorStorage.delete(author);
-        Mockito.verify(authorStorage, Mockito.never()).flush();
+        Mockito.verify(authorStorage, Mockito.never()).flushIfRequired();
     }
 
     @Test
@@ -213,6 +223,24 @@ public class AuthorStorageImplTest {
         putAuthor(author4, 4L);
         Set<Author> updatedAfter = authorStorage.getUpdatedAfter(DATE2);
         Assert.assertThat(updatedAfter, Matchers.contains(author1, author2, author3));
+    }
+
+    @Test
+    public void testSaveLoadToFile() throws IOException {
+        File storageFile = new File(STORAGE_FILE_NAME);
+        if(storageFile.exists()){
+            storageFile.delete();
+        }
+        logger.debug("storage file: {}", storageFile.getAbsoluteFile());
+        authorStorage.save(author1);
+        authorStorage.setLastUpdateDate(DATE3);
+        authorStorage.saveToPhysicalStorage();
+        Assert.assertTrue(storageFile.exists());
+
+        Assert.assertEquals(0, authorStorageForLoad.getCount());
+        authorStorageForLoad.loadFromPhysicalStorage();
+        Assert.assertEquals(1, authorStorageForLoad.getCount());
+        Assert.assertEquals(DATE3, authorStorageForLoad.getLastUpdateDate());
     }
 
     private void putAuthor(Author author, Long id){

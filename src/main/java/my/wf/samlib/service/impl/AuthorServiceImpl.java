@@ -88,13 +88,13 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void markWritingUnread(Writing writing) throws IOException {
         writing.setUnread(true);
-        authorStorage.save(writing.getAuthor());
+        authorStorage.save(writing);
     }
 
     @Override
     public void markWritingRead(Writing writing) throws IOException {
         writing.setUnread(false);
-        authorStorage.save(writing.getAuthor());
+        authorStorage.save(writing);
     }
 
     @Override
@@ -107,6 +107,10 @@ public class AuthorServiceImpl implements AuthorService {
         return authorStorage.getLastUpdateDate();
     }
 
+    @Override
+    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+        authorStorage.setLastUpdateDate(lastUpdateDate);
+    }
 }
 
 

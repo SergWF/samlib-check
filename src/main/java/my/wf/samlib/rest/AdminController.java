@@ -62,25 +62,6 @@ public class AdminController {
         return makeFileForDownload(utilsService.exportAuthors(), "export-" + SIMPLE_DATE_FORMAT.format(new Date()) + ".json");
     }
 
-//    @ApiOperation(value = "Backups all data to a file")
-//    @RequestMapping(value = "/backup", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    public ResponseEntity<byte[]>  doBackup() throws IOException {
-//        return makeFileForDownload(backupService.backup(), "backup-"+SIMPLE_DATE_FORMAT.format(new Date())+".json");
-//    }
-//
-//    @ApiOperation(value = "Restores all data from sends a file")
-//    @RequestMapping(value = "/restore", method = RequestMethod.POST)
-//    public Integer doRestore(@RequestBody MultipartFile file) throws IOException {
-//        if(file.isEmpty()){
-//            return -1;
-//        }
-//        String jsonData = new String(file.getBytes(), StandardCharsets.UTF_8);
-//        logger.debug("restore data");
-//        logger.debug(jsonData);
-//        restoreService.restore(new ObjectMapper().readValue(jsonData, BackupDto.class));
-//        return 1;
-//    }
-
     @RequestMapping(value = "/version", method = RequestMethod.GET)
     @ResponseBody
     public VersionInfoDto getVersionInfo(){

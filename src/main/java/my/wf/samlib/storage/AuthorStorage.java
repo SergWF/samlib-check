@@ -21,7 +21,11 @@ public interface AuthorStorage {
 
     LocalDateTime getLastUpdateDate();
 
+    void flushIfRequired() throws IOException;
+
     void loadFromPhysicalStorage() throws IOException;
 
     void setLastUpdateDate(LocalDateTime lastUpdateDate);
+
+    void save(Writing writing) throws IOException;
 }

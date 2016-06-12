@@ -32,4 +32,6 @@ public interface AuthorService {
 
     LocalDateTime getLastUpdateDate();
 
+    void  setLastUpdateDate(LocalDateTime lastUpdateDate);
+
 }
