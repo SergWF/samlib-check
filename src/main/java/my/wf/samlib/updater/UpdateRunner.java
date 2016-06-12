@@ -7,6 +7,7 @@ import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.service.AuthorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -33,7 +34,7 @@ public class UpdateRunner {
     private boolean skipBanUrlChecking;
 
 
-    @Value("${pause.between.authors:20000}")
+    @Value("${pause.between.authors:10000}")
     public void setPauseBetweenAuthors(Long pauseBetweenAuthors) {
         this.pauseBetweenAuthors = pauseBetweenAuthors;
     }
@@ -78,17 +79,19 @@ public class UpdateRunner {
         updatingProcessDto.setProcessed(0);
         updatingProcessDto.setTotal(authors.size());
         updatingProcessDto.setDate(checkDate);
-        for(Author author: authors){
-            try {
-                Author updated = doUpdateAuthor(author, checkDate);
-                updatingProcessDto.getAuthorsUpdated().putIfAbsent(updated, findUpdatedWritingCount(updated, checkDate));
-                logger.debug("Updated {} writings for author {}", updatingProcessDto.getAuthorsUpdated().get(updated), updated.getName());
-                makePause();
-            }catch (IOException | SamlibException e){
-                logger.error("Exception on Author update", e);
-            }
-        }
+        authors.stream().forEach((a)->processAuthorUpdate(a, checkDate));
         printUpdateResult();
+    }
+
+    private void processAuthorUpdate(Author author, LocalDateTime checkDate){
+        try {
+            Author updated = doUpdateAuthor(author, checkDate);
+            updatingProcessDto.getAuthorsUpdated().putIfAbsent(updated, findUpdatedWritingCount(updated, checkDate));
+            logger.debug("Updated {} writings for author {}", updatingProcessDto.getAuthorsUpdated().get(updated), updated.getName());
+            makePause();
+        }catch (IOException | SamlibException e){
+            logger.error("Exception on Author update", e);
+        }
     }
 
     private void makePause(){
@@ -102,11 +105,12 @@ public class UpdateRunner {
 
     private void printUpdateResult() {
         logger.info("checked {} authors ", updatingProcessDto.getAuthorsUpdated().size());
-        for(Author author: updatingProcessDto.getAuthorsUpdated().keySet()){
-            if(0 < updatingProcessDto.getAuthorsUpdated().get(author)) {
-                logger.info("({})\t{}", updatingProcessDto.getAuthorsUpdated().get(author), author.getName());
-            }
-        }
+        updatingProcessDto.getAuthorsUpdated().entrySet()
+                .stream()
+                .filter((entry) -> 0 < entry.getValue())
+                .forEach((entry)->
+                        logger.info("({})\t{}",entry.getValue(), entry.getKey().getName())
+                );
     }
 
 
