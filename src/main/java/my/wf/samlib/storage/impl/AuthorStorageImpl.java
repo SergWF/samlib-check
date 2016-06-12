@@ -27,7 +27,7 @@ public class AuthorStorageImpl implements AuthorStorage {
     private ObjectMapper objectMapper;
     @Value("${samlib.check.storage.file}")
     private String storageFileName;
-    @Value("samlib.check.flush.delay.time.sec}")
+    @Value("${samlib.check.flush.delay.time.sec}")
     private int flushDelayTime;
     private LocalDateTime lastFlushTime;
     private LocalDateTime lastUpdateDate;
@@ -140,7 +140,7 @@ public class AuthorStorageImpl implements AuthorStorage {
             throw new IllegalStateException("StorageFileName can not be empty");
         }
         DataContainer data = new DataContainer();
-        data.setLastUpdateTime(lastUpdateDate);
+        data.setLastUpdateDate(lastUpdateDate);
         data.setAuthors(authors.values());
         objectMapper.writeValue(new File(storageFileName), data);
     }
@@ -150,9 +150,15 @@ public class AuthorStorageImpl implements AuthorStorage {
         if(StringUtils.isEmpty(storageFileName)){
             throw new IllegalStateException("StorageFileName can not be empty");
         }
-        DataContainer data = objectMapper.readValue(new File(storageFileName), DataContainer.class);
+        File storageFile = new File(storageFileName);
+        if(!storageFile.exists()) {
+            saveToPhysicalStorage();
+        }
+        DataContainer data = objectMapper.readValue(storageFile, DataContainer.class);
         lastUpdateDate = data.getLastUpdateDate();
-        data.getAuthors().stream().forEach((a) -> authors.putIfAbsent(a.getId(), a));
+        data.getAuthors()
+                    .stream()
+                    .forEach((a) -> authors.putIfAbsent(a.getId(), a));
     }
 
     @Override

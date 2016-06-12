@@ -1,5 +1,7 @@
 package my.wf.samlib.service;
 
+import java.net.UnknownHostException;
+
 public interface PropertyViewerService {
     String getStorageFile();
     String getCronData();
@@ -12,4 +14,7 @@ public interface PropertyViewerService {
     Integer getBuildNumber();
     String getBuildDate();
 
+    String getServerAddress();
+
+    String getServerPort();
 }

@@ -4,6 +4,9 @@ import my.wf.samlib.service.PropertyViewerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @Service
 public class PropertyViewerServiceImpl implements PropertyViewerService {
 
@@ -27,6 +30,10 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
     private Integer buildNumber;
     @Value("${build.time:unknown}")
     private String buildDate;
+    @Value("${server.address:http://localhost}")
+    private String serverAddress;
+    @Value("${server.port}")
+    private String serverPort;
 
     public String getStorageFile() {
         return storageFile;
@@ -70,5 +77,15 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
     @Override
     public String getBuildDate() {
         return buildDate;
+    }
+
+    @Override
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    @Override
+    public String getServerPort() {
+        return serverPort;
     }
 }

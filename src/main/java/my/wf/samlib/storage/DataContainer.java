@@ -8,15 +8,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DataContainer {
-    private LocalDateTime lastUpdateTime;
+    private LocalDateTime lastUpdateDate;
     private Set<Author> authors = new HashSet<>();
 
     public LocalDateTime getLastUpdateDate() {
-        return lastUpdateTime;
+        return lastUpdateDate;
     }
 
-    public void setLastUpdateTime(LocalDateTime lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
+    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
     }
 
     public Set<Author> getAuthors() {
