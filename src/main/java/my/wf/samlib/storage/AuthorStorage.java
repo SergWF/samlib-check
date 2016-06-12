@@ -5,7 +5,6 @@ import my.wf.samlib.model.entity.Writing;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 
 public interface AuthorStorage {
@@ -22,7 +21,7 @@ public interface AuthorStorage {
 
     LocalDateTime getLastUpdateDate();
 
-    public void loadFromPhysicalStorage() throws IOException;
+    void loadFromPhysicalStorage() throws IOException;
 
     void setLastUpdateDate(LocalDateTime lastUpdateDate);
 }

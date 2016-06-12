@@ -4,7 +4,6 @@ import my.wf.samlib.model.dto.AuthorItemListDto;
 import my.wf.samlib.model.entity.Author;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +11,7 @@ public class AuthorDtoBuilder {
 
 
     public static Set<AuthorItemListDto> createList(Collection<Author> authors){
-        return authors.stream().map((a)-> createDto(a)).collect(Collectors.toSet());
+        return authors.stream().map(AuthorDtoBuilder::createDto).collect(Collectors.toSet());
     }
 
     public static AuthorItemListDto createDto(Author author) {

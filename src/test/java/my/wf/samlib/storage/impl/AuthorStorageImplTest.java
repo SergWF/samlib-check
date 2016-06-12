@@ -14,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 
 public class AuthorStorageImplTest {
@@ -177,7 +176,7 @@ public class AuthorStorageImplTest {
 
     @Test
     public void getByIdNonExists() throws Exception {
-        Assert.assertNull(authorStorage.getById(1000l));
+        Assert.assertNull(authorStorage.getById(1000L));
     }
 
     @Test

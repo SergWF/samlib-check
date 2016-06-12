@@ -1,7 +1,6 @@
 package my.wf.samlib.model.dto;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class AuthorItemListDto {
 

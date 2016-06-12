@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,11 +64,11 @@ public class UpdateRunner {
         return count;
     }
 
-    protected boolean isCanUpdate(){
+    private boolean isCanUpdate(){
         return skipBanUrlChecking || authorCheckerFactory.getAuthorChecker().checkIpState();
     }
 
-    protected void doUpdate(LocalDateTime checkDate){
+    void doUpdate(LocalDateTime checkDate){
         if(!isCanUpdate()){
             logger.error("Problems with IP Checking");
             return;
@@ -111,7 +110,7 @@ public class UpdateRunner {
     }
 
 
-    protected Author doUpdateAuthor(Author author, LocalDateTime checkDate) throws IOException {
+    private Author doUpdateAuthor(Author author, LocalDateTime checkDate) throws IOException {
         author = authorService.findAuthor(author.getId());
         Author updated = authorCheckerFactory.getAuthorChecker().checkAuthorUpdates(author, checkDate);
         return authorService.saveAuthor(updated);

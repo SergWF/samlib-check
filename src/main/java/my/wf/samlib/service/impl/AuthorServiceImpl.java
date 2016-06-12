@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class AuthorServiceImpl implements AuthorService {
                 : createAndSaveNewAuthor(authorUrl);
     }
 
-    protected Author createAndSaveNewAuthor(String url) throws IOException {
+    Author createAndSaveNewAuthor(String url) throws IOException {
         Author author = new Author();
         author.setName("author " + url);
         author.setLink(url);
