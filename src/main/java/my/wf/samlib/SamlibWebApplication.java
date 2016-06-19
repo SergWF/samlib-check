@@ -3,7 +3,6 @@ package my.wf.samlib;
 import my.wf.samlib.service.PropertyViewerService;
 import my.wf.samlib.service.UtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
-import java.net.UnknownHostException;
 
 @SpringBootApplication
 @EnableScheduling

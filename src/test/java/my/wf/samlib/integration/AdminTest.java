@@ -1,14 +1,11 @@
 package my.wf.samlib.integration;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.matcher.RestAssuredMatchers;
 import my.wf.samlib.SamlibWebApplication;
 import my.wf.samlib.config.BeanOverridingTestConfig;
 import my.wf.samlib.helpers.EntityHelper;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.storage.AuthorStorage;
-import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,16 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(

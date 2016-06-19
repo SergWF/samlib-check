@@ -4,9 +4,6 @@ import my.wf.samlib.service.PropertyViewerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 @Service
 public class PropertyViewerServiceImpl implements PropertyViewerService {
 
