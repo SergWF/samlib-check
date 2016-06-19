@@ -18,7 +18,12 @@ import java.util.Date;
 public class EntityHelper {
 
     public static Author createAuthor(String link, String name){
+        return createAuthorWithId(null, link, name);
+    }
+
+    public static Author createAuthorWithId(Long id, String link, String name){
         Author author = new Author();
+        author.setId(id);
         author.setLink(LinkTool.getAuthorLink(link, "indextitle.shtml"));
         author.setName(name);
         return author;

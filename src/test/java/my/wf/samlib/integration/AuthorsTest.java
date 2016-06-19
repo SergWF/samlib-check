@@ -9,6 +9,7 @@ import my.wf.samlib.model.entity.Changed;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.service.PropertyViewerService;
 import my.wf.samlib.storage.AuthorStorage;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,6 +97,10 @@ public class AuthorsTest {
                 .then()
                 .log().everything(true)
                 .statusCode(HttpStatus.OK.value())
+                .body("link", Matchers.equalTo("http://a1/"))
+                .body("name", Matchers.equalTo("a1"))
+                .body("writings.size()", Matchers.is(2))
+                .body("unread", Matchers.is(1))
                 .log().everything(true);
     }
 
@@ -107,6 +112,7 @@ public class AuthorsTest {
                 .then()
                 .log().everything(true)
                 .statusCode(HttpStatus.OK.value())
+                .body("size()", Matchers.is(3))
                 .log().everything(true);
     }
 

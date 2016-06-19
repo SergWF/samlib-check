@@ -60,7 +60,7 @@ public class Author extends BaseEntity implements LastDate  {
                 '}';
     }
 
-    @JsonIgnore
+    //@JsonIgnore
     public long getUnread() {
         return writings.stream().filter((w)->w.isUnread()).count();
     }
