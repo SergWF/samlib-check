@@ -8,6 +8,7 @@ import my.wf.samlib.service.AuthorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -31,7 +33,8 @@ public class AuthorRestController {
 
 
 
-    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
     public Author subscribe(@RequestBody String authorUrl) throws IOException {
         return authorService.addAuthor(authorUrl);
     }
@@ -46,22 +49,22 @@ public class AuthorRestController {
         return authorService.findAuthor(authorId);
     }
 
-    @RequestMapping(value = "/{authorId}/unread/all", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{authorId}/unread", method = RequestMethod.DELETE)
     public AuthorItemListDto markAllAsRead(@PathVariable(value = "authorId") Long authorId) throws IOException {
         Author author = authorService.findAuthor(authorId);
         authorService.markAllWritingsRead(author);
         return AuthorDtoBuilder.createDto(authorService.findAuthor(authorId));
     }
 
-    @RequestMapping(value = "/{authorId}/unread/", method = RequestMethod.DELETE)
-    public Author removeFromUnreadList(@PathVariable(value = "authorId") Long authorId, @RequestParam(value = "writingLink") String writingLink) throws IOException {
+    @RequestMapping(value = "/{authorId}/unread/{writingLink}", method = RequestMethod.DELETE)
+    public Author removeFromUnreadList(@PathVariable(value = "authorId") Long authorId, @PathVariable(value = "writingLink") String writingLink) throws IOException {
         logger.info("Remove from UnreadList, authorId={}, writing.link={}",authorId, writingLink);
         return changeWritingUnreadFlag(authorId, writingLink, false);
     }
 
-    @RequestMapping(value = "/{authorId}/unread/{writingId}", method = RequestMethod.POST)
-    public Author addToUnreadList(@PathVariable(value = "authorId") Long authorId, @RequestParam(value = "writingLink") String writingLink) throws IOException {
-        logger.info("Add to UnreadList, subscriptionId={}, writing.id={}",authorId, writingLink);
+    @RequestMapping(value = "/{authorId}/unread/{writingLink}", method = RequestMethod.POST)
+    public Author addToUnreadList(@PathVariable(value = "authorId") Long authorId, @PathVariable(value = "writingLink") String writingLink) throws IOException {
+        logger.info("Add to UnreadList, authorId={}, writing.link={}",authorId, writingLink);
         return changeWritingUnreadFlag(authorId, writingLink, true);
     }
 
@@ -76,7 +79,7 @@ public class AuthorRestController {
     private Author changeWritingUnreadFlag(Long authorId, String writingLink, boolean unread) throws IOException {
         Author author = authorService.findAuthor(authorId);
         Writing writing = authorService.findWritingByLink(author.getLink(), writingLink);
-        writing.setUnread(false);
+        writing.setUnread(unread);
         return authorService.saveAuthor(author);
     }
 

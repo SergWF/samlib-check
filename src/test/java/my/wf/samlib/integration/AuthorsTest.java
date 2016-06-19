@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(
@@ -114,6 +115,76 @@ public class AuthorsTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.is(3))
                 .log().everything(true);
+    }
+
+    @Test
+    public void testAddAuthor(){
+        String authorUrl = "http://a4/";
+        RestAssured
+                .given()
+                .body(authorUrl)
+                .post(baseUrl + "/authors")
+                .then()
+                .log().everything(true)
+                .statusCode(HttpStatus.CREATED.value())
+                .body("id", Matchers.notNullValue())
+                .body("link", Matchers.equalTo(authorUrl))
+                .body("name", Matchers.equalTo("author " + authorUrl))
+                .log().everything(true);
+    }
+
+    @Test
+    public void testDeleteAuthor(){
+        RestAssured
+                .when()
+                .delete(baseUrl + "/authors/1")
+                .then()
+                .log().everything(true)
+                .statusCode(HttpStatus.OK.value())
+                .log().everything(true);
+    }
+
+    @Test
+    public void testMarkAllUnread(){
+        Long authorId = 1L;
+        Assert.assertEquals(1, authorStorage.getById(authorId).getUnread());
+
+        RestAssured
+                .when()
+                .delete(baseUrl + "/authors/"+authorId+"/unread")
+                .then()
+                .log().everything(true)
+                .statusCode(HttpStatus.OK.value())
+                .log().everything(true);
+
+        Assert.assertEquals(0, authorStorage.getById(authorId).getUnread());
+    }
+
+    @Test
+    public void testMarkWritingUnread(){
+        Long authorId = 3L;
+        String writingLink ="w5.shtml";
+        Writing writing = authorStorage.getById(authorId)
+                .getWritings()
+                .stream()
+                .filter((w) -> w.getLink()
+                        .equals(writingLink)).findFirst().get();
+        Assert.assertTrue(writing.isUnread());
+
+        RestAssured
+                .when()
+                .delete(baseUrl + "/authors/"+authorId+"/unread/" + writingLink)
+                .then()
+                .log().everything(true)
+                .statusCode(HttpStatus.OK.value())
+                .log().everything(true);
+
+        writing = authorStorage.getById(authorId)
+                .getWritings()
+                .stream()
+                .filter((w) -> w.getLink()
+                        .equals(writingLink)).findFirst().get();
+        Assert.assertFalse(writing.isUnread());
     }
 
 }

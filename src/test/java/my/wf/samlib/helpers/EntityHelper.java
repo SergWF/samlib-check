@@ -36,7 +36,7 @@ public class EntityHelper {
     public static Writing createWriting(String name, Author author, LocalDateTime lastChangedDate){
         Writing writing = new Writing();
         writing.setName(name);
-        writing.setLink("http://" + name);
+        writing.setLink(name + ".shtml");
         writing.setAuthor(author);
         writing.setDescription("descr");
         writing.setGroupName("grp");
