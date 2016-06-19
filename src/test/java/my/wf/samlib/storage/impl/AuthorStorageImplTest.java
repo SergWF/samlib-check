@@ -14,6 +14,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.TestPropertySource;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -154,9 +156,12 @@ public class AuthorStorageImplTest {
 
     @Test
     public void deleteExists() throws Exception {
+        Mockito.reset(authorStorage);
         Assert.assertTrue(authorStorage.getAuthors().contains(author1));
         authorStorage.delete(author1);
-        Mockito.verify(authorStorage).flushIfRequired();
+        Mockito.verify(authorStorage, Mockito.never()).saveToPhysicalStorage();
+        authorStorage.flushIfRequired();
+        Mockito.verify(authorStorage).saveToPhysicalStorage();
         Assert.assertFalse(authorStorage.getAuthors().containsKey(author1.getId()));
         Assert.assertFalse(authorStorage.getAuthors().contains(author1));
     }
@@ -166,7 +171,8 @@ public class AuthorStorageImplTest {
         Author author = new Author();
         author.setId(1000L);
         authorStorage.delete(author);
-        Mockito.verify(authorStorage, Mockito.never()).flushIfRequired();
+        authorStorage.flushIfRequired();
+        Mockito.verify(authorStorage, Mockito.never()).saveToPhysicalStorage();
     }
 
     @Test
@@ -217,30 +223,37 @@ public class AuthorStorageImplTest {
     }
 
     @Test
+    public void testSaveBehavior() throws IOException {
+        File file = new File(STORAGE_FILE_NAME);
+        file.delete();
+        Mockito.reset(authorStorage);
+        authorStorage.setStorageFileName(STORAGE_FILE_NAME);
+        authorStorage.save(author1);
+        authorStorage.save(author2);
+        Mockito.verify(authorStorage, Mockito.never()).saveToPhysicalStorage();
+        authorStorage.flushIfRequired();
+        Mockito.verify(authorStorage).saveToPhysicalStorage();
+    }
+
+    @Test
+    public void testDeleteBehavior() throws IOException {
+        authorStorage.save(author1);
+        authorStorage.save(author2);
+        authorStorage.save(author3);
+        Mockito.reset(authorStorage);
+        authorStorage.delete(author1);
+        Mockito.verify(authorStorage, Mockito.never()).saveToPhysicalStorage();
+        authorStorage.flushIfRequired();
+        Mockito.verify(authorStorage).saveToPhysicalStorage();
+    }
+
+    @Test
     public void getUpdatedAfterInTime() throws Exception {
         Author author4 = EntityHelper.createAuthor("http://a4", "a4");
         EntityHelper.createWriting("w41", author4, DATE0);
         putAuthor(author4, 4L);
         Set<Author> updatedAfter = authorStorage.getUpdatedAfter(DATE2);
         Assert.assertThat(updatedAfter, Matchers.contains(author1, author2, author3));
-    }
-
-    @Test
-    public void testSaveLoadToFile() throws IOException {
-        File storageFile = new File(STORAGE_FILE_NAME);
-        if(storageFile.exists()){
-            storageFile.delete();
-        }
-        logger.debug("storage file: {}", storageFile.getAbsoluteFile());
-        authorStorage.save(author1);
-        authorStorage.setLastUpdateDate(DATE3);
-        authorStorage.saveToPhysicalStorage();
-        Assert.assertTrue(storageFile.exists());
-
-        Assert.assertEquals(0, authorStorageForLoad.getCount());
-        authorStorageForLoad.loadFromPhysicalStorage();
-        Assert.assertEquals(1, authorStorageForLoad.getCount());
-        Assert.assertEquals(DATE3, authorStorageForLoad.getLastUpdateDate());
     }
 
     private void putAuthor(Author author, Long id){

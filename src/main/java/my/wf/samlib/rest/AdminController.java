@@ -32,10 +32,8 @@ import java.util.List;
 @RequestMapping(value = "/admin", produces= MediaType.APPLICATION_JSON_VALUE)
 public class AdminController {
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
-    @Autowired
-    private AuthorStorage authorStorage;
     @Autowired
     private UtilsService utilsService;
     @Autowired

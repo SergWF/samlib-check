@@ -13,7 +13,7 @@ public class PropertyViewerServiceImpl implements PropertyViewerService {
 
     @Value("${samlib.check.storage.file}")
     private String storageFile;
-    @Value("${update.cron.job}")
+    @Value("${cron.job.update.schedule}")
     private String cronData;
     @Value("${pause.between.authors}")
     private int pauseValue;

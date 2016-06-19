@@ -41,7 +41,7 @@ public class UtilsServiceImpl implements UtilsService {
     @Override
     public Set<String> exportAuthors() {
         return authorService.findAllAuthors().stream()
-                .map((a)->a.getLink()).collect(Collectors.toSet());
+                .map((a)->a.getLink()).sorted().collect(Collectors.toSet());
     }
 
 

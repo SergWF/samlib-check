@@ -9,9 +9,9 @@ import java.util.Set;
 
 public interface AuthorStorage {
     Author addAuthor(Author author) throws IOException;
-    Author save(Author author) throws IOException;
-    void delete(long authorId) throws IOException;
-    void delete(Author author) throws IOException;
+    Author save(Author author);
+    void delete(long authorId);
+    void delete(Author author);
     Author findByLink(String authorUrl);
     Author getById(long id);
     Set<Author> getAll();

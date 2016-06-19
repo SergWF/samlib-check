@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -30,7 +31,6 @@ public class AuthorStorageImpl implements AuthorStorage {
     private ObjectMapper objectMapper;
     @Value("${samlib.check.storage.file}")
     private String storageFileName;
-    private LocalDateTime lastFlushTime;
     private LocalDateTime lastUpdateDate;
     private boolean hasNotSaved = false;
 
@@ -59,27 +59,28 @@ public class AuthorStorageImpl implements AuthorStorage {
     }
 
     @Override
-    public synchronized Author save(Author author) throws IOException {
+    public synchronized Author save(Author author) {
         if(null == author.getId()) {
             author.setId(getNewId());
         }
         authors.put(author.getId(), author);
         hasNotSaved = true;
-        saveToPhysicalStorage();
+        //saveToPhysicalStorage();
         return author;
     }
 
     @Override
-    public void delete(long authorId) throws IOException {
+    public void delete(long authorId) {
         if(authors.containsKey(authorId)) {
             authors.remove(authorId);
-            saveToPhysicalStorage();
+            //saveToPhysicalStorage();
+            hasNotSaved = true;
         }
     }
 
 
     @Override
-    public synchronized void delete(Author author) throws IOException {
+    public synchronized void delete(Author author) {
         delete(author.getId());
     }
 
@@ -137,7 +138,7 @@ public class AuthorStorageImpl implements AuthorStorage {
         }
     }
 
-    protected void saveToPhysicalStorage() throws IOException {
+    protected synchronized void saveToPhysicalStorage() throws IOException {
         if(StringUtils.isEmpty(storageFileName)){
             throw new IllegalStateException("StorageFileName can not be empty");
         }
@@ -145,8 +146,9 @@ public class AuthorStorageImpl implements AuthorStorage {
         data.setLastUpdateDate(lastUpdateDate);
         data.setAuthors(authors.values());
         File storageFile = new File(storageFileName);
+        logger.debug("save data to {}", storageFile.getAbsolutePath());
+        logger.error(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(data));
         objectMapper.writeValue(storageFile, data);
-        logger.debug("save to file {}", storageFile.getAbsolutePath());
         hasNotSaved = false;
     }
 
@@ -161,10 +163,15 @@ public class AuthorStorageImpl implements AuthorStorage {
         }
         logger.debug("read from file {}", storageFile.getAbsolutePath());
         DataContainer data = objectMapper.readValue(storageFile, DataContainer.class);
-        lastUpdateDate = data.getLastUpdateDate();
-        data.getAuthors()
-                    .stream()
-                    .forEach((a) -> authors.putIfAbsent(a.getId(), a));
+        logger.debug("found {} authors, updated in {}", data.getAuthors().size(), data.getLastUpdateDate());
+        parseData(data);
+    }
+
+    protected void parseData(DataContainer dataContainer){
+        lastUpdateDate = dataContainer.getLastUpdateDate();
+        dataContainer.getAuthors()
+                .stream()
+                .forEach((a) -> authors.putIfAbsent(a.getId(), a));
     }
 
     @Override

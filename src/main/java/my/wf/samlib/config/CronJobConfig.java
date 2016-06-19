@@ -16,24 +16,24 @@ import java.time.LocalDateTime;
 public class CronJobConfig {
     private static final Logger logger = LoggerFactory.getLogger(CronJobConfig.class);
 
-    @Value("update.cron.enable:false")
-    private boolean updateCronJobEnable;
+    @Value("${cron.job.enabled}")
+    private boolean updateCronJobEnabled;
     @Autowired
     private UpdateRunner updateRunner;
     @Autowired
     private AuthorStorage authorStorage;
 
 
-    @Scheduled(cron = "${update.cron.job}")
+    @Scheduled(cron = "${cron.job.update.schedule}")
     public void doScheduledUpdate(){
-        if(updateCronJobEnable) {
+        if(updateCronJobEnabled) {
             LocalDateTime date = LocalDateTime.now();
             logger.info("Run Update at {}", date);
             updateRunner.doUpdate(date);
         }
     }
 
-    @Scheduled(cron = "${flushIfRequired.cron.job}")
+    @Scheduled(cron = "${cron.job.flush.schedule}")
     public void doFlush(){
         try {
             authorStorage.flushIfRequired();
