@@ -56,13 +56,13 @@ public class AuthorRestController {
         return AuthorDtoBuilder.createDto(authorService.findAuthor(authorId));
     }
 
-    @RequestMapping(value = "/{authorId}/unread/{writingLink}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{authorId}/unread/{writingLink:.+}", method = RequestMethod.DELETE)
     public Author removeFromUnreadList(@PathVariable(value = "authorId") Long authorId, @PathVariable(value = "writingLink") String writingLink) throws IOException {
         logger.info("Remove from UnreadList, authorId={}, writing.link={}",authorId, writingLink);
         return changeWritingUnreadFlag(authorId, writingLink, false);
     }
 
-    @RequestMapping(value = "/{authorId}/unread/{writingLink}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{authorId}/unread/{writingLink:.+}", method = RequestMethod.PUT)
     public Author addToUnreadList(@PathVariable(value = "authorId") Long authorId, @PathVariable(value = "writingLink") String writingLink) throws IOException {
         logger.info("Add to UnreadList, authorId={}, writing.link={}",authorId, writingLink);
         return changeWritingUnreadFlag(authorId, writingLink, true);

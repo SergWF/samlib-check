@@ -161,15 +161,20 @@ public class AuthorsTest {
     }
 
     @Test
-    public void testMarkWritingUnread(){
+    public void testAddWritingToUnreadList(){
         Long authorId = 3L;
         String writingLink ="w5.shtml";
+
         Writing writing = authorStorage.getById(authorId)
                 .getWritings()
                 .stream()
                 .filter((w) -> w.getLink()
                         .equals(writingLink)).findFirst().get();
+        //Pre-test check if writing really exists and it is marked as Unread
         Assert.assertTrue(writing.isUnread());
+        Assert.assertNotNull(writing);
+        writing.setUnread(false);
+        authorStorage.save(writing.getAuthor());
 
         RestAssured
                 .when()
@@ -185,6 +190,37 @@ public class AuthorsTest {
                 .filter((w) -> w.getLink()
                         .equals(writingLink)).findFirst().get();
         Assert.assertFalse(writing.isUnread());
+    }
+
+    @Test
+    public void testRemoveWritingFromUnreadList(){
+        Long authorId = 3L;
+        String writingLink ="w5.shtml";
+
+        Writing writing = authorStorage.getById(authorId)
+                .getWritings()
+                .stream()
+                .filter((w) -> w.getLink()
+                        .equals(writingLink)).findFirst().get();
+        //Pre-test check if writing really exists
+        Assert.assertNotNull(writing);
+        writing.setUnread(true);
+        authorStorage.save(writing.getAuthor());
+
+        RestAssured
+                .when()
+                .put(baseUrl + "/authors/"+authorId+"/unread/" + writingLink)
+                .then()
+                .log().everything(true)
+                .statusCode(HttpStatus.OK.value())
+                .log().everything(true);
+
+        writing = authorStorage.getById(authorId)
+                .getWritings()
+                .stream()
+                .filter((w) -> w.getLink()
+                        .equals(writingLink)).findFirst().get();
+        Assert.assertTrue(writing.isUnread());
     }
 
 }
