@@ -1,17 +1,19 @@
 package my.wf.samlib.model.dto;
 
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.updater.AuthorDelta;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class UpdatingProcessDto {
+public class UpdatingInfo {
     private int total;
-    private int processed;
     private Map<Author, RuntimeException> errors = new HashMap<>();
     private LocalDateTime date;
-    private Map<Author, Integer> authorsUpdated = new HashMap<>();
+    private Set<AuthorDelta> authorsUpdates = new HashSet<>();
 
 
     public int getTotal() {
@@ -23,11 +25,7 @@ public class UpdatingProcessDto {
     }
 
     public int getProcessed() {
-        return processed;
-    }
-
-    public void setProcessed(int processed) {
-        this.processed = processed;
+        return getAuthorsUpdates().size();
     }
 
     public Map<Author, RuntimeException> getErrors() {
@@ -42,12 +40,8 @@ public class UpdatingProcessDto {
         this.date = date;
     }
 
-    public Map<Author, Integer> getAuthorsUpdated() {
-        return authorsUpdated;
-    }
-
-    public void increaseProcessed(int delta){
-        processed += delta;
+    public Set<AuthorDelta> getAuthorsUpdates() {
+        return authorsUpdates;
     }
 
 }

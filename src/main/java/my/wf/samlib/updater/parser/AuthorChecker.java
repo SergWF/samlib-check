@@ -1,12 +1,13 @@
 package my.wf.samlib.updater.parser;
 
 import my.wf.samlib.model.entity.Author;
+import my.wf.samlib.updater.AuthorDelta;
 
 import java.time.LocalDateTime;
 
 public interface AuthorChecker {
 
-    Author checkAuthorUpdates(Author author, LocalDateTime checkDate);
+    AuthorDelta checkAuthorUpdates(Author author, LocalDateTime checkDate);
 
-    boolean checkIpState();
+    Author applyChanges(AuthorDelta delta);
 }

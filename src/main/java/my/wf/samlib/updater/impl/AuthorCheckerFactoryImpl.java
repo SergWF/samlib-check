@@ -13,15 +13,13 @@ public class AuthorCheckerFactoryImpl implements AuthorCheckerFactory {
 
     @Value("${link.suffix}")
     private String linkSuffix;
-    @Value("${ban.check.url}")
-    private String banCheckUrl;
+
 
 
     public AuthorChecker getAuthorChecker(){
         AuthorCheckerImpl authorChecker = new AuthorCheckerImpl();
         authorChecker.setSamlibPageReader(new SamlibPageReaderImpl());
         authorChecker.setLinkSuffix(linkSuffix);
-        authorChecker.setBanCheckUrl(banCheckUrl);
         authorChecker.setSamlibAuthorParser(new SamlibAuthorParserImpl());
         return authorChecker;
     }

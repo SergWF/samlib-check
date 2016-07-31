@@ -1,8 +1,10 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.model.dto.StatisticDto;
+import my.wf.samlib.model.statistic.UpdateStatistic;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.UtilsService;
+import my.wf.samlib.updater.UpdateRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,9 @@ public class UtilsServiceImpl implements UtilsService {
 
 
     @Autowired
-    AuthorService authorService;
+    private AuthorService authorService;
+    @Autowired
+    private UpdateRunner updateRunner;
 
 
 
@@ -28,6 +32,11 @@ public class UtilsServiceImpl implements UtilsService {
                 authorService.getUnreadAuthors().size(),
                 authorService.getLastUpdateDate()
         );
+    }
+
+    @Override
+    public UpdateStatistic getUpdatingState() {
+        return updateRunner.getState();
     }
 
     @Override

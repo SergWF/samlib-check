@@ -1,6 +1,7 @@
 package my.wf.samlib.rest;
 
 import my.wf.samlib.model.dto.StatisticDto;
+import my.wf.samlib.model.statistic.UpdateStatistic;
 import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.updater.UpdateRunner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,14 @@ public class UtilsRestController {
     public StatisticDto getStatistic(){
         return utilsService.getStatistic();
     }
+
+
+    @RequestMapping(value = "/state", method = RequestMethod.GET)
+    @ResponseBody
+    public UpdateStatistic getUpdatingState(){
+        return utilsService.getStatistic();
+    }
+
 
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @ResponseBody

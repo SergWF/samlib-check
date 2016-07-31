@@ -1,10 +1,10 @@
 package my.wf.samlib.updater.parser.impl;
 
-import my.wf.samlib.model.dto.IpCheckState;
 import my.wf.samlib.model.entity.Author;
 import my.wf.samlib.model.entity.Changed;
 import my.wf.samlib.model.entity.Writing;
 import my.wf.samlib.tools.LinkTool;
+import my.wf.samlib.updater.AuthorDelta;
 import my.wf.samlib.updater.parser.AuthorChecker;
 import my.wf.samlib.updater.parser.SamlibAuthorParser;
 import my.wf.samlib.updater.parser.SamlibPageReader;
@@ -20,7 +20,6 @@ public class AuthorCheckerImpl implements AuthorChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorCheckerImpl.class);
 
-    private String banCheckUrl;
     private String linkSuffix;
 
     private SamlibAuthorParser samlibAuthorParser;
@@ -30,9 +29,6 @@ public class AuthorCheckerImpl implements AuthorChecker {
         this.linkSuffix = linkSuffix;
     }
 
-    public void setBanCheckUrl(String banCheckUrl) {
-        this.banCheckUrl = banCheckUrl;
-    }
 
     public void setSamlibAuthorParser(SamlibAuthorParser samlibAuthorParser) {
         this.samlibAuthorParser = samlibAuthorParser;
@@ -43,7 +39,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
     }
 
     @Override
-    public Author checkAuthorUpdates(Author author, LocalDateTime checkDate) {
+    public AuthorDelta checkAuthorUpdates(Author author, LocalDateTime checkDate) {
         logger.debug("check author {} by link {}", author.getName(), author.getLink());
         author.setLink(LinkTool.getAuthorLink(author.getLink(), linkSuffix));
         String fullLink = LinkTool.getAuthorIndexPage(author.getLink(), linkSuffix);
@@ -52,45 +48,52 @@ public class AuthorCheckerImpl implements AuthorChecker {
         String authorName = samlibAuthorParser.parseAuthorName(pageString);
         Set<Writing> parsedWritings = samlibAuthorParser.parseWritings(pageString);
         logger.debug("author: {}, writings found:{}", authorName, parsedWritings.size());
-        return implementChanges(author, parsedWritings, authorName, checkDate);
+        return createDelta(author, authorName, parsedWritings);
     }
+
+    AuthorDelta createDelta(Author oldAuthor, String authorName, Collection<Writing> parsedWritings){
+        AuthorDelta delta = new AuthorDelta(oldAuthor);
+        delta.setAuthorName(authorName);
+        parsedWritings.forEach(writing -> processParsed(oldAuthor, writing, delta));
+        delta.getDeletedWritings().addAll(oldAuthor.getWritings());
+        delta.getDeletedWritings().removeAll(parsedWritings);
+        return delta;
+    }
+
 
     @Override
-    public boolean checkIpState() {
-        IpCheckState ipCheckState = new IpCheckState();
-        try{
-            logger.debug("check IP state {}", banCheckUrl);
-            String checkPage = samlibPageReader.readPage(banCheckUrl);
-            ipCheckState = samlibAuthorParser.parseIpCheckState(checkPage);
-        }catch (Exception e){
-            ipCheckState.setInfo(e.getMessage());
-            ipCheckState.setOtherError(true);
-        }
-        printCheckState(ipCheckState);
-        return ipCheckState.isOk();
-    }
-    private void printCheckState(IpCheckState ipCheckState){
-        logger.info("ip: {}, in spam: {}, is blocked: {}, other: {}", ipCheckState.getIp(), ipCheckState.isInSpamList(), ipCheckState.isBlocked(), ipCheckState.isOtherError());
-        if(!ipCheckState.isOk()){
-            logger.error("IP Check problems:");
-            logger.error(ipCheckState.getInfo());
-        }
-    }
-
-    protected Author implementChanges(Author author, Collection<Writing> parsedWritings, String authorName, LocalDateTime checkDate) {
-        author.setName(authorName);
-        Collection<Writing> oldWritings = new HashSet<>(author.getWritings());
-        author.getWritings().clear();
-        author.getWritings().addAll(parsedWritings);
-        author.getWritings().stream().forEach(
-                (w)->{
-                    w.setAuthor(author);
-                    applyChanges(w, oldWritings, checkDate);
-                });
+    public Author applyChanges(AuthorDelta delta) {
+        Author author = delta.getAuthor();
+        delta.getDeletedWritings().forEach(writing -> author.getWritings().remove(writing));
+        delta.getUpdatedWritings().forEach(writing -> applyWritingChanges(writing, author.getWritings(), delta.getTimestamp()));
+        author.getWritings().addAll(delta.getNewWritings());
+        delta.getNewWritings().forEach(writing -> writing.setAuthor(author));
+        author.setName(delta.getAuthorName());
         return author;
     }
 
-    protected Writing applyChanges(Writing writing, Collection<Writing> oldWritings, LocalDateTime checkDate) {
+
+    void processParsed(Author oldAuthor, Writing writing, AuthorDelta delta) {
+        writing.setAuthor(oldAuthor);
+        Writing existsing = findSameWriting(oldAuthor.getWritings(), writing);
+        if(null == existsing){
+            delta.getNewWritings().add(writing);
+        }else{
+            if(checkHasChanges(existsing, writing)){
+                delta.getUpdatedWritings().add(writing);
+            }
+        }
+    }
+
+    boolean checkHasChanges(Writing writing1, Writing writing2){
+        return !writing1.getSize().equals(writing2.getSize())
+                || !writing1.getDescription().equals(writing2.getDescription())
+                || !writing1.getName().equals(writing2.getName());
+    }
+
+
+
+    Writing applyWritingChanges(Writing writing, Collection<Writing> oldWritings, LocalDateTime checkDate) {
         Writing old = findSameWriting(oldWritings, writing);
         if(null ==old){
             writing.getChangesIn().add(Changed.NEW);
@@ -119,7 +122,7 @@ public class AuthorCheckerImpl implements AuthorChecker {
 
 
 
-    protected Writing findSameWriting(Collection<Writing> writings, Writing baseWriting) {
+    Writing findSameWriting(Collection<Writing> writings, Writing baseWriting) {
         return writings.stream().filter((w) -> w.getLink().equals(baseWriting.getLink())).findFirst().orElse(null);
     }
 }
