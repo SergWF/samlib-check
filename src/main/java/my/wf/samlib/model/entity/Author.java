@@ -1,6 +1,5 @@
 package my.wf.samlib.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import my.wf.samlib.model.compare.LastDate;
 
@@ -47,9 +46,7 @@ public class Author extends BaseEntity implements LastDate  {
             return null;
         }
         return writings.stream().max((w1, w2)->w1.getLastChangedDate().compareTo(w2.getLastChangedDate())).get().getLastChangedDate();
-        //return Collections.max(writings, new LastChangedDateComparator()).getLastChangedDate();
     }
-
 
     @Override
     public String toString() {

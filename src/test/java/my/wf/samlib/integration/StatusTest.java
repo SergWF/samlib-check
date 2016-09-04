@@ -43,7 +43,7 @@ public class StatusTest {
     public void testGetStatusNoUpdates(){
         RestAssured
                 .when()
-                .get(baseUrl + "/state")
+                .get(baseUrl + "/utils/statistic")
                 .then()
                 .log().everything(true)
                 .statusCode(HttpStatus.OK.value())
@@ -56,10 +56,11 @@ public class StatusTest {
     public void testGetStatusDuringUpdate(){
         RestAssured
                 .when()
-                .get(baseUrl + "/state")
+                .get(baseUrl + "/utils/statistic")
                 .then()
                 .log().everything(true)
                 .statusCode(HttpStatus.OK.value())
+                .log().everything(true)
                 .body("currentTime", Matchers.notNullValue())
                 .body("lastUpdated", Matchers.notNullValue())
                 .body("updating", Matchers.notNullValue())

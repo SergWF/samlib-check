@@ -1,6 +1,7 @@
 package my.wf.samlib.storage;
 
 import my.wf.samlib.model.entity.Author;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

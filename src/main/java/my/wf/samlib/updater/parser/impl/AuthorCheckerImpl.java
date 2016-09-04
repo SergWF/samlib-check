@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AuthorCheckerImpl implements AuthorChecker {
 
@@ -52,17 +52,28 @@ public class AuthorCheckerImpl implements AuthorChecker {
     }
 
     AuthorDelta createDelta(Author oldAuthor, String authorName, Collection<Writing> parsedWritings){
-        AuthorDelta delta = new AuthorDelta(oldAuthor);
-        delta.setAuthorName(authorName);
-        parsedWritings.forEach(writing -> processParsed(oldAuthor, writing, delta));
-        delta.getDeletedWritings().addAll(oldAuthor.getWritings());
-        delta.getDeletedWritings().removeAll(parsedWritings);
-        return delta;
+        prepareWritings(parsedWritings, oldAuthor);
+        Set<Writing> deleted = getDeleted(oldAuthor, parsedWritings);
+        Set<Writing> newWritings = getNewWritings(oldAuthor, parsedWritings);
+        Set<Writing> updatedWritings = getUpdatedWritings(oldAuthor, parsedWritings);
+        return new AuthorDelta(oldAuthor, authorName, newWritings, updatedWritings, deleted);
+    }
+
+    void prepareWritings(Collection<Writing> parsedWritings, Author author) {
+        parsedWritings.forEach(writing -> writing.setAuthor(author));
+    }
+
+    Set<Writing> getUpdatedWritings(Author oldAuthor, Collection<Writing> parsedWritings) {
+        return parsedWritings.stream().filter(writing -> checkHasChanges(writing, oldAuthor)).collect(Collectors.toSet());
+    }
+
+    Set<Writing> getNewWritings(Author oldAuthor, Collection<Writing> parsedWritings) {
+        return parsedWritings.stream().filter(writing -> checkIsNew(writing, oldAuthor)).collect(Collectors.toSet());
     }
 
 
     @Override
-    public Author applyChanges(AuthorDelta delta) {
+    public Author applyDelta(AuthorDelta delta) {
         Author author = delta.getAuthor();
         delta.getDeletedWritings().forEach(writing -> author.getWritings().remove(writing));
         delta.getUpdatedWritings().forEach(writing -> applyWritingChanges(writing, author.getWritings(), delta.getTimestamp()));
@@ -72,23 +83,20 @@ public class AuthorCheckerImpl implements AuthorChecker {
         return author;
     }
 
-
-    void processParsed(Author oldAuthor, Writing writing, AuthorDelta delta) {
-        writing.setAuthor(oldAuthor);
-        Writing existsing = findSameWriting(oldAuthor.getWritings(), writing);
-        if(null == existsing){
-            delta.getNewWritings().add(writing);
-        }else{
-            if(checkHasChanges(existsing, writing)){
-                delta.getUpdatedWritings().add(writing);
-            }
-        }
+    Set<Writing> getDeleted(Author oldAuthor, Collection<Writing> newWritings){
+        return oldAuthor.getWritings().stream().filter(writing -> !isPresentByLink(newWritings, writing)).collect(Collectors.toSet());
     }
 
-    boolean checkHasChanges(Writing writing1, Writing writing2){
-        return !writing1.getSize().equals(writing2.getSize())
-                || !writing1.getDescription().equals(writing2.getDescription())
-                || !writing1.getName().equals(writing2.getName());
+    boolean checkIsNew(Writing newWriting, Author oldAuthor){
+        return !oldAuthor.getWritings().contains(newWriting);
+    }
+
+    boolean checkHasChanges(Writing newWriting, Author oldAuthor){
+        Writing oldWriting = findSameWriting(oldAuthor.getWritings(), newWriting);
+        return null != oldWriting
+                &&(!newWriting.getSize().equals(oldWriting.getSize())
+                || !newWriting.getDescription().equals(oldWriting.getDescription())
+                || !newWriting.getName().equals(oldWriting.getName()));
     }
 
 
@@ -124,5 +132,9 @@ public class AuthorCheckerImpl implements AuthorChecker {
 
     Writing findSameWriting(Collection<Writing> writings, Writing baseWriting) {
         return writings.stream().filter((w) -> w.getLink().equals(baseWriting.getLink())).findFirst().orElse(null);
+    }
+
+    boolean isPresentByLink(Collection<Writing> writings, Writing baseWriting) {
+        return writings.stream().filter((w) -> w.getLink().equals(baseWriting.getLink())).findFirst().isPresent();
     }
 }

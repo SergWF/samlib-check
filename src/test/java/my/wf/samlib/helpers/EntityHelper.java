@@ -70,20 +70,11 @@ public class EntityHelper {
     }
 
     public static Writing findByLink(String link, Collection<Writing> writings){
-        for(Writing writing: writings){
-            if(writing.getLink().equals(link)){
-                return writing;
-            }
-        }
-        return null;
+        return writings.stream().filter(writing -> writing.getLink().equals(link)).findFirst().get();
     }
+
     public static Writing findByName(String name, Collection<Writing> writings){
-        for(Writing writing: writings){
-            if(writing.getName().equals(name)){
-                return writing;
-            }
-        }
-        return null;
+        return writings.stream().filter(writing -> writing.getName().equals(name)).findFirst().get();
     }
 
     public static String loadPage(String path) throws IOException {

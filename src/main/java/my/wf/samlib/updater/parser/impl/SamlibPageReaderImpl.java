@@ -4,6 +4,7 @@ import my.wf.samlib.exception.PageReadException;
 import my.wf.samlib.updater.parser.SamlibPageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,6 +14,7 @@ import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class SamlibPageReaderImpl implements SamlibPageReader {
     private static  final Logger logger = LoggerFactory.getLogger(SamlibPageReaderImpl.class);
     public static final String DEFAULT_ENCODING = "windows-1251";

@@ -129,10 +129,6 @@ public class Writing extends BaseEntity implements LastDate {
         if(o == null || getClass() != o.getClass()) {
             return false;
         }
-        if(!super.equals(o)) {
-            return false;
-        }
-
         Writing writing = (Writing) o;
 
         if(!getLink().equals(writing.getLink())) {
@@ -144,8 +140,7 @@ public class Writing extends BaseEntity implements LastDate {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + getLink().hashCode();
+        int result = null == getLink() ? super.hashCode() :  31 * getLink().hashCode();
         result = 31 * result + (getAuthor() != null ? getAuthor().hashCode() : 0);
         return result;
     }

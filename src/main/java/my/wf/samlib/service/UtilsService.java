@@ -1,7 +1,7 @@
 package my.wf.samlib.service;
 
 import my.wf.samlib.model.dto.StatisticDto;
-import my.wf.samlib.model.statistic.UpdateStatistic;
+import my.wf.samlib.model.dto.UpdatingInfo;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -11,7 +11,7 @@ public interface UtilsService {
 
     StatisticDto getStatistic();
 
-    UpdateStatistic getUpdatingState();
+    UpdatingInfo getUpdatingState();
 
     Integer importAuthors(Collection<String> authorLinks) throws IOException;
 

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -75,8 +76,8 @@ public class AdminTest {
                 .then()
                 .log().everything(true)
                 .statusCode(HttpStatus.OK.value())
-                .contentType("application/octet-stream;charset=UTF-8")
-//                .content("filename", Matchers.equalTo("export-" + new SimpleDateFormat("yyyyMMddHHmm").format(new Date())+ "json"))
+                .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                //.content("filename", Matchers.equalTo("export-" + new SimpleDateFormat("yyyyMMddHHmm").format(new Date())+ "json"))
                 .log().everything(true);
     }
 

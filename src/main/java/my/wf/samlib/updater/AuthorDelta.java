@@ -15,25 +15,25 @@ public class AuthorDelta {
     private Set<Writing> updatedWritings = new HashSet<>();
     private Set<Writing> deletedWritings = new HashSet<>();
 
-    public AuthorDelta(Author author) {
+    public AuthorDelta(Author oldAuthor, String newAuthorName, Set<Writing> newWritings, Set<Writing> updatedWritings, Set<Writing> deleted) {
         this.timestamp = LocalDateTime.now();
-        this.author = author;
+        this.author = oldAuthor;
+        this.authorName = newAuthorName;
+        this.newWritings.addAll(newWritings);
+        this.updatedWritings.addAll(updatedWritings);
+        this.deletedWritings.addAll(deleted);
     }
 
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
     public Author getAuthor() {
         return author;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public String getAuthorName() {
+        return authorName;
     }
 
     public Set<Writing> getNewWritings() {

@@ -17,7 +17,7 @@ public abstract class BaseEntity{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseEntity)) return false;
+        if (!(BaseEntity.class.isAssignableFrom(o.getClass()))) return false;
 
         BaseEntity that = (BaseEntity) o;
         if(id != null){

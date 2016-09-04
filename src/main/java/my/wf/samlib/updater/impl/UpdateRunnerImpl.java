@@ -120,7 +120,7 @@ public class UpdateRunnerImpl implements UpdateRunner {
         author = authorService.findAuthor(author.getId());
         AuthorChecker authorChecker = authorCheckerFactory.getAuthorChecker();
         AuthorDelta delta = authorChecker.checkAuthorUpdates(author, checkDate);
-        author = authorChecker.applyChanges(delta);
+        author = authorChecker.applyDelta(delta);
         authorService.saveAuthor(author);
         return delta;
     }

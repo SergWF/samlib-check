@@ -9,5 +9,5 @@ public interface AuthorChecker {
 
     AuthorDelta checkAuthorUpdates(Author author, LocalDateTime checkDate);
 
-    Author applyChanges(AuthorDelta delta);
+    Author applyDelta(AuthorDelta delta);
 }

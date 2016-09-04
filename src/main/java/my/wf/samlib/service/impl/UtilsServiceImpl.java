@@ -1,7 +1,7 @@
 package my.wf.samlib.service.impl;
 
 import my.wf.samlib.model.dto.StatisticDto;
-import my.wf.samlib.model.statistic.UpdateStatistic;
+import my.wf.samlib.model.dto.UpdatingInfo;
 import my.wf.samlib.service.AuthorService;
 import my.wf.samlib.service.UtilsService;
 import my.wf.samlib.updater.UpdateRunner;
@@ -26,6 +26,7 @@ public class UtilsServiceImpl implements UtilsService {
 
     @Override
     public StatisticDto getStatistic() {
+
         return new StatisticDto(
                 authorService.getAllAuthorsCount(),
                 authorService.getAllAuthorsCount(),
@@ -35,7 +36,7 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public UpdateStatistic getUpdatingState() {
+    public UpdatingInfo getUpdatingState() {
         return updateRunner.getState();
     }
 
